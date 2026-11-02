@@ -39,6 +39,24 @@ cd backend
 Open http://127.0.0.1:8000/login/ — UI defaults to Persian / RTL
 (`lang="fa" dir="rtl"`), with English localization prepared via Django i18n.
 
+## Quick start (standalone desktop mode)
+
+The offline-first local installation (Sprint 09): Waitress + SQLite in
+a per-user data directory, no development server, no internet needed.
+
+```bash
+.venv/bin/python launcher/accountix_launcher.py
+```
+
+The launcher backs up any existing database, migrates, starts the app
+on http://127.0.0.1:8765 and opens your browser. Data lives outside the
+install directory (`~/.local/share/accountix` on Linux,
+`%LOCALAPPDATA%\Accountix` on Windows; override with
+`ACCOUNTIX_DATA_DIR`). A frozen bundle can be built with
+`scripts/build_linux.sh` / `scripts/build_windows.bat`. Full details:
+`docs/deployment/LOCAL.md`; upgrades and recovery:
+`docs/deployment/UPGRADE.md`.
+
 ## Tests
 
 ```bash
