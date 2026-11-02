@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>طرف‌حساب‌ها</h1>
+{% if parties %}<div class="card"><table><tr><th>شرکت</th><th>کد</th><th>نام</th><th>نوع</th><th>شناسه مالیاتی</th><th>تلفن</th><th>فعال</th></tr>
+{% for p in parties %}<tr><td>{{ p.company.name }}</td><td>{{ p.code }}</td><td>{{ p.name }}</td><td>{{ p.get_kind_display }}</td><td>{{ p.tax_id|default:"—" }}</td><td>{{ p.phone|default:"—" }}</td><td>{{ p.is_active }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">طرف‌حسابی ثبت نشده است.</p>{% endif %}{% endblock %}
