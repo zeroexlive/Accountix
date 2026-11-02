@@ -1,5 +1,11 @@
 {% extends "base.html" %}{% block content %}
 <h1>چک‌ها</h1>
+<div class="card"><form method="get">
+<label>وضعیت</label><select name="status"><option value="">همه</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>جهت</label><select name="direction"><option value="">همه</option>{% for v,l in directions %}<option value="{{ v }}" {% if request.GET.direction == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>سررسید از</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>سررسید تا</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<button type="submit">پالایش</button></form></div>
 {% if cheques %}<div class="card"><table><tr><th>شماره</th><th>جهت</th><th>بانک</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr>
 {% for c in cheques %}<tr><td>{{ c.cheque_number }}</td><td>{{ c.direction }}</td><td>{{ c.bank_name }}</td><td>{{ c.amount }}</td><td>{{ c.due_date }}</td><td>{{ c.status }}</td></tr>{% endfor %}
-</table></div>{% else %}<p class="empty">چکی ثبت نشده است.</p>{% endif %}{% endblock %}
+</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">چکی یافت نشد.</p>{% endif %}{% endblock %}
