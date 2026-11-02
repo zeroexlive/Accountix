@@ -755,3 +755,64 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
         journal_entry_id=str(journal_entry.id) if journal_entry else "",
     )
     return ret
+
+
+@transaction.atomic
+def reverse_sales_return(sales_return, *, user=None, reason=""):
+    """Reverse a POSTED sales return (Sprint 07): reverse its journals
+    (revenue share, then COGS share) and its stock receipt — the goods
+    leave the warehouse again — in one transaction, then flip the return
+    to REVERSED. If the restored goods were already sold onward, the
+    stock reversal guard rejects the whole reversal.
+
+    ``returned_quantity`` sums POSTED returns only, so the flip restores
+    the line's returnable quantity.
+    """
+    from apps.audit.services import record_event
+    from apps.sales.models import SalesReturn
+
+    ret = SalesReturn.objects.select_for_update().get(pk=sales_return.pk)
+    if ret.status == SalesReturn.Status.REVERSED:
+        raise ValidationError("This sales return has already been reversed.")
+    if ret.status != SalesReturn.Status.POSTED:
+        raise ValidationError("Only a POSTED sales return can be reversed.")
+
+    if ret.cogs_journal_entry_id is not None:
+        from apps.accounting.services import reverse_journal_entry
+
+        reverse_journal_entry(
+            entry=ret.cogs_journal_entry,
+            user=user,
+            reason=reason,
+            reversal_date=ret.return_date,
+        )
+    if ret.journal_entry_id is not None:
+        from apps.accounting.services import reverse_journal_entry
+
+        reverse_journal_entry(
+            entry=ret.journal_entry,
+            user=user,
+            reason=reason,
+            reversal_date=ret.return_date,
+        )
+    if ret.stock_document_id is not None:
+        from apps.inventory import services as inventory_services
+
+        inventory_services.reverse_stock_document(
+            ret.stock_document,
+            user=user,
+            reason=reason or f"Sales return {ret.return_number} reversed",
+            reversal_date=ret.return_date,
+        )
+
+    ret.status = SalesReturn.Status.REVERSED
+    ret.save()
+    record_event(
+        action="sales_return.reversed",
+        entity_type="SalesReturn",
+        company=ret.company,
+        user=user,
+        entity_id=ret.id,
+        reason=reason,
+    )
+    return ret
