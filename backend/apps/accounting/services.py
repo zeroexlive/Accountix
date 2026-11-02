@@ -69,8 +69,24 @@ def resolve_fiscal_period(company, entry_date):
     return period
 
 
+def _resolve_party(company, raw_party, idx):
+    """Resolve the optional subledger party tag of a line (ADR-015)."""
+    if raw_party is None:
+        return None
+    from apps.parties.models import Party
+
+    party = (
+        raw_party if isinstance(raw_party, Party) else Party.objects.filter(pk=raw_party).first()
+    )
+    if party is None:
+        raise ValidationError(f"Line {idx + 1}: party not found.")
+    if party.company_id != company.id:
+        raise ValidationError(f"Line {idx + 1}: party belongs to a different company.")
+    return party
+
+
 def _validate_lines(company, raw_lines):
-    """Validate raw line dicts and return [(account, debit, credit, desc)]."""
+    """Validate raw line dicts and return [(account, debit, credit, desc, party)]."""
     from apps.accounting.models import Account
 
     if raw_lines is None or len(raw_lines) < 2:
@@ -101,7 +117,8 @@ def _validate_lines(company, raw_lines):
             raise ValidationError(f"Line {idx + 1}: a line cannot be zero on both sides.")
         total_debit += debit
         total_credit += credit
-        validated.append((account, debit, credit, raw.get("description", "")))
+        party = _resolve_party(company, raw.get("party"), idx)
+        validated.append((account, debit, credit, raw.get("description", ""), party))
     if total_debit != total_credit:
         raise ValidationError(
             f"Journal entry is not balanced: debit {total_debit} != credit {total_credit}."
@@ -156,9 +173,14 @@ def post_journal_entry(
         source_id=source_id,
         idempotency_key=key,
     )
-    for account, debit, credit, line_desc in validated:
+    for account, debit, credit, line_desc, party in validated:
         JournalLine.objects.create(
-            entry=entry, account=account, debit=debit, credit=credit, description=line_desc
+            entry=entry,
+            account=account,
+            debit=debit,
+            credit=credit,
+            description=line_desc,
+            party=party,
         )
     entry.status = JournalEntry.Status.POSTED
     entry.posted_by = user
@@ -224,6 +246,7 @@ def reverse_journal_entry(*, entry, user=None, reason="", reversal_date=None):
             debit=line.credit,
             credit=line.debit,
             description=line.description,
+            party_id=line.party_id,  # keep the subledger tag so balances net out
         )
     reversal.status = JournalEntry.Status.POSTED
     reversal.posted_by = user
