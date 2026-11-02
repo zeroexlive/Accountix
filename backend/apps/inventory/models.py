@@ -245,6 +245,162 @@ class StockMovement(TimeStampedUUIDModel):
         return f"{self.product.sku} {self.quantity_delta} @ {self.warehouse.code}"
 
 
+_COUNT_MUTABLE_FIELDS = {
+    "id",
+    "created_at",
+    "updated_at",
+    "company_id",
+    "warehouse_id",
+    "count_date",
+    "description",
+    "status",
+    "stock_document_id",
+    "journal_entry_id",
+    "reversal_of_id",
+    "posted_by_id",
+    "posted_at",
+}
+
+
+class InventoryCount(TimeStampedUUIDModel):
+    """Physical stock count (Sprint 07).
+
+    Lines snapshot the system quantity (the derived ledger balance) at
+    creation time and record the counted quantity; the difference is the
+    variance posted as an ADJUSTMENT stock document. A count assumes its
+    warehouse is frozen between creation and posting — the posting
+    service rejects the count if the balance moved in between.
+    """
+
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Draft"
+        POSTED = "POSTED", "Posted"
+        REVERSED = "REVERSED", "Reversed"
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="inventory_counts")
+    warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.PROTECT, related_name="inventory_counts"
+    )
+    count_date = models.DateField()
+    description = models.CharField(max_length=500, blank=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
+    stock_document = models.ForeignKey(
+        StockDocument,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inventory_counts",
+    )
+    journal_entry = models.ForeignKey(
+        "accounting.JournalEntry",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inventory_counts",
+    )
+    reversal_of = models.ForeignKey(
+        "self",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="reversal_counts",
+    )
+    posted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="posted_inventory_counts",
+    )
+    posted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["count_date", "created_at"]
+
+    @property
+    def is_reversal(self) -> bool:
+        return self.reversal_of_id is not None
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = InventoryCount.objects.filter(pk=self.pk).first()
+            if old is not None and old.status in _IMMUTABLE_DOC_STATUSES:
+                allowed = (
+                    old.status == "POSTED"
+                    and self.status == "REVERSED"
+                    and all(
+                        getattr(old, f) == getattr(self, f)
+                        for f in _COUNT_MUTABLE_FIELDS - {"status"}
+                    )
+                )
+                if not allowed:
+                    raise ValidationError(
+                        "Posted inventory counts are immutable; reverse the count instead."
+                    )
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.status in _IMMUTABLE_DOC_STATUSES:
+            raise ValidationError("Posted inventory counts cannot be deleted.")
+        return super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"Count {self.count_date} @ {self.warehouse.code} [{self.status}]"
+
+
+class InventoryCountLine(TimeStampedUUIDModel):
+    """One counted product. Quantities are in the product's base unit.
+    ``system_qty`` is the derived ledger balance snapshot taken when the
+    count was created; ``variance`` is counted − system."""
+
+    count = models.ForeignKey(InventoryCount, on_delete=models.CASCADE, related_name="lines")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="count_lines")
+    system_qty = models.DecimalField(max_digits=19, decimal_places=3, default=0)
+    counted_qty = models.DecimalField(max_digits=19, decimal_places=3)
+    # Needed to value a positive variance for a product with no existing
+    # stock (the adjustment rule); ignored otherwise (MWAC is used).
+    unit_cost = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(counted_qty__gte=0), name="count_line_counted_non_negative"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(system_qty__gte=0), name="count_line_system_non_negative"
+            ),
+            models.UniqueConstraint(
+                fields=["count", "product"], name="uniq_product_per_inventory_count"
+            ),
+        ]
+
+    @property
+    def variance(self):
+        return self.counted_qty - self.system_qty
+
+    def _guard_mutable(self):
+        if self.count_id:
+            status = (
+                InventoryCount.objects.filter(pk=self.count_id)
+                .values_list("status", flat=True)
+                .first()
+            )
+            if status in _IMMUTABLE_DOC_STATUSES:
+                raise ValidationError("Lines of a posted inventory count are immutable.")
+
+    def save(self, *args, **kwargs):
+        self._guard_mutable()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self._guard_mutable()
+        return super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.sku}: system {self.system_qty} / counted {self.counted_qty}"
+
+
 class StockDocumentReversal(TimeStampedUUIDModel):
     """Dedicated reversal record, mirroring JournalReversal (ADR-009 pattern)."""
 
