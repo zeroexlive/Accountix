@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Legend: **[S01]/[S02]** = implemented with migrations in that sprint.
+Legend: **[S01]/[S02]/[S03]** = implemented with migrations in that sprint.
 **[planned]** = full target schema from the master prompt §13.2; no model
 exists yet. JournalEntry/JournalLine/JournalReversal moved to [S02] —
 implemented 2026-11-02; their relations above lost the "[planned]" prefix
@@ -25,18 +25,16 @@ erDiagram
     Company ||--o{ Party : "[planned] owns"
     Party ||--o{ PartyContact : "[planned]"
     Party ||--o{ PartyAddress : "[planned]"
-    Company ||--o{ ProductCategory : "[planned]"
-    ProductCategory ||--o{ Product : "[planned]"
-    Unit ||--o{ ProductUnitConversion : "[planned]"
-    Product ||--o{ ProductUnitConversion : "[planned]"
+    Company ||--o{ ProductCategory : owns
+    ProductCategory ||--o{ Product : contains
+    Unit ||--o{ ProductUnitConversion : converts
+    Product ||--o{ ProductUnitConversion : has
     Product ||--o{ ProductPrice : "[planned]"
-    Company ||--o{ Warehouse : "[planned]"
-    Warehouse ||--o{ StockMovement : "[planned]"
-    Product ||--o{ StockMovement : "[planned]"
-    StockDocument ||--o{ StockDocumentLine : "[planned]"
-    StockDocument ||--o{ StockMovement : "[planned] generates"
-    Warehouse ||--o{ StockBalance : "[planned]"
-    Product ||--o{ StockBalance : "[planned]"
+    Company ||--o{ Warehouse : owns
+    Warehouse ||--o{ StockMovement : holds
+    Product ||--o{ StockMovement : moves
+    StockDocument ||--o{ StockDocumentLine : has
+    StockDocument ||--o{ StockMovement : generates
     InventoryCount ||--o{ InventoryCountLine : "[planned]"
     FiscalPeriod ||--o{ JournalEntry : "[planned] period of"
     JournalEntry ||--o{ JournalLine : "[planned]"
@@ -68,9 +66,16 @@ erDiagram
     JournalEntry { uuid id PK "[S02]"; uuid company FK; uuid fiscal_period FK; date entry_date; string status "DRAFT/VALIDATED/POSTED/REVERSED"; string idempotency_key "UK per company, partial"; uuid reversal_of FK "nullable" }
     JournalLine { uuid id PK "[S02]"; uuid entry FK; uuid account FK; decimal debit; decimal credit; "checks: >=0, one side only, non-zero" x }
     JournalReversal { uuid id PK "[S02]"; uuid original_entry FK "OneToOne"; uuid reversal_entry FK "OneToOne"; uuid reversed_by FK "nullable"; string reason }
-    Product { uuid id PK "[planned]"; string sku "UK per company"; string barcode; bool is_stockable }
-    StockMovement { uuid id PK "[planned]"; uuid warehouse FK; uuid product FK; decimal quantity_change; decimal value_change }
-    StockBalance { uuid id PK "[planned]"; uuid warehouse FK; uuid product FK; "UK(warehouse,product)" x }
+    Product { uuid id PK "[S03]"; uuid company FK; string sku "UK per company"; string barcode; bool is_stockable; bool is_active; decimal min_stock_level; uuid base_unit FK; uuid category FK "nullable" }
+    Unit { uuid id PK "[S03]"; uuid company FK; string code "UK per company"; string name }
+    ProductCategory { uuid id PK "[S03]"; uuid company FK; uuid parent FK "nullable"; string code "UK per company" }
+    ProductUnitConversion { uuid id PK "[S03]"; uuid product FK; uuid from_unit FK; uuid to_unit FK; decimal factor "check > 0" }
+    Warehouse { uuid id PK "[S03]"; uuid company FK; string code "UK per company"; bool is_active }
+    StockDocument { uuid id PK "[S03]"; uuid company FK; uuid warehouse FK; uuid destination_warehouse FK "nullable, transfers"; string doc_type "RECEIPT/ISSUE/TRANSFER/ADJUSTMENT"; string status "DRAFT/POSTED/REVERSED"; uuid reversal_of FK "nullable"; uuid journal_entry FK "nullable, GL opt-in" }
+    StockDocumentLine { uuid id PK "[S03]"; uuid document FK; uuid product FK; uuid unit FK; decimal quantity "signed only for ADJUSTMENT"; decimal unit_cost "nullable" }
+    StockMovement { uuid id PK "[S03]"; uuid company FK; uuid warehouse FK; uuid product FK; decimal quantity_delta "signed, base unit"; decimal unit_cost "MWAC at movement"; decimal value_delta "signed"; uuid document FK; "append-only (model guards)" x }
+    StockDocumentReversal { uuid id PK "[S03]"; uuid original_document FK "OneToOne"; uuid reversal_document FK "OneToOne" }
+    StockBalance { string note "NOT A TABLE - derived from StockMovement in inventory.reporting (ADR-012)" }
     SalesInvoice { uuid id PK "[planned]"; uuid party FK; string posting_status; string payment_status }
     Payment { uuid id PK "[planned]"; decimal amount; date payment_date }
     PaymentAllocation { uuid id PK "[planned]"; uuid payment FK; decimal amount }
@@ -85,4 +90,4 @@ erDiagram
   constraint for all pairs; it is enforced by application services +
   tests (Sprint 01 covers account parent and fiscal period company).
 - Transaction boundaries: posting operations (journal, invoice, stock)
-  will each be one `atomic` service call — Planned.
+  are each one `atomic` service call (journal since S02, stock since S03).
