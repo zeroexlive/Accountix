@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>دریافت‌ها و پرداخت‌ها</h1>
+{% if payments %}<div class="card"><table><tr><th>تاریخ</th><th>جهت</th><th>طرف‌حساب</th><th>روش</th><th>مبلغ</th><th>وضعیت</th></tr>
+{% for p in payments %}<tr><td>{{ p.payment_date }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td>{{ p.amount }}</td><td>{{ p.status }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">دریافت یا پرداختی ثبت نشده است.</p>{% endif %}{% endblock %}
