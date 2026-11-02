@@ -30,6 +30,10 @@
     <a href="{% url 'sales_invoice_list' %}">فاکتورهای فروش</a>
     <a href="{% url 'accounts_receivable' %}">مطالبات از مشتریان</a>
     <a href="{% url 'customer_statement' %}">صورت‌حساب مشتری</a>
+    <a href="{% url 'treasury_account_list' %}">حساب‌های خزانه</a>
+    <a href="{% url 'payment_list' %}">دریافت و پرداخت</a>
+    <a href="{% url 'cheque_list' %}">چک‌ها</a>
+    <a href="{% url 'treasury_open_items' %}">اقلام باز</a>
   </nav>
   {% if user.is_authenticated %}
   <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">خروج ({{ user.username }})</button></form>
