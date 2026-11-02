@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}اکانتیکس{% endblock %}</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+{# Sprint 01 UI note: styling is a hand-written minimal CSS design system in
+   static/css/app.css so the app works fully offline. Tailwind integration is
+   planned (see CURRENT_STATE.md) — no CDN is used, so nothing is faked. #}
+{# HTMX/Alpine are NOT loaded in Sprint 01: no vendored copies yet, and a CDN
+   would break the offline-first claim. Interactivity is server-rendered for now. #}
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{% url 'dashboard' %}">اکانتیکس</a>
+  <nav>
+    <a href="{% url 'dashboard' %}">داشبورد</a>
+    <a href="{% url 'company_list' %}">شرکت‌ها</a>
+    <a href="{% url 'fiscal_year_list' %}">سال‌های مالی</a>
+    <a href="{% url 'account_list' %}">حساب‌ها</a>
+    <a href="{% url 'journal_list' %}">دفتر روزنامه</a>
+    <a href="{% url 'trial_balance' %}">تراز آزمایشی</a>
+  </nav>
+  {% if user.is_authenticated %}
+  <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">خروج ({{ user.username }})</button></form>
+  {% endif %}
+</header>
+<main class="container">
+  {% if messages %}{% for m in messages %}<p class="msg">{{ m }}</p>{% endfor %}{% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
