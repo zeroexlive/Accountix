@@ -1,8 +1,12 @@
 # Entity Relationship Diagram
 
-Legend: **[S01]** = implemented with migrations in Sprint 01.
+Legend: **[S01]/[S02]** = implemented with migrations in that sprint.
 **[planned]** = full target schema from the master prompt §13.2; no model
-exists yet. All planned entities will carry `id (UUID PK)`, `created_at`,
+exists yet. JournalEntry/JournalLine/JournalReversal moved to [S02] —
+implemented 2026-11-02; their relations above lost the "[planned]" prefix
+accordingly in the diagram relations for FiscalPeriod/Account (textual
+markers in relation labels were simplified — the entity blocks are the
+source of truth for status). All planned entities will carry `id (UUID PK)`, `created_at`,
 `updated_at`, and a `company` FK unless noted. Monetary fields are Decimal.
 
 ```mermaid
@@ -61,8 +65,9 @@ erDiagram
     FiscalPeriod { uuid id PK; uuid company FK; uuid fiscal_year FK; date start_date; date end_date; string status }
     Account { uuid id PK; uuid company FK; uuid parent FK "nullable"; string code "UK per company"; string account_type; string normal_balance; bool is_postable; bool is_active }
     AuditEvent { uuid id PK; uuid company FK "nullable"; uuid user FK "nullable"; string action; string entity_type; string entity_id; json metadata }
-    JournalEntry { uuid id PK "[planned]"; uuid company FK; uuid period FK; date entry_date; string status; uuid reversal_of FK "nullable" }
-    JournalLine { uuid id PK "[planned]"; uuid entry FK; uuid account FK; decimal debit; decimal credit }
+    JournalEntry { uuid id PK "[S02]"; uuid company FK; uuid fiscal_period FK; date entry_date; string status "DRAFT/VALIDATED/POSTED/REVERSED"; string idempotency_key "UK per company, partial"; uuid reversal_of FK "nullable" }
+    JournalLine { uuid id PK "[S02]"; uuid entry FK; uuid account FK; decimal debit; decimal credit; "checks: >=0, one side only, non-zero" x }
+    JournalReversal { uuid id PK "[S02]"; uuid original_entry FK "OneToOne"; uuid reversal_entry FK "OneToOne"; uuid reversed_by FK "nullable"; string reason }
     Product { uuid id PK "[planned]"; string sku "UK per company"; string barcode; bool is_stockable }
     StockMovement { uuid id PK "[planned]"; uuid warehouse FK; uuid product FK; decimal quantity_change; decimal value_change }
     StockBalance { uuid id PK "[planned]"; uuid warehouse FK; uuid product FK; "UK(warehouse,product)" x }
