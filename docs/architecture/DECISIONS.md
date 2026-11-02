@@ -273,3 +273,34 @@ codes or names (the type taxonomy has no COGS class): callers designate
 COGS accounts explicitly via `cogs_accounts=`; without designation all
 expenses group together and gross profit equals net income. Amounts are
 presented positive on their normal-balance side in both statements.
+
+## ADR-031 — Reporting is a derived presentation layer; the dashboard reuses the core route (accepted, Sprint 08)
+The `reporting` app is installed with **no models and no migrations**: it
+is a presentation/aggregation layer. Its dashboard service composes the
+owning apps' reporting functions (accounting income statement, inventory
+valuation/low-stock, treasury balances/open items/cheques) and adds only
+two aggregations of its own, both derived from journal lines: (a) AR/AP
+subledger totals summed per party over party-tagged lines on ASSET /
+LIABILITY accounts respectively (ADR-015 aggregated — with a single
+control account they equal the per-account subledger totals exactly,
+asserted by test); (b) posted-invoice totals for a period. The one
+dashboard route stays in `core` (the Sprint 01 URL): the core view
+delegates figure computation to `reporting.services.dashboard_data`, so
+there is exactly one dashboard. The dashboard passes `cogs_accounts=[]`
+to the income statement: net income is unchanged (designated COGS
+accounts are expense-type and remain inside expenses); the dashboard
+shows no gross-profit figure — gross profit appears only on the income
+statement page, where the user designates COGS accounts (ADR-030).
+
+## ADR-032 — Exports are CSV + XLSX; PDF is print-to-PDF, no PDF stack (accepted, Sprint 08)
+Exports use the stdlib `csv` module and `openpyxl` (added as a pinned
+project dependency, Apache-2.0, already the de-facto spreadsheet
+library) for trial balance and stock balances. No server-side PDF
+library is added in this sprint: PDF reports would add a heavy
+dependency (and, for Persian RTL text, a font/shaping problem that a
+browser already solves). Instead, business documents (sales/purchase
+invoices, customer/supplier statements) ship as dedicated print
+templates on a print base layout with `@media print` CSS, and the
+browser's print-to-PDF is the supported PDF path. Revisit a native PDF
+engine only with a requirement for unattended/batch PDF generation,
+and evaluate Arabic-script text shaping explicitly at that point.
