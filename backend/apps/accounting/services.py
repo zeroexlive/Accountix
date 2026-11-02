@@ -270,3 +270,318 @@ def reverse_journal_entry(*, entry, user=None, reason="", reversal_date=None):
         reason=reason,
     )
     return reversal
+
+
+# ---------------------------------------------------------------------------
+# Sprint 07 — opening balances
+# ---------------------------------------------------------------------------
+
+
+def _parse_opening_line(company, raw, idx):
+    """Normalize one opening-balance line (dict or tuple) and validate the
+    account/party/amount shape. Returns (account, debit, credit, party)."""
+    from apps.accounting.models import Account
+
+    if isinstance(raw, dict):
+        account = raw.get("account")
+        debit = raw.get("debit", ZERO)
+        credit = raw.get("credit", ZERO)
+        party = raw.get("party")
+    elif isinstance(raw, (list, tuple)) and len(raw) in (3, 4):
+        account, debit, credit = raw[0], raw[1], raw[2]
+        party = raw[3] if len(raw) == 4 else None
+    else:
+        raise ValidationError(f"Opening line {idx + 1}: expected a dict or tuple.")
+    if not isinstance(account, Account):
+        account = Account.objects.filter(pk=account).first()
+        if account is None:
+            raise ValidationError(f"Opening line {idx + 1}: account not found.")
+    if account.company_id != company.id:
+        raise ValidationError(f"Opening line {idx + 1}: account belongs to a different company.")
+    if not account.is_postable:
+        raise ValidationError(f"Opening line {idx + 1}: account {account.code} is not postable.")
+    if not account.is_active:
+        raise ValidationError(f"Opening line {idx + 1}: account {account.code} is inactive.")
+    debit = _to_decimal(debit, f"Opening line {idx + 1} debit")
+    credit = _to_decimal(credit, f"Opening line {idx + 1} credit")
+    if debit < ZERO or credit < ZERO:
+        raise ValidationError(f"Opening line {idx + 1}: amounts cannot be negative.")
+    if debit > ZERO and credit > ZERO:
+        raise ValidationError(f"Opening line {idx + 1}: a line is either debit or credit.")
+    if debit == ZERO and credit == ZERO:
+        raise ValidationError(f"Opening line {idx + 1}: a line cannot be zero on both sides.")
+    party = _resolve_party(company, party, idx)
+    return account, debit, credit, party
+
+
+@transaction.atomic
+def post_opening_balance(*, company, fiscal_year, lines, offset_account, user=None):
+    """Post the opening balance of a fiscal year as ONE journal entry.
+
+    The entry is dated the first day of the fiscal year's FIRST period
+    (which must be OPEN) and carries source_type ``opening_balance`` with
+    idempotency key ``opening-balance:<fiscal_year id>`` — re-posting
+    returns the existing entry unchanged. The caller supplies the offset
+    (retained earnings / opening-balance equity) account; the service
+    adds one offset line so the constructed entry balances exactly:
+    the excess of debits becomes a credit to the offset account and vice
+    versa. No account is hardcoded.
+    """
+    from apps.accounting.models import Account, JournalEntry
+
+    key = f"opening-balance:{fiscal_year.id}"
+    existing = JournalEntry.objects.filter(company=company, idempotency_key=key).first()
+    if existing is not None:
+        return existing
+
+    if fiscal_year.company_id != company.id:
+        raise ValidationError("Fiscal year belongs to a different company.")
+    period = fiscal_year.periods.order_by("start_date", "created_at").first()
+    if period is None:
+        raise ValidationError("The fiscal year has no periods.")
+    if period.company_id != company.id:
+        raise ValidationError("Fiscal period belongs to a different company.")
+    if period.status != "OPEN":
+        raise ValidationError(
+            "The first fiscal period is closed; opening balance cannot be posted."
+        )
+
+    if not isinstance(offset_account, Account):
+        offset_account = Account.objects.filter(pk=offset_account).first()
+        if offset_account is None:
+            raise ValidationError("Offset account not found.")
+    if offset_account.company_id != company.id:
+        raise ValidationError("Offset account belongs to a different company.")
+    if not offset_account.is_postable or not offset_account.is_active:
+        raise ValidationError("Offset account is not postable/active.")
+
+    if not lines:
+        raise ValidationError("An opening balance needs at least one line.")
+    parsed = [_parse_opening_line(company, raw, idx) for idx, raw in enumerate(lines)]
+    total_debit = sum((p[1] for p in parsed), ZERO)
+    total_credit = sum((p[2] for p in parsed), ZERO)
+
+    journal_lines = [
+        {"account": account, "debit": debit, "credit": credit, "party": party}
+        for account, debit, credit, party in parsed
+    ]
+    diff = total_debit - total_credit
+    if diff > ZERO:
+        journal_lines.append({"account": offset_account, "credit": diff})
+    elif diff < ZERO:
+        journal_lines.append({"account": offset_account, "debit": -diff})
+    if len(journal_lines) < 2:
+        raise ValidationError("An opening balance needs at least two journal lines.")
+
+    return post_journal_entry(
+        company=company,
+        entry_date=period.start_date,
+        lines=journal_lines,
+        description=f"Opening balance — {fiscal_year.name}",
+        user=user,
+        source_type="opening_balance",
+        source_id=str(fiscal_year.id),
+        idempotency_key=key,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Sprint 07 — fiscal period closing / reopening
+# ---------------------------------------------------------------------------
+
+
+def _closing_entry_for_period(company, period):
+    """The currently POSTED closing entry of a period, if any. Closing
+    entries are tracked by (source_type, source_id) + the idempotency key
+    family ``closing:<period id>`` — no schema change on FiscalPeriod."""
+    from apps.accounting.models import JournalEntry
+
+    return (
+        JournalEntry.objects.filter(
+            company=company,
+            source_type="CLOSING",
+            source_id=str(period.id),
+            status=JournalEntry.Status.POSTED,
+        )
+        .order_by("created_at")
+        .first()
+    )
+
+
+@transaction.atomic
+def close_fiscal_period(*, company, period, retained_earnings, user=None):
+    """Close a fiscal period (Sprint 07).
+
+    Computes the period's revenue/expense balances from posted lines,
+    posts ONE closing entry dated the period's last day (key
+    ``closing:<period id>``) that zeroes every income-statement account
+    into the caller-supplied retained-earnings account, and only then
+    flips the period to CLOSED — after which the posting gate rejects
+    new postings into it. A period with no income-statement activity
+    closes without an entry. Returns the closing entry or None.
+    """
+    from django.db.models import Sum
+
+    from apps.accounting.models import Account, JournalEntry, JournalLine
+    from apps.audit.services import record_event
+    from apps.organizations.models import FiscalPeriod
+
+    period = FiscalPeriod.objects.select_for_update().get(pk=period.pk)
+    if period.company_id != company.id:
+        raise ValidationError("Fiscal period belongs to a different company.")
+    if period.status == FiscalPeriod.Status.CLOSED:
+        raise ValidationError("This fiscal period is already closed.")
+    if _closing_entry_for_period(company, period) is not None:
+        raise ValidationError("This fiscal period already has an active closing entry.")
+
+    if not isinstance(retained_earnings, Account):
+        retained_earnings = Account.objects.filter(pk=retained_earnings).first()
+        if retained_earnings is None:
+            raise ValidationError("Retained earnings account not found.")
+    if retained_earnings.company_id != company.id:
+        raise ValidationError("Retained earnings account belongs to a different company.")
+    if not retained_earnings.is_postable or not retained_earnings.is_active:
+        raise ValidationError("Retained earnings account is not postable/active.")
+
+    grouped = (
+        JournalLine.objects.filter(
+            entry__company=company,
+            entry__fiscal_period=period,
+            entry__status__in=[JournalEntry.Status.POSTED, JournalEntry.Status.REVERSED],
+            account__account_type__in=[Account.AccountType.REVENUE, Account.AccountType.EXPENSE],
+        )
+        .values("account_id")
+        .annotate(debit=Sum("debit"), credit=Sum("credit"))
+    )
+    balances = []
+    for row in grouped:
+        balance = (row["debit"] or ZERO) - (row["credit"] or ZERO)
+        if balance != ZERO:
+            balances.append((row["account_id"], balance))
+
+    closing_entry = None
+    if balances:
+        accounts = {
+            account.id: account
+            for account in Account.objects.filter(id__in=[b[0] for b in balances])
+        }
+        journal_lines = []
+        net_income = ZERO
+        for account_id, balance in balances:
+            account = accounts[account_id]
+            if balance > ZERO:  # net debit (expense-like): credit it to zero
+                journal_lines.append({"account": account, "credit": balance})
+            else:  # net credit (revenue-like): debit it to zero
+                journal_lines.append({"account": account, "debit": -balance})
+            net_income -= balance
+        if net_income > ZERO:
+            journal_lines.append({"account": retained_earnings, "credit": net_income})
+        elif net_income < ZERO:
+            journal_lines.append({"account": retained_earnings, "debit": -net_income})
+        prior_closings = JournalEntry.objects.filter(
+            company=company, source_type="CLOSING", source_id=str(period.id)
+        ).count()
+        key = (
+            f"closing:{period.id}"
+            if prior_closings == 0
+            else f"closing:{period.id}:{prior_closings + 1}"
+        )
+        closing_entry = post_journal_entry(
+            company=company,
+            entry_date=period.end_date,
+            lines=journal_lines,
+            description=f"Closing entry — {period.name}",
+            user=user,
+            source_type="CLOSING",
+            source_id=str(period.id),
+            idempotency_key=key,
+        )
+
+    period.status = FiscalPeriod.Status.CLOSED
+    period.save()
+    record_event(
+        action="fiscal_period.closed",
+        entity_type="FiscalPeriod",
+        company=company,
+        user=user,
+        entity_id=period.id,
+        closing_entry_id=str(closing_entry.id) if closing_entry else "",
+    )
+    return closing_entry
+
+
+@transaction.atomic
+def reopen_fiscal_period(*, company, period, user=None):
+    """Reopen a CLOSED period: flip it back to OPEN and reverse its
+    closing entry (never delete it), restoring the period's balances.
+    The flip happens inside the same transaction, before the reversal,
+    because the reversal entry is dated inside the period and the
+    posting gate requires the period to be OPEN. Returns the reversal
+    entry, or None when the period had no closing entry."""
+    from apps.audit.services import record_event
+    from apps.organizations.models import FiscalPeriod
+
+    period = FiscalPeriod.objects.select_for_update().get(pk=period.pk)
+    if period.company_id != company.id:
+        raise ValidationError("Fiscal period belongs to a different company.")
+    if period.status != FiscalPeriod.Status.CLOSED:
+        raise ValidationError("Only a CLOSED fiscal period can be reopened.")
+
+    closing_entry = _closing_entry_for_period(company, period)
+    period.status = FiscalPeriod.Status.OPEN
+    period.save()
+
+    reversal = None
+    if closing_entry is not None:
+        reversal = reverse_journal_entry(
+            entry=closing_entry,
+            user=user,
+            reason=f"Fiscal period {period.name} reopened",
+            reversal_date=period.end_date,
+        )
+    record_event(
+        action="fiscal_period.reopened",
+        entity_type="FiscalPeriod",
+        company=company,
+        user=user,
+        entity_id=period.id,
+        closing_entry_id=str(closing_entry.id) if closing_entry else "",
+    )
+    return reversal
+
+
+@transaction.atomic
+def close_fiscal_year(*, company, fiscal_year, retained_earnings, user=None):
+    """Close a fiscal year: close every still-OPEN period of the year via
+    ``close_fiscal_period`` (already-CLOSED periods are skipped), then
+    flip the year's status to CLOSED. Returns the closing entries that
+    were posted (periods without activity contribute none)."""
+    from apps.audit.services import record_event
+    from apps.organizations.models import FiscalYear
+
+    fiscal_year = FiscalYear.objects.select_for_update().get(pk=fiscal_year.pk)
+    if fiscal_year.company_id != company.id:
+        raise ValidationError("Fiscal year belongs to a different company.")
+
+    entries = []
+    for period in fiscal_year.periods.order_by("start_date", "created_at"):
+        if period.status == "CLOSED":
+            continue
+        entry = close_fiscal_period(
+            company=company, period=period, retained_earnings=retained_earnings, user=user
+        )
+        if entry is not None:
+            entries.append(entry)
+
+    if fiscal_year.status != FiscalYear.Status.CLOSED:
+        fiscal_year.status = FiscalYear.Status.CLOSED
+        fiscal_year.save()
+    record_event(
+        action="fiscal_year.closed",
+        entity_type="FiscalYear",
+        company=company,
+        user=user,
+        entity_id=fiscal_year.id,
+        closing_entries=str(len(entries)),
+    )
+    return entries
