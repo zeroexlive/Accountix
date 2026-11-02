@@ -95,6 +95,17 @@ def database_from_env() -> dict:
 DATABASES = {"default": database_from_env()}
 
 AUTH_USER_MODEL = "users.User"
+
+# Password validation (Sprint 10 security review): the four standard
+# Django validators. Before Sprint 10 this setting was absent entirely,
+# so Django's default (no validators) applied and any password — even
+# "password" — was accepted by create_user / admin / password change.
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
