@@ -4,12 +4,14 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-02): Sprints 01–03 done.** Authentication,
+> **Status (2026-11-02): Sprints 01–04 done.** Authentication,
 > companies/memberships, fiscal years/periods, chart of accounts, the
 > double-entry journal engine (posting/reversal, trial balance, general
-> ledger) and the inventory engine (catalog, warehouses, ledger-based
-> stock movements with moving weighted average cost) exist and are
-> tested (74 tests). Sales, purchasing, treasury and financial
+> ledger), the inventory engine (catalog, warehouses, ledger-based
+> stock movements with moving weighted average cost) and purchasing
+> (parties, purchase orders/invoices/returns posting into inventory and
+> payables, supplier subledger from journal lines) exist and are
+> tested (99 tests). Sales, treasury and financial
 > statements are **planned, not implemented** — see
 > `docs/engineering/CURRENT_STATE.md` and `docs/product/PRD.md`.
 
@@ -56,6 +58,6 @@ cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
 ## Layout
 
 Modular monolith: `backend/apps/` contains `core`, `users`, `organizations`,
-`accounting`, `audit` (implemented in Sprint 01) and placeholder packages for
-`parties`, `catalog`, `inventory`, `sales`, `purchases`, `treasury`,
-`reporting` (planned, not installed).
+`accounting`, `audit` (implemented in Sprint 01), `catalog`, `inventory`
+(Sprint 03) and `parties`, `purchases` (Sprint 04); placeholder packages
+remain for `sales`, `treasury`, `reporting` (planned, not installed).
