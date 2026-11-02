@@ -355,3 +355,23 @@ from a bad upgrade is `restore_db` of the pre-upgrade backup plus the
 previous version's launcher, as documented in
 `docs/deployment/UPGRADE.md`. No separate updater, migration service,
 or rollback machinery is built — the backup *is* the rollback.
+
+## ADR-037 — Concurrency hardening: warehouse-row locking for stock posting; savepoint retry for journal idempotency (accepted, Sprint 10)
+Sprint 10 ran the first real multi-threaded tests against PostgreSQL
+16.2 (the Sprint 02+ gate that had never been exercised). Two of three
+races failed before this ADR: (1) two concurrent sales invoices of 8
+units against 10 in stock BOTH posted — the derived-balance plan in
+`post_stock_document` was check-then-act with no common lock, so the
+ledger would have gone negative; (2) concurrent `post_journal_entry`
+calls with the same idempotency key were data-safe (the unique
+constraint held) but the loser received a raw `IntegrityError` instead
+of the winner's entry. Fixes, both small and local: stock posting now
+takes `select_for_update` on the warehouse row(s) — in pk order, so
+transfers cannot deadlock — before planning movements, serialising
+posting per warehouse under READ COMMITTED; journal posting wraps the
+entry creation in a nested atomic block (savepoint) when a key is
+present and, on `IntegrityError`, returns the existing entry.
+Allocations needed no fix: `allocate_payment` already locked the
+payment and invoice rows before checking totals, and its race test
+passed unchanged. All three concurrency tests now pass repeatedly on
+PostgreSQL and skip cleanly on SQLite.
