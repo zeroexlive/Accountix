@@ -63,7 +63,7 @@ backup/restore verification. v1.0 must satisfy
 
 ## 12. Future roadmap
 Phases 0–10 per the master prompt §23. Current position: Phase 0 done,
-Phase 1 (Sprint 01) done in this commit; Phase 2 next.
+Phases 1-5 (Sprints 01-05) done; the Internal MVP workflow of §10/§20.4 passes end-to-end as of Sprint 05. Phase 6 (treasury) next. Internal MVP is not commercial v1.0.
 
 ## 13. Security requirements
 Auth + company-level authorization, CSRF, secure sessions, env-only
