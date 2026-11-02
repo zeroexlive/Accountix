@@ -1,5 +1,12 @@
 {% extends "base.html" %}{% block content %}
 <h1>فاکتورهای خرید</h1>
+<div class="card"><form method="get">
+<label>وضعیت ثبت</label><select name="status"><option value="">همه</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>وضعیت پرداخت</label><select name="payment_status"><option value="">همه</option>{% for v,l in payment_statuses %}<option value="{{ v }}" {% if request.GET.payment_status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>جستجوی تأمین‌کننده</label><input type="text" name="q" value="{{ request.GET.q }}">
+<label>از تاریخ</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<button type="submit">پالایش</button></form></div>
 {% if invoices %}<div class="card"><table><tr><th>شماره</th><th>تاریخ</th><th>تأمین‌کننده</th><th>انبار</th><th>وضعیت</th><th>وضعیت پرداخت</th><th>مبلغ کل</th><th></th></tr>
 {% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.status }}</td><td>{{ inv.payment_status }}</td><td>{{ inv.grand_total }}</td><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">جزئیات</a></td></tr>{% endfor %}
-</table></div>{% else %}<p class="empty">فاکتور خریدی ثبت نشده است.</p>{% endif %}{% endblock %}
+</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">فاکتور خریدی یافت نشد.</p>{% endif %}{% endblock %}
