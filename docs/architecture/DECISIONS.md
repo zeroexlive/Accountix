@@ -153,3 +153,58 @@ back at ledger value, and no original-cost claim exists against a
 supplier's invoice line beyond what was paid — ADR-018 stands). The
 asymmetry is deliberate and documented here so it is not "fixed" by
 accident.
+
+
+## ADR-022 - Treasury accounts are one table with a kind discriminator (accepted, Sprint 06)
+Master prompt section 13.2 lists `CashAccount` and `BankAccount` as separate
+entities. They are modelled as ONE `TreasuryAccount` table with
+`kind` CASH/BANK (bank name/account number nullable, required by the service
+layer for BANK): the two are the same concept - a company store of money
+mapped to exactly one GL account - and payments need a single FK target.
+The GL link lives on the treasury account itself, which is what lets
+treasury post journals with no hardcoded account codes (ADR-011/013
+discipline extended from caller-supplied to data-supplied mapping).
+
+## ADR-023 - Allocations exist only on POSTED payments (accepted, Sprint 06)
+Money first, allocation second: a DRAFT payment allocates nothing. This
+keeps every allocation backed by a posted journal, makes reversal order
+unambiguous (allocations are voided before the journal is reversed), and
+matches how invoices allocate nothing before they post.
+
+## ADR-024 - payment_status is the sanctioned exception to invoice immutability (accepted, Sprint 06)
+Since Sprint 04/05, `payment_status` could not legally move: the posted-
+invoice guard allowed only the POSTED -> REVERSED flip. The guard in both
+sales and purchases now also permits a save on a POSTED invoice where
+`payment_status` is the ONLY changed field (ADR-016's promise that only
+treasury may move it is now enforceable rather than aspirational). The
+only writer is `treasury.services.recompute_payment_status`, which derives
+the value from ACTIVE allocations: UNPAID (0), PARTIALLY_PAID (0 < x <
+grand total), PAID (x == grand total). Returns are not affected (they
+carry no payment_status).
+
+## ADR-025 - Allocations are voided, never deleted (accepted, Sprint 06)
+Reversing a payment, bouncing/returning its cheque, or an explicit
+deallocation marks `PaymentAllocation` rows VOID with timestamp and
+reason; rows are never deleted and VOID rows never count toward totals.
+Allocation history is audit history.
+
+## ADR-026 - Cheque accounting model (accepted, Sprint 06)
+A received cheque is NOT cash: at receipt posting it debits a
+caller-supplied cheques-in-hand account (Cr receivables, party-tagged)
+instead of the bank/cash GL account. Deposit changes only the register
+status. Clearing posts Dr bank (a BANK treasury account's GL) / Cr
+cheques-in-hand, key `cheque-clear:<id>`. Bouncing (or returning the
+cheque to its issuer) posts the mirror - Dr receivables (party-tagged) /
+Cr cheques-in-hand, keys `cheque-bounce:<id>` / `cheque-return:<id>` -
+and voids the linked payment's allocations, so invoices fall back toward
+UNPAID. Issued cheques are symmetric: at posting they credit a
+caller-supplied cheques-payable account (Dr payables, party-tagged) and
+the bank does not move; clearing posts Dr cheques-payable / Cr the GL of
+the bank treasury account the cheque was drawn on; an issued bounce
+restores the payable (Dr cheques-payable / Cr payables, party-tagged)
+and voids allocations. A payment whose cheque already CLEARED or
+BOUNCED cannot be reversed - those are terminal financial events with
+their own journals. Transitions are a closed state machine in
+`treasury.services`; illegal transitions are rejected and tested. The
+Sayad id is a plain optional field: no registry validation is performed
+or claimed.
