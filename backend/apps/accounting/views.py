@@ -41,6 +41,38 @@ def trial_balance_view(request):
 
 
 @login_required
+def income_statement_view(request):
+    companies = Company.objects.filter(id__in=user_company_ids(request.user))
+    company = None
+    result = None
+    company_id = request.GET.get("company")
+    if company_id:
+        company = get_object_or_404(companies, pk=company_id)
+        result = reporting.income_statement(company)
+    return render(
+        request,
+        "accounting/income_statement.html",
+        {"companies": companies, "company": company, "result": result},
+    )
+
+
+@login_required
+def balance_sheet_view(request):
+    companies = Company.objects.filter(id__in=user_company_ids(request.user))
+    company = None
+    result = None
+    company_id = request.GET.get("company")
+    if company_id:
+        company = get_object_or_404(companies, pk=company_id)
+        result = reporting.balance_sheet(company)
+    return render(
+        request,
+        "accounting/balance_sheet.html",
+        {"companies": companies, "company": company, "result": result},
+    )
+
+
+@login_required
 def account_create(request):
     form = AccountForm(request.POST or None)
     allowed = Company.objects.filter(id__in=user_company_ids(request.user))
