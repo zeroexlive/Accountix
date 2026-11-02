@@ -18,6 +18,18 @@ def product_list(request):
 
 
 @login_required
+def inventory_count_list(request):
+    from apps.inventory.models import InventoryCount
+
+    counts = (
+        InventoryCount.objects.filter(company_id__in=user_company_ids(request.user))
+        .select_related("company", "warehouse")
+        .prefetch_related("lines")
+    )
+    return render(request, "inventory/count_list.html", {"counts": counts})
+
+
+@login_required
 def stock_balance_list(request):
     companies = Company.objects.filter(id__in=user_company_ids(request.user))
     company = None
