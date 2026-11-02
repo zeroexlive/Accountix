@@ -271,11 +271,27 @@ def _resolve_gl_accounts(company, gl_accounts):
 def post_stock_document(document, *, user=None, gl_accounts=None):
     """Post a DRAFT stock document: write its movements atomically."""
     from apps.audit.services import record_event
-    from apps.inventory.models import StockDocument, StockMovement
+    from apps.inventory.models import StockDocument, StockMovement, Warehouse
 
     doc = StockDocument.objects.select_for_update().get(pk=document.pk)
     if doc.status != StockDocument.Status.DRAFT:
         raise ValidationError("Only a DRAFT stock document can be posted.")
+
+    # Concurrency (Sprint 10, ADR-037): the movement plan is computed
+    # from the derived stock balance, so two documents drawing on the
+    # same warehouse must not plan concurrently — otherwise both pass
+    # the insufficient-stock check against the same balance and the
+    # ledger goes negative (proven by the PostgreSQL concurrency
+    # tests). Locking the warehouse row(s) before planning serialises
+    # posting per warehouse; rows are taken in pk order so transfers
+    # (two warehouses) cannot deadlock. The check-then-act sequence is
+    # then safe under READ COMMITTED: a waiter re-reads the balance
+    # only after the holder commits.
+    warehouse_ids = {doc.warehouse_id}
+    if doc.destination_warehouse_id is not None:
+        warehouse_ids.add(doc.destination_warehouse_id)
+    for warehouse_id in sorted(warehouse_ids, key=str):
+        Warehouse.objects.select_for_update().get(pk=warehouse_id)
 
     gl_pair = None
     if gl_accounts is not None:
