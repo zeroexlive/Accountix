@@ -51,6 +51,12 @@ Modular monolith, single Django project under `backend/`:
   party-tagged journals, allocations are the only writer of invoice
   `payment_status` (ADR-024), and the cheque register implements the
   in-hand/clearing/bounce model (ADR-026).
+- Update (Sprint 07): `inventory` gained `InventoryCount`/`InventoryCountLine`
+  (snapshot + warehouse-freeze counting, ADR-027); purchase and sales
+  returns are now reversible; `accounting` gained opening balances
+  (ADR-029), fiscal period/year closing with reopen-via-reversal
+  (ADR-028), and derived income statement + balance sheet (ADR-030)
+  with read-only Persian RTL pages for both statements and counts.
 - Placeholder packages (not in `INSTALLED_APPS`, no models): `reporting`.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
@@ -83,8 +89,7 @@ see `SPRINT_04_REPORT.md`. Additional purchase costs (landed-cost
 allocation) are deferred (ADR-017); no payment recording exists yet, so
 every posted invoice stays UNPAID until treasury._
 
-Balance sheet / income statement, advanced inventory (stock counting,
-fiscal closing, opening balances), reporting/PDF/Excel, API endpoints (DRF is
+Reporting/PDF/Excel exports, API endpoints (DRF is
 installed but exposes nothing yet), desktop launcher (only directory
 skeleton), backups, MkDocs/OpenAPI, CI workflow execution on GitHub
 (a workflow file is included but has never run), Persian `.po` translations,
@@ -136,14 +141,16 @@ planned.
 
 ## 9. Test coverage assessment
 
-135 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+165 pytest tests, all passing (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
 Sprint 05: +16 sales tests including the §20.4 MVP end-to-end test;
 Sprint 06: +20 treasury tests including a treasury end-to-end test that
 settles the MVP chain with real payments, allocations and a cleared
-cheque — see the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
+cheque; Sprint 07: +30 counts, reversible returns, opening balances,
+fiscal closing/reopening, statements and their read-only pages — see
+the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
 
@@ -152,10 +159,13 @@ not quote one. No integration/E2E/concurrency/security suites yet.
 1. ~~Sprint 02: accounting engine~~ — done. Sprint 03 (inventory) — done.
    Sprint 04 (purchasing + parties) — done. ~~Sprint 05 sales~~ — done
    (internal MVP reached). ~~Sprint 06 treasury~~ — done (payments,
-   allocations, cheques; the only writer of `payment_status`). Next:
-   Sprint 07 advanced inventory & accounting (multi-warehouse, stock
-   counting, returns completion, fiscal closing, opening balances,
-   financial statements).
+   allocations, cheques; the only writer of `payment_status`).
+   ~~Sprint 07 advanced inventory & accounting~~ — done (stock counting
+   with snapshot + warehouse-freeze, reversible purchase/sales returns,
+   opening balances, fiscal period/year closing with reopen-via-reversal,
+   income statement + balance sheet with the result-line identity).
+   Next: Sprint 08 reporting & UX (dashboard, advanced filtering,
+   PDF/Excel exports, print templates).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
