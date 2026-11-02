@@ -2,7 +2,14 @@
 <h1>موجودی انبار</h1>
 <div class="card"><form method="get"><label>شرکت</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
-<button type="submit">نمایش</button></form></div>
+<label>انبار</label><select name="warehouse"><option value="">همه انبارها</option>{% for w in warehouses %}<option value="{{ w.pk }}" {% if warehouse and w.pk == warehouse.pk %}selected{% endif %}>{{ w.code }} — {{ w.name }}</option>{% endfor %}</select>
+<label>جستجوی کالا (کد یا نام)</label><input type="text" name="q" value="{{ request.GET.q }}">
+<button type="submit">نمایش</button></form>
+{% if company %}<p>
+<a class="btn" href="{% url 'export_stock_balances_csv' %}?company={{ company.pk }}{% if warehouse %}&warehouse={{ warehouse.pk }}{% endif %}">خروجی CSV موجودی</a>
+<a class="btn" href="{% url 'export_stock_balances_xlsx' %}?company={{ company.pk }}{% if warehouse %}&warehouse={{ warehouse.pk }}{% endif %}">خروجی Excel موجودی</a>
+<a class="btn" href="{% url 'export_open_items_csv' %}?company={{ company.pk }}">خروجی CSV اقلام باز</a>
+</p>{% endif %}</div>
 {% if rows %}<div class="card"><table><tr><th>انبار</th><th>کد (SKU)</th><th>محصول</th><th>مقدار</th><th>ارزش</th><th>میانگین موزون</th></tr>
 {% for r in rows %}<tr><td>{{ r.warehouse_code }}</td><td>{{ r.sku }}</td><td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.value }}</td><td>{{ r.average_cost }}</td></tr>{% endfor %}
 </table></div>{% elif company %}<p class="empty">حرکتی برای این شرکت ثبت نشده است.</p>{% else %}<p class="empty">یک شرکت انتخاب کنید.</p>{% endif %}{% endblock %}
