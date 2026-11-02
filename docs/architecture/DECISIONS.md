@@ -126,3 +126,30 @@ value drifted by cents, unbalancing the purchase journal. The field is
 widened to `Decimal(19,6)` (migration `inventory/0002`); movement values
 remain 2 dp money, and the journal balance check remains the guard that
 rejects any residual drift atomically.
+
+## ADR-020 — Sales invoices post two journal entries: revenue and COGS (accepted, Sprint 05)
+A posted sales invoice creates **two** journal entries rather than one
+combined entry: (1) the revenue entry — Dr receivables (grand total,
+party-tagged with the customer), Cr revenue (net), Cr tax payable (tax) —
+and (2) the COGS entry — Dr COGS / Cr inventory at the stock issue
+document's movement value. The stock issue is a separately valued fact
+produced by the inventory engine; keeping its entry separate mirrors how
+the inventory GL opt-in already works, lets each entry be reversed and
+audited on its own idempotency key (`sales-invoice:<id>` /
+`sales-invoice-cogs:<id>`), and keeps the receivables subledger line in
+exactly one entry. Both entries are posted inside the invoice's single
+atomic transaction, so the split costs no consistency. Sales returns
+mirror the split (`sales-return:<id>` / `sales-return-cogs:<id>`).
+
+## ADR-021 — Sales returns restore stock at the original sale's COGS cost (accepted, Sprint 05)
+Unlike purchase returns (current MWAC, ADR-018), a sales return receives
+the goods back at the **unit cost at which they left** in the original
+sale — read from the original issue document's movements. The exact cost
+of the specific sale is known data, so using it makes the COGS reversal
+exact: after a partial return, the COGS account carries precisely the
+cost of the units still sold, even if later purchases moved the average
+in between. Purchase returns cannot do this (the supplier takes goods
+back at ledger value, and no original-cost claim exists against a
+supplier's invoice line beyond what was paid — ADR-018 stands). The
+asymmetry is deliberate and documented here so it is not "fixed" by
+accident.
