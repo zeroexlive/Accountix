@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>محصولات</h1>
+{% if products %}<div class="card"><table><tr><th>شرکت</th><th>کد (SKU)</th><th>نام</th><th>دسته</th><th>واحد پایه</th><th>قابل انبارش</th><th>فعال</th></tr>
+{% for p in products %}<tr><td>{{ p.company.name }}</td><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.category|default:"—" }}</td><td>{{ p.base_unit.code }}</td><td>{{ p.is_stockable }}</td><td>{{ p.is_active }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">محصولی ثبت نشده است.</p>{% endif %}{% endblock %}
