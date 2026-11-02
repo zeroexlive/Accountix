@@ -27,6 +27,9 @@
     <a href="{% url 'party_list' %}">طرف‌حساب‌ها</a>
     <a href="{% url 'purchase_invoice_list' %}">فاکتورهای خرید</a>
     <a href="{% url 'accounts_payable' %}">بدهی به تأمین‌کنندگان</a>
+    <a href="{% url 'sales_invoice_list' %}">فاکتورهای فروش</a>
+    <a href="{% url 'accounts_receivable' %}">مطالبات از مشتریان</a>
+    <a href="{% url 'customer_statement' %}">صورت‌حساب مشتری</a>
   </nav>
   {% if user.is_authenticated %}
   <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">خروج ({{ user.username }})</button></form>
