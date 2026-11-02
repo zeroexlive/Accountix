@@ -39,18 +39,30 @@ _IMMUTABLE_STATUSES = ("POSTED", "REVERSED")
 def _guard_immutable(instance, model, mutable_fields, label):
     """Posted-document guard (same pattern as purchases): once POSTED or
     REVERSED a document may only flip POSTED -> REVERSED with every other
-    tracked field identical."""
+    tracked field identical. Sole sanctioned exception (ADR-024,
+    Sprint 06): on a model that carries ``payment_status``, that field —
+    and only that field — may change while POSTED, because treasury's
+    allocation service owns it and recomputes it from allocations."""
     if instance.pk:
         old = model.objects.filter(pk=instance.pk).first()
         if old is not None and old.status in _IMMUTABLE_STATUSES:
-            allowed = (
+            flip = (
                 old.status == "POSTED"
                 and instance.status == "REVERSED"
                 and all(
                     getattr(old, f) == getattr(instance, f) for f in mutable_fields - {"status"}
                 )
             )
-            if not allowed:
+            payment_status_only = (
+                "payment_status" in mutable_fields
+                and old.status == "POSTED"
+                and instance.status == old.status
+                and all(
+                    getattr(old, f) == getattr(instance, f)
+                    for f in mutable_fields - {"status", "payment_status"}
+                )
+            )
+            if not (flip or payment_status_only):
                 raise ValidationError(f"Posted {label} are immutable; reverse instead.")
 
 
