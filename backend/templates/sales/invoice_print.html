@@ -1,0 +1,17 @@
+{% extends "print_base.html" %}
+{% block title %}فاکتور فروش {{ invoice.invoice_number }}{% endblock %}
+{% block content %}
+<header class="print-header">
+  <h1>{{ invoice.company.name }}</h1>
+  {% if invoice.company.legal_name %}<p>{{ invoice.company.legal_name }}</p>{% endif %}
+  {% if invoice.company.registration_number %}<p>شماره ثبت: {{ invoice.company.registration_number }}</p>{% endif %}
+  <p>ارز: {{ invoice.company.default_currency }}</p>
+</header>
+<h2>فاکتور فروش {{ invoice.invoice_number }}</h2>
+<p>تاریخ: {{ invoice.invoice_date }} — مشتری: {{ invoice.customer.name }} ({{ invoice.customer.code }}){% if invoice.customer.tax_id %} — شناسه مالیاتی: {{ invoice.customer.tax_id }}{% endif %}</p>
+<p>انبار: {{ invoice.warehouse.code }} — وضعیت پرداخت: {{ invoice.payment_status }}</p>
+<table><tr><th>کالا</th><th>مقدار</th><th>واحد</th><th>قیمت واحد</th><th>جمع سطر</th><th>تخفیف</th><th>مالیات</th><th>مبلغ سطر</th></tr>
+{% for line in invoice.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{{ line.quantity }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td>{{ line.unit_price }}</td><td>{{ line.gross_amount }}</td><td>{{ line.discount_amount }}</td><td>{{ line.tax_amount }}</td><td>{{ line.net_amount|add:line.tax_amount }}</td></tr>{% endfor %}
+</table>
+<p>جمع جزء: {{ invoice.subtotal }} — تخفیف: {{ invoice.discount_total }} — مالیات: {{ invoice.tax_total }} — <strong>مبلغ کل: {{ invoice.grand_total }} {{ invoice.company.default_currency }}</strong></p>
+{% endblock %}
