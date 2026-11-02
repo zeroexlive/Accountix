@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>سال‌های مالی</h1><p><a class="btn" href="{% url 'fiscal_year_create' %}">سال مالی جدید</a></p>
+<div class="card"><table><tr><th>شرکت</th><th>نام</th><th>شروع</th><th>پایان</th><th>وضعیت</th></tr>
+{% for y in years %}<tr><td>{{ y.company }}</td><td>{{ y.name }}</td><td>{{ y.start_date }}</td><td>{{ y.end_date }}</td><td>{{ y.status }}</td></tr>
+{% empty %}<tr><td colspan="5" class="empty">موردی نیست</td></tr>{% endfor %}</table></div>{% endblock %}
