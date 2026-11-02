@@ -460,6 +460,260 @@ def adjust_stock(
 
 
 # ---------------------------------------------------------------------------
+# Inventory counts (Sprint 07)
+# ---------------------------------------------------------------------------
+
+
+@transaction.atomic
+def create_inventory_count(*, company, warehouse, count_date, lines, description="", user=None):
+    """Create a DRAFT inventory count, snapshotting each product's current
+    derived balance as ``system_qty``. ``lines`` are dicts with ``product``,
+    ``counted_qty`` and an optional ``unit_cost`` (used only to value a
+    positive variance for a product with no existing stock)."""
+    from apps.inventory.models import InventoryCount, InventoryCountLine
+
+    if warehouse.company_id != company.id:
+        raise ValidationError("Warehouse belongs to a different company.")
+    if not warehouse.is_active:
+        raise ValidationError(f"Warehouse {warehouse.code} is inactive.")
+    if not lines:
+        raise ValidationError("An inventory count needs at least one line.")
+
+    count = InventoryCount.objects.create(
+        company=company,
+        warehouse=warehouse,
+        count_date=count_date,
+        description=description,
+    )
+    seen = set()
+    for raw in lines:
+        product = raw.get("product")
+        if product is None or product.company_id != company.id:
+            raise ValidationError("Count line product belongs to a different company.")
+        if not product.is_active:
+            raise ValidationError(f"Product {product.sku} is inactive.")
+        if not product.is_stockable:
+            raise ValidationError(f"Product {product.sku} is not stockable and cannot be counted.")
+        if product.pk in seen:
+            raise ValidationError(f"Product {product.sku} appears twice in this count.")
+        seen.add(product.pk)
+        counted_qty = _dec(raw.get("counted_qty", ZERO), "counted_qty")
+        if counted_qty < ZERO:
+            raise ValidationError("Counted quantity cannot be negative.")
+        unit_cost = raw.get("unit_cost")
+        if unit_cost is not None:
+            unit_cost = _dec(unit_cost, "unit_cost")
+            if unit_cost < ZERO:
+                raise ValidationError("Unit cost cannot be negative.")
+        snapshot = reporting.stock_balance(company, warehouse, product)["quantity"]
+        InventoryCountLine.objects.create(
+            count=count,
+            product=product,
+            system_qty=snapshot,
+            counted_qty=counted_qty,
+            unit_cost=unit_cost,
+        )
+    return count
+
+
+def _resolve_count_gl_account(company, gl_accounts, key):
+    from apps.accounting.models import Account
+
+    item = gl_accounts.get(key)
+    if item is None:
+        return None
+    account = item if isinstance(item, Account) else Account.objects.filter(pk=item).first()
+    if account is None:
+        raise ValidationError(f"GL account '{key}' not found.")
+    if account.company_id != company.id:
+        raise ValidationError(f"GL account '{key}' belongs to a different company.")
+    if not account.is_postable or not account.is_active:
+        raise ValidationError(f"GL account '{key}' is not postable/active.")
+    return account
+
+
+@transaction.atomic
+def post_inventory_count(count, *, user=None, gl_accounts=None):
+    """Post a DRAFT count: one ADJUSTMENT stock document for all non-zero
+    variances, plus an optional GL entry for the net variance value
+    (``gl_accounts={"inventory": ..., "variance": ...}``; a net gain is
+    Dr inventory / Cr variance, a net loss the mirror; key
+    ``stock-count:<id>``).
+
+    The warehouse is assumed frozen since the count was created: if any
+    product's current balance no longer equals the snapshot, posting is
+    rejected and the count must be recreated — guessing which movements
+    belong to the count window would corrupt the ledger.
+    """
+    from django.db.models import Sum
+
+    from apps.audit.services import record_event
+    from apps.inventory.models import InventoryCount
+
+    count = InventoryCount.objects.select_for_update().get(pk=count.pk)
+    if count.status == InventoryCount.Status.POSTED:
+        return count
+    if count.status != InventoryCount.Status.DRAFT:
+        raise ValidationError("Only a DRAFT inventory count can be posted.")
+
+    lines = list(count.lines.select_related("product").all())
+    if not lines:
+        raise ValidationError("An inventory count needs at least one line.")
+    for line in lines:
+        current = reporting.stock_balance(count.company, count.warehouse, line.product)["quantity"]
+        if current != line.system_qty:
+            raise ValidationError(
+                f"Stock of {line.product.sku} moved since the count was taken "
+                f"(snapshot {line.system_qty}, now {current}); recreate the count."
+            )
+
+    inventory_account = variance_account = None
+    if gl_accounts is not None:
+        inventory_account = _resolve_count_gl_account(count.company, gl_accounts, "inventory")
+        variance_account = _resolve_count_gl_account(count.company, gl_accounts, "variance")
+        if inventory_account is None or variance_account is None:
+            raise ValidationError("gl_accounts must include 'inventory' and 'variance' accounts.")
+
+    stock_document = None
+    net_value = ZERO
+    variance_lines = [line for line in lines if line.variance != ZERO]
+    if variance_lines:
+        stock_document = create_stock_document(
+            company=count.company,
+            doc_type="ADJUSTMENT",
+            warehouse=count.warehouse,
+            doc_date=count.count_date,
+            lines=[
+                {
+                    "product": line.product,
+                    "quantity": line.variance,
+                    "unit_cost": line.unit_cost,
+                }
+                for line in variance_lines
+            ],
+            description=f"Inventory count {count.count_date} variances",
+            source_type="INVENTORY_COUNT",
+            source_id=str(count.id),
+        )
+        stock_document = post_stock_document(stock_document, user=user)
+        net_value = stock_document.movements.aggregate(total=Sum("value_delta"))["total"] or ZERO
+
+    journal_entry = None
+    if gl_accounts is not None and net_value != ZERO:
+        from apps.accounting.services import post_journal_entry
+
+        if net_value > ZERO:
+            gl_lines = [
+                {"account": inventory_account, "debit": net_value},
+                {"account": variance_account, "credit": net_value},
+            ]
+        else:
+            gl_lines = [
+                {"account": variance_account, "debit": -net_value},
+                {"account": inventory_account, "credit": -net_value},
+            ]
+        journal_entry = post_journal_entry(
+            company=count.company,
+            entry_date=count.count_date,
+            lines=gl_lines,
+            description=f"Inventory count {count.count_date} variance",
+            user=user,
+            source_type="INVENTORY_COUNT",
+            source_id=str(count.id),
+            idempotency_key=f"stock-count:{count.id}",
+        )
+
+    count.stock_document = stock_document
+    count.journal_entry = journal_entry
+    count.status = InventoryCount.Status.POSTED
+    count.posted_by = user
+    count.posted_at = timezone.now()
+    count.save()
+    record_event(
+        action="stock_count.posted",
+        entity_type="InventoryCount",
+        company=count.company,
+        user=user,
+        entity_id=count.id,
+        net_variance_value=str(net_value),
+        stock_document_id=str(stock_document.id) if stock_document else "",
+        journal_entry_id=str(journal_entry.id) if journal_entry else "",
+    )
+    return count
+
+
+@transaction.atomic
+def reverse_inventory_count(count, *, user=None, reason=""):
+    """Reverse a POSTED count: reverse its GL entry and its adjustment
+    document (exact negating movements), create a POSTED reversal count
+    with swapped system/counted quantities, and flip the original to
+    REVERSED. If the counted stock has since been consumed, the stock
+    reversal guard rejects the whole reversal."""
+    from apps.audit.services import record_event
+    from apps.inventory.models import InventoryCount, InventoryCountLine
+
+    count = InventoryCount.objects.select_for_update().get(pk=count.pk)
+    if count.reversal_of_id is not None:
+        raise ValidationError("A reversal count cannot itself be reversed.")
+    if count.status == InventoryCount.Status.REVERSED:
+        raise ValidationError("This inventory count has already been reversed.")
+    if count.status != InventoryCount.Status.POSTED:
+        raise ValidationError("Only a POSTED inventory count can be reversed.")
+
+    if count.journal_entry_id is not None:
+        from apps.accounting.services import reverse_journal_entry
+
+        reverse_journal_entry(
+            entry=count.journal_entry,
+            user=user,
+            reason=reason,
+            reversal_date=count.count_date,
+        )
+    reversal_doc = None
+    if count.stock_document_id is not None:
+        reversal_doc = reverse_stock_document(
+            count.stock_document,
+            user=user,
+            reason=reason or "Inventory count reversed",
+            reversal_date=count.count_date,
+        )
+
+    reversal_count = InventoryCount.objects.create(
+        company=count.company,
+        warehouse=count.warehouse,
+        count_date=count.count_date,
+        description=f"Reversal of count {count.count_date}: {reason}".strip(),
+        stock_document=reversal_doc,
+        reversal_of=count,
+    )
+    for line in count.lines.all():
+        InventoryCountLine.objects.create(
+            count=reversal_count,
+            product=line.product,
+            system_qty=line.counted_qty,
+            counted_qty=line.system_qty,
+            unit_cost=line.unit_cost,
+        )
+    reversal_count.status = InventoryCount.Status.POSTED
+    reversal_count.posted_by = user
+    reversal_count.posted_at = timezone.now()
+    reversal_count.save()
+
+    count.status = InventoryCount.Status.REVERSED
+    count.save()  # model guard permits exactly this transition
+    record_event(
+        action="stock_count.reversed",
+        entity_type="InventoryCount",
+        company=count.company,
+        user=user,
+        entity_id=count.id,
+        reversal_count_id=str(reversal_count.id),
+        reason=reason,
+    )
+    return reversal_count
+
+
+# ---------------------------------------------------------------------------
 # Reversal
 # ---------------------------------------------------------------------------
 
