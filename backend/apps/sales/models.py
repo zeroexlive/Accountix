@@ -22,6 +22,8 @@ revenue + COGS) and ADR-021 (sales returns restore stock at the original
 sale's COGS unit cost).
 """
 
+from typing import ClassVar
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -73,10 +75,10 @@ class _LineGuardMixin:
     ``_parent_model``; quotations are guarded only once CONVERTED.
     """
 
-    _parent_attr = ""
-    _parent_model = None
-    _label = "document"
-    _guard_statuses = _IMMUTABLE_STATUSES
+    _parent_attr: ClassVar[str] = ""
+    _parent_model: ClassVar[type[models.Model] | None] = None
+    _label: ClassVar[str] = "document"
+    _guard_statuses: ClassVar[tuple[str, ...]] = _IMMUTABLE_STATUSES
 
     def _guard_mutable(self):
         parent_id = getattr(self, f"{self._parent_attr}_id", None)
