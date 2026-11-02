@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Legend: **[S01]/[S02]/[S03]** = implemented with migrations in that sprint.
+Legend: **[S01]/[S02]/[S03]/[S04]** = implemented with migrations in that sprint.
 **[planned]** = full target schema from the master prompt §13.2; no model
 exists yet. JournalEntry/JournalLine/JournalReversal moved to [S02] —
 implemented 2026-11-02; their relations above lost the "[planned]" prefix
@@ -22,9 +22,10 @@ erDiagram
     Company ||--o{ AuditEvent : "scoped to"
     User ||--o{ AuditEvent : "acts in"
 
-    Company ||--o{ Party : "[planned] owns"
-    Party ||--o{ PartyContact : "[planned]"
-    Party ||--o{ PartyAddress : "[planned]"
+    Company ||--o{ Party : owns
+    Party ||--o{ PartyContact : has
+    Party ||--o{ PartyAddress : has
+    Party ||--o{ JournalLine : "tagged on (subledger, ADR-015)"
     Company ||--o{ ProductCategory : owns
     ProductCategory ||--o{ Product : contains
     Unit ||--o{ ProductUnitConversion : converts
@@ -44,9 +45,11 @@ erDiagram
     SalesInvoice ||--o{ SalesInvoiceLine : "[planned]"
     Product ||--o{ SalesInvoiceLine : "[planned]"
     SalesQuotation ||--o{ SalesInvoice : "[planned] converts to"
-    Party ||--o{ PurchaseInvoice : "[planned] supplier"
-    PurchaseInvoice ||--o{ PurchaseInvoiceLine : "[planned]"
-    PurchaseOrder ||--o{ PurchaseInvoice : "[planned] fulfilled by"
+    Party ||--o{ PurchaseInvoice : supplier
+    PurchaseInvoice ||--o{ PurchaseInvoiceLine : has
+    PurchaseOrder ||--o{ PurchaseInvoice : fulfilled by
+    PurchaseInvoice ||--o{ PurchaseReturn : "returned via"
+    PurchaseReturn ||--o{ PurchaseReturnLine : has
     Company ||--o{ Payment : "[planned]"
     Payment ||--o{ PaymentAllocation : "[planned]"
     SalesInvoice ||--o{ PaymentAllocation : "[planned] settled by"
@@ -64,7 +67,15 @@ erDiagram
     Account { uuid id PK; uuid company FK; uuid parent FK "nullable"; string code "UK per company"; string account_type; string normal_balance; bool is_postable; bool is_active }
     AuditEvent { uuid id PK; uuid company FK "nullable"; uuid user FK "nullable"; string action; string entity_type; string entity_id; json metadata }
     JournalEntry { uuid id PK "[S02]"; uuid company FK; uuid fiscal_period FK; date entry_date; string status "DRAFT/VALIDATED/POSTED/REVERSED"; string idempotency_key "UK per company, partial"; uuid reversal_of FK "nullable" }
-    JournalLine { uuid id PK "[S02]"; uuid entry FK; uuid account FK; decimal debit; decimal credit; "checks: >=0, one side only, non-zero" x }
+    JournalLine { uuid id PK "[S02]"; uuid entry FK; uuid account FK; uuid party FK "nullable, subledger tag [S04]"; decimal debit; decimal credit; "checks: >=0, one side only, non-zero" x }
+    Party { uuid id PK "[S04]"; uuid company FK; string kind "SUPPLIER/CUSTOMER/BOTH"; string code "UK per company"; string name; string tax_id; bool is_active }
+    PartyContact { uuid id PK "[S04]"; uuid party FK; string full_name; string phone; string email; bool is_primary }
+    PartyAddress { uuid id PK "[S04]"; uuid party FK; string label; string city; string postal_code }
+    PurchaseOrder { uuid id PK "[S04]"; uuid company FK; uuid supplier FK; string order_number "UK per company"; string status "DRAFT/APPROVED/CLOSED/CANCELLED" }
+    PurchaseInvoice { uuid id PK "[S04]"; uuid company FK; uuid supplier FK; uuid warehouse FK; string invoice_number "UK per company"; string status "DRAFT/POSTED/REVERSED"; string payment_status "separate dimension"; decimal grand_total "snapshot = sum of lines"; uuid stock_document FK "nullable"; uuid journal_entry FK "nullable, GL opt-in" }
+    PurchaseInvoiceLine { uuid id PK "[S04]"; uuid invoice FK; uuid product FK; decimal quantity; decimal unit_cost; decimal discount_amount; decimal tax_rate "snapshot"; decimal tax_amount "snapshot" }
+    PurchaseReturn { uuid id PK "[S04]"; uuid company FK; uuid original_invoice FK; string return_number "UK per company"; string status; decimal total_amount "MWAC value relieved" }
+    PurchaseReturnLine { uuid id PK "[S04]"; uuid purchase_return FK; uuid invoice_line FK; uuid product FK; decimal quantity }
     JournalReversal { uuid id PK "[S02]"; uuid original_entry FK "OneToOne"; uuid reversal_entry FK "OneToOne"; uuid reversed_by FK "nullable"; string reason }
     Product { uuid id PK "[S03]"; uuid company FK; string sku "UK per company"; string barcode; bool is_stockable; bool is_active; decimal min_stock_level; uuid base_unit FK; uuid category FK "nullable" }
     Unit { uuid id PK "[S03]"; uuid company FK; string code "UK per company"; string name }
@@ -90,4 +101,5 @@ erDiagram
   constraint for all pairs; it is enforced by application services +
   tests (Sprint 01 covers account parent and fiscal period company).
 - Transaction boundaries: posting operations (journal, invoice, stock)
-  are each one `atomic` service call (journal since S02, stock since S03).
+  are each one `atomic` service call (journal since S02, stock since S03,
+  purchase invoice/return posting — stock + journal together — since S04).
