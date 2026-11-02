@@ -165,6 +165,16 @@ class JournalEntry(TimeStampedUUIDModel):
 class JournalLine(TimeStampedUUIDModel):
     entry = models.ForeignKey(JournalEntry, on_delete=models.CASCADE, related_name="lines")
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name="journal_lines")
+    # Optional subledger dimension (Sprint 04, ADR-015): a line may be
+    # tagged with the counterparty it belongs to (e.g. the supplier on an
+    # accounts-payable line) so party balances derive from journal lines.
+    party = models.ForeignKey(
+        "parties.Party",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="journal_lines",
+    )
     debit = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     credit = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     description = models.CharField(max_length=500, blank=True)
