@@ -1,5 +1,11 @@
 {% extends "base.html" %}{% block content %}
 <h1>دریافت‌ها و پرداخت‌ها</h1>
+<div class="card"><form method="get">
+<label>وضعیت</label><select name="status"><option value="">همه</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>روش</label><select name="method"><option value="">همه</option>{% for v,l in methods %}<option value="{{ v }}" {% if request.GET.method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>از تاریخ</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<button type="submit">پالایش</button></form></div>
 {% if payments %}<div class="card"><table><tr><th>تاریخ</th><th>جهت</th><th>طرف‌حساب</th><th>روش</th><th>مبلغ</th><th>وضعیت</th></tr>
 {% for p in payments %}<tr><td>{{ p.payment_date }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td>{{ p.amount }}</td><td>{{ p.status }}</td></tr>{% endfor %}
-</table></div>{% else %}<p class="empty">دریافت یا پرداختی ثبت نشده است.</p>{% endif %}{% endblock %}
+</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">دریافت یا پرداختی یافت نشد.</p>{% endif %}{% endblock %}
