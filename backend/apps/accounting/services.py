@@ -145,7 +145,17 @@ def post_journal_entry(
     Idempotency: if ``idempotency_key`` is given and an entry already exists
     for (company, key), that entry is returned unchanged — no duplicate is
     created. All validation runs before any row is written.
+
+    Concurrency (Sprint 10, ADR-037): the check above races when two
+    callers post the same key simultaneously — both miss, both insert,
+    and the unique constraint (company, idempotency_key) rejects the
+    loser with a raw IntegrityError. The entry creation therefore runs
+    in a nested atomic block (savepoint): on IntegrityError the loser
+    re-reads and returns the winner's entry, so concurrent idempotent
+    posting is safe *and* clean on PostgreSQL.
     """
+    from django.db import IntegrityError
+
     from apps.accounting.models import JournalEntry, JournalLine
     from apps.audit.services import record_event
 
@@ -163,16 +173,35 @@ def post_journal_entry(
 
     validated = _validate_lines(company, lines)
 
-    entry = JournalEntry.objects.create(
-        company=company,
-        fiscal_period=period,
-        entry_date=entry_date,
-        description=description,
-        status=JournalEntry.Status.VALIDATED,
-        source_type=source_type,
-        source_id=source_id,
-        idempotency_key=key,
-    )
+    if key:
+        try:
+            with transaction.atomic():
+                entry = JournalEntry.objects.create(
+                    company=company,
+                    fiscal_period=period,
+                    entry_date=entry_date,
+                    description=description,
+                    status=JournalEntry.Status.VALIDATED,
+                    source_type=source_type,
+                    source_id=source_id,
+                    idempotency_key=key,
+                )
+        except IntegrityError:
+            existing = JournalEntry.objects.filter(company=company, idempotency_key=key).first()
+            if existing is not None:
+                return existing
+            raise
+    else:
+        entry = JournalEntry.objects.create(
+            company=company,
+            fiscal_period=period,
+            entry_date=entry_date,
+            description=description,
+            status=JournalEntry.Status.VALIDATED,
+            source_type=source_type,
+            source_id=source_id,
+            idempotency_key=key,
+        )
     for account, debit, credit, line_desc, party in validated:
         JournalLine.objects.create(
             entry=entry,
