@@ -159,7 +159,10 @@ class StockDocumentLine(TimeStampedUUIDModel):
         Unit, on_delete=models.PROTECT, null=True, blank=True, related_name="stock_lines"
     )
     quantity = models.DecimalField(max_digits=19, decimal_places=3)
-    unit_cost = models.DecimalField(max_digits=19, decimal_places=2, null=True, blank=True)
+    # 6 dp (widened in Sprint 04, ADR-019): callers such as purchasing pass
+    # a net-of-discount unit cost (net total / quantity) that rarely has an
+    # exact 2 dp form; the movement *value* stays 2 dp money.
+    unit_cost = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
     class Meta:
         ordering = ["created_at"]
