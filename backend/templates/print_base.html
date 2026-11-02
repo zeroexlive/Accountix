@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}چاپ سند{% endblock %}</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="print-page">
+<main class="print-doc">
+  {% block content %}{% endblock %}
+  <p class="print-footer">سند تولیدشده توسط اکانتیکس — چاپ از مرورگر (Print to PDF)</p>
+</main>
+</body>
+</html>
