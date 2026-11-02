@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Legend: **[S01]/[S02]/[S03]/[S04]/[S05]/[S06]** = implemented with migrations in that sprint.
+Legend: **[S01]/[S02]/[S03]/[S04]/[S05]/[S06]/[S07]** = implemented with migrations in that sprint.
 **[planned]** = full target schema from the master prompt §13.2; no model
 exists yet. JournalEntry/JournalLine/JournalReversal moved to [S02] —
 implemented 2026-11-02; their relations above lost the "[planned]" prefix
@@ -36,7 +36,7 @@ erDiagram
     Product ||--o{ StockMovement : moves
     StockDocument ||--o{ StockDocumentLine : has
     StockDocument ||--o{ StockMovement : generates
-    InventoryCount ||--o{ InventoryCountLine : "[planned]"
+    InventoryCount ||--o{ InventoryCountLine : "[S07] has"
     FiscalPeriod ||--o{ JournalEntry : "[planned] period of"
     JournalEntry ||--o{ JournalLine : "[planned]"
     Account ||--o{ JournalLine : "[planned] posted to"
@@ -93,6 +93,8 @@ erDiagram
     StockMovement { uuid id PK "[S03]"; uuid company FK; uuid warehouse FK; uuid product FK; decimal quantity_delta "signed, base unit"; decimal unit_cost "MWAC at movement"; decimal value_delta "signed"; uuid document FK; "append-only (model guards)" x }
     StockDocumentReversal { uuid id PK "[S03]"; uuid original_document FK "OneToOne"; uuid reversal_document FK "OneToOne" }
     StockBalance { string note "NOT A TABLE - derived from StockMovement in inventory.reporting (ADR-012)" }
+    InventoryCount { uuid id PK "[S07]"; uuid company FK; uuid warehouse FK; date count_date; string status "DRAFT/POSTED/REVERSED"; uuid stock_document FK "nullable"; uuid journal_entry FK "nullable, GL opt-in"; uuid reversal_of FK "nullable" }
+    InventoryCountLine { uuid id PK "[S07]"; uuid count FK; uuid product FK; decimal system_qty "snapshot at creation"; decimal counted_qty; decimal unit_cost "nullable, required for +variance with zero stock"; "UK (count, product)" x }
     SalesInvoice { uuid id PK "[S05]"; uuid party FK; string posting_status; string payment_status }
     TreasuryAccount { uuid id PK "[S06]"; uuid company FK; string kind "CASH/BANK (ADR-022)"; uuid gl_account FK; string bank_name; string account_number }
     Payment { uuid id PK "[S06]"; uuid company FK; string direction "RECEIPT/PAYMENT"; uuid party FK; uuid treasury_account FK; string method "CASH/BANK_TRANSFER/CHEQUE"; decimal amount ">0"; string status "DRAFT/POSTED/REVERSED"; uuid counterparty_account FK "AR/AP used at posting"; uuid journal_entry FK }
