@@ -7,7 +7,7 @@
 <label>مشتری</label>
 <select name="customer">{% for cu in customers %}<option value="{{ cu.pk }}" {% if statement and cu.pk == statement.customer.pk %}selected{% endif %}>{{ cu.code }} — {{ cu.name }}</option>{% endfor %}</select>
 <button type="submit">نمایش</button></form></div>
-{% if statement %}<div class="card">
+{% if statement %}<p><a class="btn" href="{% url 'customer_statement_print' %}?company={{ company.pk }}&account={{ account.pk }}&customer={{ statement.customer.pk }}">نسخه چاپی صورت‌حساب</a></p><div class="card">
 <h2>{{ statement.customer.code }} — {{ statement.customer.name }}</h2>
 <p><strong>مانده مطالبات: {{ statement.balance }}</strong></p>
 <table><tr><th>شماره فاکتور</th><th>تاریخ</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr>
