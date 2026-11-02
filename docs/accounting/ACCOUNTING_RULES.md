@@ -49,3 +49,52 @@ still planned.
 9. Money is `Decimal` / `DecimalField` only. Floats are forbidden.
 10. Currency: ISO 4217, company default IRR; toman is display-only
     (10 rials = 1 toman) with explicit rounding at presentation.
+
+## Fiscal closing — implemented in Sprint 07 (ADR-028)
+1. `close_fiscal_period` computes each revenue/expense-type account's
+   balance **for that period** from posted lines and posts ONE closing
+   journal entry (`source_type='CLOSING'`, key `closing:<period id>`,
+   dated the period's last day) zeroing them into a caller-supplied
+   postable retained-earnings account: a net income appears as a credit
+   to retained earnings, a net loss as a debit.
+2. The period flips to `CLOSED` only **after** the closing entry posts;
+   afterwards the posting gate rejects any new entry dated in it.
+   Closing an already-closed period is rejected.
+3. A period with no revenue/expense activity closes with **no entry**
+   (documented choice, tested).
+4. `reopen_fiscal_period` never deletes: it flips the period to `OPEN`
+   and reverses the closing entry in the same transaction. Re-closing
+   afterwards posts a fresh closing entry (key `closing:<id>:<n>`).
+5. `close_fiscal_year` closes every still-open period in start-date
+   order via the same service, then flips the year status to `CLOSED`.
+
+## Opening balances — implemented in Sprint 07 (ADR-029)
+1. `post_opening_balance(company, fiscal_year, lines, offset_account)`
+   posts ONE journal entry (`source_type='opening_balance'`, key
+   `opening-balance:<fiscal year id>`) dated the fiscal year's **first**
+   period start; that period must be `OPEN`.
+2. The service balances the entry itself: excess debits are credited
+   (excess credits debited) to the caller-supplied offset account
+   (retained earnings / opening-balance equity), so the posted entry is
+   balanced by construction. Input lines are one-sided, postable,
+   active, same-company; party tagging opens AP/AR balances.
+3. Idempotent per fiscal year: re-posting returns the existing entry.
+4. Opening **stock** is separate — see INVENTORY_RULES §11 (a receipt
+   with source reference `opening_stock`, not a model).
+
+## Financial statements — implemented in Sprint 07 (ADR-030)
+1. Income statement (`reporting.income_statement`): revenue accounts
+   presented credit-positive, expense accounts debit-positive. COGS is
+   the caller-designated subset of expense accounts (`cogs_accounts=`;
+   the type taxonomy has no COGS class and codes/names are never
+   guessed). Gross profit = revenue − COGS; net income = gross profit −
+   other expenses. **Closing entries are excluded**, so a closed period
+   still reports its real operating result.
+2. Balance sheet (`reporting.balance_sheet`, as of a date / period
+   end): assets debit-positive; liabilities and equity credit-positive.
+   Equity includes a computed **current period result** line — the net
+   of all revenue/expense balances with closing entries **included** —
+   so Assets == Liabilities + Equity + Result at any date: before
+   closing the result is the open profit; after closing the income
+   accounts net to zero, the result line is 0, and the profit sits in
+   retained earnings. `is_balanced` reports the identity check.
