@@ -49,8 +49,12 @@ accounts list/create, `/health/` endpoint, Django admin registrations.
 
 ## 4. Missing functionality (planned — does NOT exist yet)
 
-Journal entries/lines, posting & reversal services, trial balance / GL /
-financial statements, parties, products/units, all inventory, sales,
+_Update 2026-11-02 (Sprint 02): journal entries/lines, posting & reversal
+services, trial balance and general ledger are now implemented and tested
+(42 tests total) — see `SPRINT_02_REPORT.md`. The paragraph below is the
+remaining gap list._
+
+Balance sheet / income statement / subsidiary ledgers, parties, products/units, all inventory, sales,
 purchasing, treasury/cheques, reporting/PDF/Excel, API endpoints (DRF is
 installed but exposes nothing yet), desktop launcher (only directory
 skeleton), backups, MkDocs/OpenAPI, CI workflow execution on GitHub
@@ -102,9 +106,10 @@ planned.
 
 ## 9. Test coverage assessment
 
-25 pytest tests, all passing (see SPRINT_01_REPORT.md for exact commands):
-authentication (5), organizations/fiscal (11), accounting accounts (7),
-core/health/audit (2). Coverage tooling (pytest-cov) is configured as a dev
+42 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
+Sprint 02: +17 journal/posting/reversal/reporting tests — see
+SPRINT_02_REPORT.md for exact commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
 
