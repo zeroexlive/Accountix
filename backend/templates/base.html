@@ -24,6 +24,9 @@
     <a href="{% url 'trial_balance' %}">تراز آزمایشی</a>
     <a href="{% url 'product_list' %}">محصولات</a>
     <a href="{% url 'stock_balances' %}">موجودی انبار</a>
+    <a href="{% url 'party_list' %}">طرف‌حساب‌ها</a>
+    <a href="{% url 'purchase_invoice_list' %}">فاکتورهای خرید</a>
+    <a href="{% url 'accounts_payable' %}">بدهی به تأمین‌کنندگان</a>
   </nav>
   {% if user.is_authenticated %}
   <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">خروج ({{ user.username }})</button></form>
