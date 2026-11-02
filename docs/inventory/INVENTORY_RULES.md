@@ -54,3 +54,34 @@ implemented and tested; remaining gaps are called out explicitly.
 10. Company isolation: warehouses, products, units, conversions and GL
     accounts of another company are rejected by the services; quantities
     and costs are `Decimal` end-to-end.
+
+## Stock counting — implemented in Sprint 07 (ADR-027)
+11. `create_inventory_count` snapshots each line's `system_qty` from the
+    **derived** balance at creation; `counted_qty` is what was counted;
+    `variance = counted − system`. One line per product per count.
+12. Warehouse-freeze rule: `post_inventory_count` re-derives every
+    counted product's balance and **rejects** the count if it no longer
+    equals the snapshot — the warehouse must not move between counting
+    and posting. A stale count is voided and recounted, never silently
+    re-snapshotted.
+13. Posting writes ONE `ADJUSTMENT` document (source `INVENTORY_COUNT`)
+    with only the non-zero variance lines, valued at the current MWAC
+    (rule 3). A positive variance with zero stock requires an explicit
+    `unit_cost` on the line (rule 6). A fully zero-variance count posts
+    with no document. GL opt-in (rule 8): caller supplies `inventory` +
+    `variance` accounts; the **net** variance value posts once (gain:
+    Dr inventory / Cr variance; loss mirrored), key `stock-count:<id>`.
+14. `reverse_inventory_count` reverses the journal and the stock
+    document and stores a POSTED reversal count with system/counted
+    swapped and `reversal_of` set; the original flips to REVERSED.
+    Posted counts and their lines are immutable; reversing a reversal
+    is rejected.
+
+## Opening stock — recipe, Sprint 07 (ADR-029)
+15. There is deliberately **no** opening-stock model. Opening stock is
+    an ordinary receipt: `receive_stock(..., source_type="opening_stock",
+    source_id=<fiscal-year label>, unit_cost=<opening unit cost>)`, with
+    the GL opt-in pair `(inventory_account, opening_equity_account)` to
+    post Dr inventory / Cr opening equity in the same step. The receipt
+    is a normal document afterwards (reversible, auditable). Covered by
+    `test_opening_stock_via_receipt_with_gl`.
