@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}
+<h1>ترازنامه</h1>
+<div class="card"><form method="get"><label>شرکت</label>
+<select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+<button type="submit">نمایش</button></form></div>
+{% if result %}<div class="card"><table>
+<tr><th>حساب</th><th>مبلغ</th></tr>
+<tr><th colspan="2">دارایی‌ها</th></tr>
+{% for r in result.asset_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
+<tr><th>جمع دارایی‌ها</th><th>{{ result.total_assets }}</th></tr>
+<tr><th colspan="2">بدهی‌ها</th></tr>
+{% for r in result.liability_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
+<tr><th>جمع بدهی‌ها</th><th>{{ result.total_liabilities }}</th></tr>
+<tr><th colspan="2">حقوق صاحبان سرمایه</th></tr>
+{% for r in result.equity_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
+<tr><td>نتیجه دوره جاری (بسته‌نشده)</td><td>{{ result.current_period_result }}</td></tr>
+<tr><th>جمع حقوق صاحبان سرمایه</th><th>{{ result.equity_with_result }}</th></tr>
+<tr><th>جمع بدهی و سرمایه</th><th>{{ result.total_liabilities_and_equity }}</th></tr>
+<tr><th>متوازن</th><th>{{ result.is_balanced }}</th></tr>
+</table></div>
+{% else %}<p class="empty">یک شرکت انتخاب کنید.</p>{% endif %}{% endblock %}
