@@ -41,10 +41,10 @@ erDiagram
     JournalEntry ||--o{ JournalLine : "[planned]"
     Account ||--o{ JournalLine : "[planned] posted to"
     JournalEntry ||--|| JournalReversal : "[planned] reversed by"
-    Party ||--o{ SalesInvoice : "[planned] customer"
-    SalesInvoice ||--o{ SalesInvoiceLine : "[planned]"
-    Product ||--o{ SalesInvoiceLine : "[planned]"
-    SalesQuotation ||--o{ SalesInvoice : "[planned] converts to"
+    Party ||--o{ SalesInvoice : "[S05] customer"
+    SalesInvoice ||--o{ SalesInvoiceLine : "[S05] has"
+    Product ||--o{ SalesInvoiceLine : "[S05]"
+    SalesQuotation ||--o{ SalesInvoice : "[S05] converts to"
     Party ||--o{ PurchaseInvoice : supplier
     PurchaseInvoice ||--o{ PurchaseInvoiceLine : has
     PurchaseOrder ||--o{ PurchaseInvoice : fulfilled by
@@ -87,7 +87,7 @@ erDiagram
     StockMovement { uuid id PK "[S03]"; uuid company FK; uuid warehouse FK; uuid product FK; decimal quantity_delta "signed, base unit"; decimal unit_cost "MWAC at movement"; decimal value_delta "signed"; uuid document FK; "append-only (model guards)" x }
     StockDocumentReversal { uuid id PK "[S03]"; uuid original_document FK "OneToOne"; uuid reversal_document FK "OneToOne" }
     StockBalance { string note "NOT A TABLE - derived from StockMovement in inventory.reporting (ADR-012)" }
-    SalesInvoice { uuid id PK "[planned]"; uuid party FK; string posting_status; string payment_status }
+    SalesInvoice { uuid id PK "[S05]"; uuid party FK; string posting_status; string payment_status }
     Payment { uuid id PK "[planned]"; decimal amount; date payment_date }
     PaymentAllocation { uuid id PK "[planned]"; uuid payment FK; decimal amount }
     Cheque { uuid id PK "[planned]"; date due_date; string status }
