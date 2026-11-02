@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>فاکتورهای خرید</h1>
+{% if invoices %}<div class="card"><table><tr><th>شماره</th><th>تاریخ</th><th>تأمین‌کننده</th><th>انبار</th><th>وضعیت</th><th>وضعیت پرداخت</th><th>مبلغ کل</th><th></th></tr>
+{% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.status }}</td><td>{{ inv.payment_status }}</td><td>{{ inv.grand_total }}</td><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">جزئیات</a></td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">فاکتور خریدی ثبت نشده است.</p>{% endif %}{% endblock %}
