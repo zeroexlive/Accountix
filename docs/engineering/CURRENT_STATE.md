@@ -1,6 +1,6 @@
 # Current State — Repository Assessment (Phase 0)
 
-Date: 2026-11-02 (last updated Sprint 09, 2026-11-03). Assessor: Muse development coordinator (subagent).
+Date: 2026-11-02 (last updated Sprint 10, 2026-11-03). Assessor: Muse development coordinator (subagent).
 Repository: `zeroexlive/Accountix` (private, "Accountant software").
 
 ## 1. Evidence for the starting point (verified, not assumed)
@@ -72,6 +72,18 @@ Modular monolith, single Django project under `backend/`:
   The Linux bundle was built and smoke-run for real (fresh launch,
   second-launch backup, clean SIGINT shutdown); the Windows bundle is
   written but untested on Windows.
+- Update (Sprint 10): production hardening + the release gate are
+  done — see `SPRINT_10_REPORT.md` and `RELEASE_READINESS.md`
+  (verdict: **Ready with documented limitations**). The full suite
+  now runs green on PostgreSQL 16.2 as well as SQLite, and on Python
+  3.13.18 as well as 3.12.3 (202 passed on SQLite / 205 on PG).
+  Threaded concurrency tests found and fixed a critical stock
+  overselling race and a journal-idempotency race (ADR-037); mypy is
+  a clean gate; password validators are configured; DRF is on
+  3.18.3; the PG `pg_dump` backup path executed for the first time.
+  Headline remaining limitation: the web UI is read-only for
+  business documents (setup forms + admin only), Windows is still
+  unverified, and there is no login rate limiting.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -117,9 +129,9 @@ Jalali date display, toman/rial display conversion.
   normal Django output but should be reviewed before any squash.
 - TD-3: `is_postable` naming: prompt says "posting eligibility"; field kept
   as `is_postable`, documented in DECISIONS.md ADR-005.
-- TD-4: Python 3.12.3 is what this machine provides (Django 5.2 supports
-  3.10–3.13); the prompt targets 3.13. `requires-python = ">=3.12"`. Verify on
-  3.13 in CI before claiming 3.13 support.
+- TD-4: ~~Python 3.13 unverified~~ — resolved in Sprint 10: the full
+  suite passes on Python 3.13.18 (uv-installed) as well as 3.12.3.
+  `requires-python = ">=3.12"` stands.
 - TD-5: No `uv.lock`: `uv` is not installed on this machine; pip + venv was
   used and `pyproject.toml` declares all dependencies. Generate `uv.lock`
   when uv becomes available.
@@ -133,16 +145,22 @@ Jalali date display, toman/rial display conversion.
   dev secret key and force secure cookies/HSTS.
 - Company isolation is enforced by membership-filtered querysets and tested
   (non-member detail view returns 404, list views leak nothing).
+- Sprint 10 update: dependency scanning (pip-audit) and deploy checks
+  were run and triaged (see RELEASE_READINESS.md gates 5–8, 17–20);
+  password validators were found absent and are now configured.
 - Not yet done: role-based permission checks beyond membership (roles exist
-  as data only), security test suite, dependency vulnerability scanning,
-  rate limiting. No production deployment exists to attack yet.
+  as data only) and **login rate limiting** (documented gap; acceptable
+  for loopback standalone, blocking for internet-facing deployment).
 
 ## 7. Database concerns
 
 - Money: no monetary fields exist yet; when they land they must be
   `DecimalField` (rules in ACCOUNTING_RULES.md). No floats anywhere.
 - SQLite vs PostgreSQL locking differences are noted in settings and rules;
-  concurrency tests are a PostgreSQL-only Sprint 02+ item — **not run yet**.
+  concurrency tests were **run for the first time in Sprint 10** against
+  PostgreSQL 16.2 (embedded `pgserver` instance — this machine has no
+  system PostgreSQL): two races failed pre-fix and were fixed (ADR-037).
+  PostgreSQL restore (`pg_restore`) has still never been executed.
 - All business models use UUID primary keys, explicit FKs, unique
   constraints per company (branch code, membership, account code).
 
@@ -167,7 +185,9 @@ fiscal closing/reopening, statements and their read-only pages;
 Sprint 08: +16 reporting/dashboard/filter/export/print tests;
 Sprint 09: +15 standalone-settings, data-dir, launcher-logic, health
 polling and backup/restore tests, including a subprocess round-trip of
-the real management commands — see the sprint reports for exact
+the real management commands; Sprint 10: +9 tests (3 PostgreSQL
+concurrency — they skip on SQLite — 5 password-validator/security
+settings, 1 open-items query-count) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -186,9 +206,12 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    CSV/XLSX exports, print templates). ~~Sprint 09 desktop packaging~~
    — done (standalone settings, launcher, backup/restore, Linux
    PyInstaller bundle built + smoke-run; Windows written-only).
-   Next: Sprint 10 production hardening (security review, PostgreSQL
-   run + concurrency tests, type checking, Python 3.13 verification,
-   RELEASE_READINESS.md).
+   ~~Sprint 10 production hardening~~ — done (PostgreSQL suite +
+   concurrency fixes, mypy gate, Python 3.13 verified, security
+   review, RELEASE_READINESS.md verdict "Ready with documented
+   limitations"). Post-v1.0 candidates: data-entry UI for business
+   documents, Windows verification, login rate limiting, PG restore
+   drill, Jalali display + translations, bank reconciliation.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
