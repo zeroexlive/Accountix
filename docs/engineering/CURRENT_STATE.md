@@ -1,6 +1,6 @@
 # Current State — Repository Assessment (Phase 0)
 
-Date: 2026-11-02. Assessor: Muse development coordinator (subagent).
+Date: 2026-11-02 (last updated Sprint 08, 2026-11-03). Assessor: Muse development coordinator (subagent).
 Repository: `zeroexlive/Accountix` (private, "Accountant software").
 
 ## 1. Evidence for the starting point (verified, not assumed)
@@ -57,7 +57,12 @@ Modular monolith, single Django project under `backend/`:
   (ADR-029), fiscal period/year closing with reopen-via-reversal
   (ADR-028), and derived income statement + balance sheet (ADR-030)
   with read-only Persian RTL pages for both statements and counts.
-- Placeholder packages (not in `INSTALLED_APPS`, no models): `reporting`.
+- Update (Sprint 08): `reporting` is installed as a model-free
+  presentation layer (ADR-031): the core dashboard renders its
+  aggregation service, list pages gained GET filters + pagination,
+  CSV/XLSX exports landed under `/reports/exports/`, and invoices and
+  party statements gained print templates (browser print-to-PDF is the
+  PDF path, ADR-032).
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
