@@ -4,8 +4,9 @@ SQLite (the standalone/local database): the copy is made with the
 sqlite3 backup API (consistent while the app is live) and verified with
 ``PRAGMA integrity_check`` before success is reported.
 
-PostgreSQL: shells out to ``pg_dump``. This path is implemented but has
-never been exercised on a machine with PostgreSQL installed — see
+PostgreSQL: shells out to ``pg_dump``. Verified once in Sprint 10
+against PostgreSQL 16.2 (archive produced and read back with
+``pg_restore --list``); restore stays an operational procedure — see
 docs/deployment/PRODUCTION.md.
 """
 
@@ -72,7 +73,7 @@ class Command(BaseCommand):
         return make_backup(source, default_backups_dir(source))
 
     def _backup_postgres(self, db, options) -> Path:
-        # Implemented, untested on this machine (no PostgreSQL installed).
+        # Verified in Sprint 10 against PostgreSQL 16.2 (pgserver instance).
         if options["output"]:
             dest = Path(options["output"])
         else:
