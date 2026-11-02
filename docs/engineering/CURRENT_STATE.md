@@ -41,8 +41,13 @@ Modular monolith, single Django project under `backend/`:
   `purchases` (PurchaseOrder/Line, PurchaseInvoice/Line, PurchaseReturn/
   Line) are installed; `JournalLine` gained a nullable party tag for
   subledgers (ADR-015).
-- Placeholder packages (not in `INSTALLED_APPS`, no models): `sales`,
-  `treasury`, `reporting`.
+- Update (Sprint 05): `sales` (SalesQuotation/Line, SalesInvoice/Line,
+  SalesReturn/Line) is installed; sales posting issues stock at MWAC and
+  posts revenue + COGS entries (ADR-020), returns restore at the original
+  COGS cost (ADR-021). The internal MVP purchase-to-sale workflow passes
+  end-to-end (see `SPRINT_05_REPORT.md`).
+- Placeholder packages (not in `INSTALLED_APPS`, no models): `treasury`,
+  `reporting`.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -127,10 +132,11 @@ planned.
 
 ## 9. Test coverage assessment
 
-99 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+115 pytest tests, all passing (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
-catalog/inventory tests; Sprint 04: +25 parties/purchasing tests — see
+catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
+Sprint 05: +16 sales tests including the §20.4 MVP end-to-end test — see
 the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -138,9 +144,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
 ## 10. Recommended corrective actions & implementation priorities
 
 1. ~~Sprint 02: accounting engine~~ — done. Sprint 03 (inventory) — done.
-   Sprint 04 (purchasing + parties) — done. Next: Sprint 05 sales
-   (customers, sales invoices, COGS from MWAC, receivables subledger —
-   the internal MVP milestone), reusing the party-tag subledger.
+   Sprint 04 (purchasing + parties) — done. ~~Sprint 05 sales~~ — done
+   (internal MVP reached). Next: Sprint 06 treasury (cash/bank, receipts
+   and payments, payment allocation, cheques) — the only writer allowed
+   to move `payment_status`.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
