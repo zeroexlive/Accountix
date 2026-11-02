@@ -376,7 +376,7 @@ class SalesReturn(TimeStampedUUIDModel):
     class Status(models.TextChoices):
         DRAFT = "DRAFT", "Draft"
         POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"  # reserved; no reversal service yet
+        REVERSED = "REVERSED", "Reversed"  # via reverse_*_return services (Sprint 07)
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales_returns")
     original_invoice = models.ForeignKey(
