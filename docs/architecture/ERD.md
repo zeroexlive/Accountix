@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Legend: **[S01]/[S02]/[S03]/[S04]** = implemented with migrations in that sprint.
+Legend: **[S01]/[S02]/[S03]/[S04]/[S05]/[S06]** = implemented with migrations in that sprint.
 **[planned]** = full target schema from the master prompt §13.2; no model
 exists yet. JournalEntry/JournalLine/JournalReversal moved to [S02] —
 implemented 2026-11-02; their relations above lost the "[planned]" prefix
@@ -42,6 +42,12 @@ erDiagram
     Account ||--o{ JournalLine : "[planned] posted to"
     JournalEntry ||--|| JournalReversal : "[planned] reversed by"
     Party ||--o{ SalesInvoice : "[S05] customer"
+    TreasuryAccount ||--o{ Payment : "[S06] settles through"
+    Party ||--o{ Payment : "[S06] counterparty"
+    Payment ||--o{ PaymentAllocation : "[S06] allocates"
+    PaymentAllocation }o--|| SalesInvoice : "[S06] settles"
+    PaymentAllocation }o--|| PurchaseInvoice : "[S06] settles"
+    Payment ||--o{ Cheque : "[S06] paid by"
     SalesInvoice ||--o{ SalesInvoiceLine : "[S05] has"
     Product ||--o{ SalesInvoiceLine : "[S05]"
     SalesQuotation ||--o{ SalesInvoice : "[S05] converts to"
@@ -88,6 +94,10 @@ erDiagram
     StockDocumentReversal { uuid id PK "[S03]"; uuid original_document FK "OneToOne"; uuid reversal_document FK "OneToOne" }
     StockBalance { string note "NOT A TABLE - derived from StockMovement in inventory.reporting (ADR-012)" }
     SalesInvoice { uuid id PK "[S05]"; uuid party FK; string posting_status; string payment_status }
+    TreasuryAccount { uuid id PK "[S06]"; uuid company FK; string kind "CASH/BANK (ADR-022)"; uuid gl_account FK; string bank_name; string account_number }
+    Payment { uuid id PK "[S06]"; uuid company FK; string direction "RECEIPT/PAYMENT"; uuid party FK; uuid treasury_account FK; string method "CASH/BANK_TRANSFER/CHEQUE"; decimal amount ">0"; string status "DRAFT/POSTED/REVERSED"; uuid counterparty_account FK "AR/AP used at posting"; uuid journal_entry FK }
+    PaymentAllocation { uuid id PK "[S06]"; uuid payment FK; uuid sales_invoice FK "nullable, exactly one target"; uuid purchase_invoice FK "nullable"; decimal amount ">0"; string status "ACTIVE/VOID (ADR-025)" }
+    Cheque { uuid id PK "[S06]"; uuid company FK; string direction "RECEIVED/ISSUED"; uuid payment FK; string cheque_number "UK per company+direction+bank"; string sayad_id; decimal amount ">0"; date due_date; string status "state machine (ADR-026)"; uuid holding_account FK }
     Payment { uuid id PK "[planned]"; decimal amount; date payment_date }
     PaymentAllocation { uuid id PK "[planned]"; uuid payment FK; decimal amount }
     Cheque { uuid id PK "[planned]"; date due_date; string status }
