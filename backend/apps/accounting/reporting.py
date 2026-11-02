@@ -14,7 +14,7 @@ ZERO = Decimal("0")
 LEDGER_STATUSES = [JournalEntry.Status.POSTED, JournalEntry.Status.REVERSED]
 
 
-def _lines(company, *, fiscal_period=None, account=None, date_to=None):
+def _lines(company, *, fiscal_period=None, account=None, date_to=None, party=None):
     qs = JournalLine.objects.filter(
         entry__company=company, entry__status__in=LEDGER_STATUSES
     ).select_related("entry", "account")
@@ -24,7 +24,20 @@ def _lines(company, *, fiscal_period=None, account=None, date_to=None):
         qs = qs.filter(account=account)
     if date_to is not None:
         qs = qs.filter(entry__entry_date__lte=date_to)
+    if party is not None:
+        qs = qs.filter(party=party)
     return qs
+
+
+def party_account_balance(company, account, party) -> Decimal:
+    """Debit-minus-credit balance of one account restricted to lines tagged
+    with one party — the subledger primitive (ADR-015). Sign convention is
+    the account's own: a credit-normal AP account yields a negative number
+    for amounts owed; callers flip the sign for presentation."""
+    agg = _lines(company, account=account, party=party).aggregate(
+        debit=Sum("debit"), credit=Sum("credit")
+    )
+    return (agg["debit"] or ZERO) - (agg["credit"] or ZERO)
 
 
 def trial_balance(company, *, fiscal_period=None):
