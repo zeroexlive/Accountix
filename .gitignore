@@ -6,6 +6,10 @@ __pycache__/
 .coverage
 htmlcov/
 .env
+# Standalone secrets/data must never be committed, even if a data dir
+# is pointed inside the checkout (Sprint 10 security review).
+secret_key.txt
+backups/
 *.sqlite3
 db.sqlite3
 backend/staticfiles/
