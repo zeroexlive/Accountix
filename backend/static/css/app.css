@@ -1,0 +1,20 @@
+/* Accountix Sprint 01 minimal design system — hand-written, offline, RTL-first.
+   Replaced/extended by the Tailwind build in a later sprint (documented). */
+:root{--bg:#f7f7f5;--surface:#fff;--text:#1c1c1a;--muted:#6b6b66;--border:#e3e3dd;--accent:#0f766e}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{display:flex;gap:1rem;align-items:center;padding:.75rem 1.25rem;background:var(--surface);border-bottom:1px solid var(--border)}
+.topbar nav{display:flex;gap:1rem;flex:1}.topbar a{color:var(--text);text-decoration:none}.brand{font-weight:700}
+.container{max-width:960px;margin:2rem auto;padding:0 1rem}.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+table{width:100%;border-collapse:collapse}th,td{padding:.5rem;border-bottom:1px solid var(--border);text-align:right}
+input,select{padding:.5rem;border:1px solid var(--border);border-radius:8px;width:100%;margin-bottom:.75rem}
+button,.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:.55rem 1rem;cursor:pointer;text-decoration:none;display:inline-block}
+.msg{background:#ecfdf5;border:1px solid var(--accent);padding:.5rem;border-radius:8px}.empty{color:var(--muted)}
+
+/* Sprint 08 — dashboard cards, pagination, print */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1rem}
+.cards .card{margin-bottom:0}.kpi h3{margin:.2rem 0;color:var(--muted);font-size:.9rem}.kpi-value{font-size:1.4rem;font-weight:700;margin:.3rem 0}
+.pagination{display:flex;gap:1rem;align-items:center;padding:.75rem 0}.pagination a{color:var(--accent)}
+.print-page{background:#fff}.print-doc{max-width:800px;margin:1.5rem auto;padding:0 1rem}
+.print-header{border-bottom:2px solid var(--text);padding-bottom:.5rem;margin-bottom:1rem}
+.print-footer{color:var(--muted);font-size:.8rem;margin-top:2rem}
+@media print{.topbar{display:none}.container{margin:0;max-width:none}.card{border:0;padding:0}body{background:#fff}}
