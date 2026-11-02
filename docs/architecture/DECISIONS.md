@@ -304,3 +304,54 @@ templates on a print base layout with `@media print` CSS, and the
 browser's print-to-PDF is the supported PDF path. Revisit a native PDF
 engine only with a requirement for unattended/batch PDF generation,
 and evaluate Arabic-script text shaping explicitly at that point.
+
+## ADR-033 — Standalone settings serve static via WhiteNoise; cookies are not Secure on loopback HTTP (accepted, Sprint 09)
+The packaged app gets its own settings module,
+`config.settings.standalone`: DEBUG off, loopback-only ALLOWED_HOSTS,
+SQLite in the per-user data directory, and a SECRET_KEY generated once
+into that directory. Static files are collected into the data directory
+and served by WhiteNoise (pinned dependency) — the simplest robust
+option that works identically from source and in a frozen bundle,
+without a separate static server. Session/CSRF cookies are
+deliberately *not* marked Secure here, unlike
+`config.settings.production`: standalone serves plain HTTP on
+127.0.0.1 only, and a Secure cookie would never be returned by the
+browser, breaking login. The threat model is a single-user local
+machine; public deployments use the production settings.
+
+## ADR-034 — Launcher process model: subprocess from source, in-process when frozen; backup gates migration (accepted, Sprint 09)
+One launcher (`launcher/accountix_launcher.py`) serves both worlds.
+From source it runs management commands and `backend/serve.py`
+(Waitress) as subprocesses; frozen by PyInstaller it runs
+`call_command` in-process and the server in a thread, because a bundle
+has no child interpreter. `serve.py` only serves — migrations are the
+launcher's job, sequenced as: single-instance health check (plus a pid
+lock file as a secondary guard) → backup of an existing database →
+migrate → collectstatic → serve → health poll → browser. A failed
+backup or migration aborts startup with the database untouched; an
+upgrade is therefore exactly "start the new launcher" (ADR-036). The
+launcher also installs explicit SIGINT/SIGTERM handlers:
+background-spawned processes inherit SIGINT masked, which once left a
+supervising script unable to stop it (found by the Sprint 09 smoke
+test, fixed the same day).
+
+## ADR-035 — Backups are SQLite-API copies, integrity-verified, never trusted on write alone (accepted, Sprint 09)
+`backup_db` copies SQLite via the sqlite3 backup API (consistent while
+live) to `backups/accountix-<timestamp>.sqlite3` next to the database,
+then verifies the copy (`PRAGMA integrity_check` + table count) before
+reporting success. `restore_db` is guarded as the destructive action
+it is: `--confirm` required, a `pre-restore-*` backup of the current
+database first, verification before and after, and pending migrations
+reported — never applied silently. PostgreSQL backup shells to
+`pg_dump` (implemented, untested — no PostgreSQL on the dev machine);
+PostgreSQL restore stays an operational `pg_restore` procedure.
+Retention is explicit (`--keep N` on `backup_db`), not automatic.
+
+## ADR-036 — The upgrade flow is launcher-driven; recovery is restore_db (accepted, Sprint 09)
+Installing a new version never touches the data directory (it lives
+outside the install dir, per `config/paths.py`). The first launch of
+the new version backs up, migrates, and serves (ADR-034); recovery
+from a bad upgrade is `restore_db` of the pre-upgrade backup plus the
+previous version's launcher, as documented in
+`docs/deployment/UPGRADE.md`. No separate updater, migration service,
+or rollback machinery is built — the backup *is* the rollback.
