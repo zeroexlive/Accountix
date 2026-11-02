@@ -1,6 +1,6 @@
 # Current State — Repository Assessment (Phase 0)
 
-Date: 2026-11-02 (last updated Sprint 08, 2026-11-03). Assessor: Muse development coordinator (subagent).
+Date: 2026-11-02 (last updated Sprint 09, 2026-11-03). Assessor: Muse development coordinator (subagent).
 Repository: `zeroexlive/Accountix` (private, "Accountant software").
 
 ## 1. Evidence for the starting point (verified, not assumed)
@@ -63,6 +63,15 @@ Modular monolith, single Django project under `backend/`:
   CSV/XLSX exports landed under `/reports/exports/`, and invoices and
   party statements gained print templates (browser print-to-PDF is the
   PDF path, ADR-032).
+- Update (Sprint 09): standalone desktop mode is implemented —
+  `config.settings.standalone` + `config/paths.py` (per-user data
+  directory, generated secret key), `backend/serve.py` (Waitress on
+  127.0.0.1), the cross-platform launcher with backup-gated migrations
+  (ADR-033/034), `backup_db`/`restore_db` management commands
+  (ADR-035), and a PyInstaller spec + Linux/Windows build scripts.
+  The Linux bundle was built and smoke-run for real (fresh launch,
+  second-launch backup, clean SIGINT shutdown); the Windows bundle is
+  written but untested on Windows.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -146,7 +155,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-165 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+196 pytest tests, all passing (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -154,8 +163,12 @@ Sprint 05: +16 sales tests including the §20.4 MVP end-to-end test;
 Sprint 06: +20 treasury tests including a treasury end-to-end test that
 settles the MVP chain with real payments, allocations and a cleared
 cheque; Sprint 07: +30 counts, reversible returns, opening balances,
-fiscal closing/reopening, statements and their read-only pages — see
-the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
+fiscal closing/reopening, statements and their read-only pages;
+Sprint 08: +16 reporting/dashboard/filter/export/print tests;
+Sprint 09: +15 standalone-settings, data-dir, launcher-logic, health
+polling and backup/restore tests, including a subprocess round-trip of
+the real management commands — see the sprint reports for exact
+commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
 
@@ -169,8 +182,13 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    with snapshot + warehouse-freeze, reversible purchase/sales returns,
    opening balances, fiscal period/year closing with reopen-via-reversal,
    income statement + balance sheet with the result-line identity).
-   Next: Sprint 08 reporting & UX (dashboard, advanced filtering,
-   PDF/Excel exports, print templates).
+   ~~Sprint 08 reporting & UX~~ — done (derived dashboard, filters,
+   CSV/XLSX exports, print templates). ~~Sprint 09 desktop packaging~~
+   — done (standalone settings, launcher, backup/restore, Linux
+   PyInstaller bundle built + smoke-run; Windows written-only).
+   Next: Sprint 10 production hardening (security review, PostgreSQL
+   run + concurrency tests, type checking, Python 3.13 verification,
+   RELEASE_READINESS.md).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
