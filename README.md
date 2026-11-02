@@ -4,15 +4,17 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-02): Sprints 01–04 done.** Authentication,
-> companies/memberships, fiscal years/periods, chart of accounts, the
-> double-entry journal engine (posting/reversal, trial balance, general
-> ledger), the inventory engine (catalog, warehouses, ledger-based
-> stock movements with moving weighted average cost) and purchasing
-> (parties, purchase orders/invoices/returns posting into inventory and
-> payables, supplier subledger from journal lines) exist and are
-> tested (115 tests). Treasury and financial
-> statements are **planned, not implemented** — see
+> **Status (2026-11-02): Sprints 01-06 done; internal MVP reached.**
+> Authentication, companies/memberships, fiscal years/periods, chart of
+> accounts, the double-entry journal engine (posting/reversal, trial
+> balance, general ledger), the inventory engine (ledger-based stock
+> movements, MWAC), purchasing (parties, purchase invoices posting into
+> inventory and payables, supplier subledger), sales (invoices issuing
+> stock with revenue + COGS entries, customer subledger) and treasury
+> (cash/bank accounts, receipts/payments with allocation to invoices,
+> cheque register with clearing/bounce) exist and are tested
+> (135 tests). Financial statements, fiscal closing and opening
+> balances are **planned, not implemented** - see
 > `docs/engineering/CURRENT_STATE.md` and `docs/product/PRD.md`.
 
 ## Stack
@@ -59,5 +61,6 @@ cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
 
 Modular monolith: `backend/apps/` contains `core`, `users`, `organizations`,
 `accounting`, `audit` (implemented in Sprint 01), `catalog`, `inventory`
-(Sprint 03), `parties`, `purchases` (Sprint 04) and `sales` (Sprint 05); placeholder packages
-remain for `sales`, `treasury`, `reporting` (planned, not installed).
+(Sprint 03), `parties`, `purchases` (Sprint 04), `sales` (Sprint 05) and
+`treasury` (Sprint 06); a placeholder package remains for `reporting`
+(planned, not installed).
