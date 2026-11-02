@@ -208,3 +208,68 @@ their own journals. Transitions are a closed state machine in
 `treasury.services`; illegal transitions are rejected and tested. The
 Sayad id is a plain optional field: no registry validation is performed
 or claimed.
+
+## ADR-027 — Inventory counts snapshot the derived balance and freeze the warehouse (accepted, Sprint 07)
+An InventoryCount line snapshots `system_qty` from the derived stock
+balance at creation (ADR-012: there is no stored balance to read).
+Posting re-derives every touched product's balance and REJECTS the
+count if it no longer equals the snapshot: by the time a count is
+posted, its warehouse must have been frozen since counting — posting a
+stale count would book other documents' movements as variance. The fix
+is to void the count and recount, never to silently re-snapshot.
+Variances post as ONE ADJUSTMENT stock document (source
+`INVENTORY_COUNT`) valued at the current MWAC; a positive variance for
+a product with zero stock needs an explicit unit cost on the line (the
+existing adjustment rule). The optional GL entry books the NET variance
+value once (gain: Dr inventory / Cr variance; loss mirrored), key
+`stock-count:<id>`. Reversal creates a POSTED reversal count with
+system/counted swapped, linked via `reversal_of`, and reverses the
+stock document and journal — counts are never edited or deleted after
+posting.
+
+## ADR-028 — Fiscal closing is a journal entry; reopening reverses it (accepted, Sprint 07)
+Closing a period posts ONE closing journal entry (source_type
+`CLOSING`, key `closing:<period id>`, dated the period's last day)
+zeroing each revenue/expense account's PERIOD balance into a
+caller-supplied retained-earnings account, and only then flips the
+period to CLOSED — the existing posting gate does the rest. A period
+with no income-statement activity closes with NO entry (tested,
+documented choice). Reopening flips the period back to OPEN and
+reverses the closing entry inside the same transaction (the flip must
+come first: the reversal itself is a posting into that period); nothing
+is ever deleted. Because the closing entry is later REVERSED when a
+period reopens, `_closing_entry_for_period` only tracks POSTED closing
+entries, and a re-close after reopen posts a fresh entry with key
+`closing:<id>:<n>`. Fiscal-year closing closes each open period through
+the same service, then flips the year's status to CLOSED.
+
+## ADR-029 — Opening balances are one offset-balanced journal entry (accepted, Sprint 07)
+`post_opening_balance` posts ONE entry (source_type `opening_balance`,
+key `opening-balance:<fiscal year id>`, idempotent per fiscal year)
+dated the fiscal year's first period start, requiring that period
+OPEN. The service itself balances the entry: the difference between the
+given debits and credits is appended as a single line on a
+caller-supplied offset account (retained earnings / opening-balance
+equity), so the entry is balanced BY CONSTRUCTION and can never be
+posted unbalanced. Lines are validated one-sided, postable, active and
+same-company, with optional party tagging for opening AP/AR. Opening
+STOCK is deliberately NOT a model: it is an inventory receipt with
+source reference `opening_stock` plus the Sprint 03 GL opt-in (Dr
+inventory / Cr opening equity) — documented as a recipe in
+INVENTORY_RULES and covered by a test.
+
+## ADR-030 — Statements: balance-sheet result line; income statement excludes closing entries (accepted, Sprint 07)
+Both statements are derived from journal lines only. The balance sheet
+computes a "current period result" line — the net of ALL revenue and
+expense balances with closing entries INCLUDED — and shows it inside
+equity, so Assets == Liabilities + Equity + Result holds by
+construction at any date: before closing the result is the open
+period's profit; after closing the income accounts net to zero (the
+result already sits in retained earnings) and the line is zero. The
+income statement takes the opposite view and EXCLUDES closing entries
+(source_type `CLOSING`), so a closed period still reports its real
+operating result instead of zeros. COGS is not inferred from account
+codes or names (the type taxonomy has no COGS class): callers designate
+COGS accounts explicitly via `cogs_accounts=`; without designation all
+expenses group together and gross profit equals net income. Amounts are
+presented positive on their normal-balance side in both statements.
