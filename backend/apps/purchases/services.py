@@ -559,3 +559,54 @@ def post_purchase_return(purchase_return, *, user=None, gl_accounts=None):
         journal_entry_id=str(journal_entry.id) if journal_entry else "",
     )
     return ret
+
+
+@transaction.atomic
+def reverse_purchase_return(purchase_return, *, user=None, reason=""):
+    """Reverse a POSTED purchase return (Sprint 07): reverse its stock
+    issue (the goods come back into the warehouse) and its journal in one
+    transaction, then flip the return to REVERSED.
+
+    ``returned_quantity`` sums POSTED returns only, so the flip restores
+    the line's returnable quantity — the same quantity can be returned
+    again by a new return afterwards.
+    """
+    from apps.audit.services import record_event
+    from apps.purchases.models import PurchaseReturn
+
+    ret = PurchaseReturn.objects.select_for_update().get(pk=purchase_return.pk)
+    if ret.status == PurchaseReturn.Status.REVERSED:
+        raise ValidationError("This purchase return has already been reversed.")
+    if ret.status != PurchaseReturn.Status.POSTED:
+        raise ValidationError("Only a POSTED purchase return can be reversed.")
+
+    if ret.stock_document_id is not None:
+        from apps.inventory import services as inventory_services
+
+        inventory_services.reverse_stock_document(
+            ret.stock_document,
+            user=user,
+            reason=reason or f"Purchase return {ret.return_number} reversed",
+            reversal_date=ret.return_date,
+        )
+    if ret.journal_entry_id is not None:
+        from apps.accounting.services import reverse_journal_entry
+
+        reverse_journal_entry(
+            entry=ret.journal_entry,
+            user=user,
+            reason=reason,
+            reversal_date=ret.return_date,
+        )
+
+    ret.status = PurchaseReturn.Status.REVERSED
+    ret.save()
+    record_event(
+        action="purchase_return.reversed",
+        entity_type="PurchaseReturn",
+        company=ret.company,
+        user=user,
+        entity_id=ret.id,
+        reason=reason,
+    )
+    return ret
