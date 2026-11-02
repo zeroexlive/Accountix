@@ -1,0 +1,12 @@
+{% extends "print_base.html" %}
+{% block title %}صورت‌حساب تأمین‌کننده {{ statement.supplier.code }}{% endblock %}
+{% block content %}
+<header class="print-header">
+  <h1>صورت‌حساب تأمین‌کننده</h1>
+  <h2>{{ statement.supplier.code }} — {{ statement.supplier.name }}</h2>
+  {% if statement.supplier.tax_id %}<p>شناسه مالیاتی: {{ statement.supplier.tax_id }}</p>{% endif %}
+</header>
+<p><strong>مانده بدهی (دفتر معین): {{ statement.balance }}</strong></p>
+<table><tr><th>شماره فاکتور</th><th>تاریخ</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr>
+{% for inv in statement.invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date }}</td><td>{{ inv.grand_total }}</td><td>{{ inv.payment_status }}</td></tr>{% empty %}<tr><td colspan="4" class="empty">فاکتوری ثبت نشده است</td></tr>{% endfor %}</table>
+{% endblock %}
