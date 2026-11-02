@@ -1,4 +1,5 @@
 {% extends "base.html" %}{% block content %}
+<p><a class="btn" href="{% url 'sales_invoice_print' invoice.pk %}">نسخه چاپی</a></p>
 <h1>فاکتور فروش {{ invoice.invoice_number }}</h1>
 <div class="card">
 <p>مشتری: {{ invoice.customer.name }} ({{ invoice.customer.code }}) — تاریخ: {{ invoice.invoice_date }} — انبار: {{ invoice.warehouse.code }}</p>
