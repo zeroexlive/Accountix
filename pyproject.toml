@@ -11,7 +11,7 @@ requires-python = ">=3.12"
 license = { text = "Proprietary" }
 dependencies = [
     "Django>=5.2,<5.3",
-    "djangorestframework>=3.16,<3.17",
+    "djangorestframework>=3.18,<3.19",
     "waitress>=3.0,<4.0",
     "whitenoise>=6.0,<7.0",
     "psycopg[binary]>=3.2,<4.0",
@@ -25,6 +25,9 @@ dev = [
     "pytest-cov>=6,<7",
     "ruff>=0.9,<1",
     "pyinstaller>=6.0,<7.0",
+    "mypy>=1.13,<2",
+    "django-stubs>=5.1,<6",
+    "djangorestframework-stubs>=3.16,<4",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -38,6 +41,26 @@ exclude = ["**/migrations/**"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["E501"]
+
+# Type checking gate (Sprint 10). Run from backend/ (the Django plugin
+# imports the settings module, which needs backend/ on sys.path):
+#   cd backend && ../.venv/bin/mypy --config-file ../pyproject.toml .
+# Policy: errors in project code are fixed, not suppressed. The only
+# baseline is per-module ignore_missing_imports for two third-party
+# libraries that ship neither stubs nor a py.typed marker (waitress,
+# openpyxl); everything else must type-check clean.
+[tool.mypy]
+python_version = "3.12"
+files = "backend"
+plugins = ["mypy_django_plugin.main"]
+exclude = "migrations"
+
+[[tool.mypy.overrides]]
+module = ["waitress", "openpyxl", "openpyxl.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
