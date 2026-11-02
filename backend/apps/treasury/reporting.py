@@ -41,6 +41,31 @@ def invoice_outstanding(invoice) -> Decimal:
     return invoice.grand_total - allocated_amount(invoice)
 
 
+def _allocated_totals(field, invoices):
+    """ACTIVE allocated totals for many invoices in ONE grouped query.
+
+    Returns {invoice_id: Decimal}. Sprint 10 performance fix: the
+    original open_items called the per-invoice aggregate twice per
+    invoice (2N queries — the dashboard needed 116 queries at 50
+    invoices); this keeps the count constant as invoices grow.
+    """
+    from django.db.models import Sum
+
+    from apps.treasury.models import PaymentAllocation
+
+    ids = [invoice.id for invoice in invoices]
+    if not ids:
+        return {}
+    rows = (
+        PaymentAllocation.objects.filter(
+            status=PaymentAllocation.Status.ACTIVE, **{f"{field}__in": ids}
+        )
+        .values(field)
+        .annotate(total=Sum("amount"))
+    )
+    return {row[field]: row["total"] or ZERO for row in rows}
+
+
 def open_items(company, *, party=None):
     """Per-invoice open items for POSTED sales and purchase invoices
     with a positive outstanding amount."""
@@ -53,8 +78,13 @@ def open_items(company, *, party=None):
     if party is not None:
         sales_qs = sales_qs.filter(customer=party)
         purchase_qs = purchase_qs.filter(supplier=party)
-    for invoice in sales_qs.select_related("customer"):
-        outstanding = invoice_outstanding(invoice)
+    sales_invoices = list(sales_qs.select_related("customer"))
+    purchase_invoices = list(purchase_qs.select_related("supplier"))
+    sales_allocated = _allocated_totals("sales_invoice", sales_invoices)
+    purchase_allocated = _allocated_totals("purchase_invoice", purchase_invoices)
+    for invoice in sales_invoices:
+        allocated = sales_allocated.get(invoice.id, ZERO)
+        outstanding = invoice.grand_total - allocated
         if outstanding > ZERO:
             items.append(
                 {
@@ -62,12 +92,13 @@ def open_items(company, *, party=None):
                     "invoice": invoice,
                     "party": invoice.customer,
                     "total": invoice.grand_total,
-                    "allocated": allocated_amount(invoice),
+                    "allocated": allocated,
                     "outstanding": outstanding,
                 }
             )
-    for invoice in purchase_qs.select_related("supplier"):
-        outstanding = invoice_outstanding(invoice)
+    for invoice in purchase_invoices:
+        allocated = purchase_allocated.get(invoice.id, ZERO)
+        outstanding = invoice.grand_total - allocated
         if outstanding > ZERO:
             items.append(
                 {
@@ -75,7 +106,7 @@ def open_items(company, *, party=None):
                     "invoice": invoice,
                     "party": invoice.supplier,
                     "total": invoice.grand_total,
-                    "allocated": allocated_amount(invoice),
+                    "allocated": allocated,
                     "outstanding": outstanding,
                 }
             )
