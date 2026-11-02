@@ -32,6 +32,23 @@ locally in a later sprint; until then the UI is server-rendered only.
 This development machine provides Python 3.12.3 only. Django 5.2 LTS supports
 it. 3.13 must be added to CI before any 3.13 support claim (see CURRENT_STATE TD-4).
 
+## ADR-009 — Reversal modelled twice: link + record (accepted, Sprint 02)
+A reversal entry points to its original via `JournalEntry.reversal_of`, and a
+dedicated `JournalReversal` row (original, reversal, reversed_by, reason,
+reversed_at; OneToOne on both sides) preserves who/why/when. The double
+model costs one small table and makes double-reversal structurally hard.
+
+## ADR-010 — Ledger statuses for reporting (accepted, Sprint 02)
+Reporting sums lines of entries with status POSTED **or** REVERSED: a
+reversed original remains in the ledger because its POSTED reversal entry
+offsets it exactly. Excluding REVERSED originals while including reversals
+would corrupt balances. No stored balance fields; everything is derived.
+
+## ADR-011 — AccountingMapping deferred (accepted, Sprint 02)
+No `AccountingMapping` model yet: nothing maps to accounts until sales /
+purchasing / treasury land (Sprints 04–06). Adding it now would be a table
+with no writer and no reader.
+
 ## ADR-008 — Money is Decimal, currency is ISO 4217 (accepted)
 Default company currency `IRR`. Toman is a display unit (1 toman = 10 rials)
 with explicit conversion at presentation time — never a stored currency.
