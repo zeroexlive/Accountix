@@ -52,3 +52,26 @@ with no writer and no reader.
 ## ADR-008 — Money is Decimal, currency is ISO 4217 (accepted)
 Default company currency `IRR`. Toman is a display unit (1 toman = 10 rials)
 with explicit conversion at presentation time — never a stored currency.
+
+## ADR-012 — StockBalance is derived, not a table (accepted, Sprint 03)
+No `StockBalance` model exists. Balances, valuation, movement history and
+low-stock are aggregations of the append-only `StockMovement` ledger in
+`apps/inventory/reporting.py` — the same derivation discipline as
+accounting balances from journal lines (ADR-010). A cached balance table
+may be added later only as a rebuildable projection with reconciliation
+tests; the ledger stays authoritative.
+
+## ADR-013 — Inventory→GL posting is explicit opt-in (accepted, Sprint 03)
+Stock services post **no** journal by default. A caller may pass
+`gl_accounts=(inventory_account, offset_account)` for a RECEIPT (debit
+inventory / credit offset) or ISSUE (debit offset / credit inventory);
+the journal is created through `accounting.services.post_journal_entry`
+with idempotency key `stock-doc:<document id>` and linked from the stock
+document. No account codes are hardcoded anywhere in inventory — account
+mapping remains deferred (ADR-011) until purchasing/sales define it.
+
+## ADR-014 — Parties deferred past Sprint 03 (accepted, Sprint 03)
+Stock documents carry a free `source_type`/`source_id` reference (the
+JournalEntry pattern) instead of a party FK. Purchasing (Sprint 04) is the
+first flow that genuinely needs suppliers, and it will introduce the
+parties app then; inventory does not need it now.
