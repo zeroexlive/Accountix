@@ -11,7 +11,7 @@ for international markets without a rewrite.
 > stock movements with moving weighted average cost) and purchasing
 > (parties, purchase orders/invoices/returns posting into inventory and
 > payables, supplier subledger from journal lines) exist and are
-> tested (99 tests). Sales, treasury and financial
+> tested (115 tests). Treasury and financial
 > statements are **planned, not implemented** — see
 > `docs/engineering/CURRENT_STATE.md` and `docs/product/PRD.md`.
 
@@ -59,5 +59,5 @@ cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
 
 Modular monolith: `backend/apps/` contains `core`, `users`, `organizations`,
 `accounting`, `audit` (implemented in Sprint 01), `catalog`, `inventory`
-(Sprint 03) and `parties`, `purchases` (Sprint 04); placeholder packages
+(Sprint 03), `parties`, `purchases` (Sprint 04) and `sales` (Sprint 05); placeholder packages
 remain for `sales`, `treasury`, `reporting` (planned, not installed).
