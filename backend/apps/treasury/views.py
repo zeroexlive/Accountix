@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from apps.core.access import user_company_ids
+from apps.core.pagination import apply_date_range, paginate
 from apps.treasury import reporting
 from apps.treasury.models import Cheque, Payment, TreasuryAccount
 
@@ -28,7 +29,23 @@ def payment_list(request):
         .select_related("company", "party", "treasury_account")
         .order_by("-payment_date", "-created_at")
     )
-    return render(request, "treasury/payment_list.html", {"payments": payments})
+    if request.GET.get("status"):
+        payments = payments.filter(status=request.GET["status"])
+    if request.GET.get("method"):
+        payments = payments.filter(method=request.GET["method"])
+    payments = apply_date_range(payments, request.GET, "payment_date")
+    page_obj, filter_query = paginate(request, payments)
+    return render(
+        request,
+        "treasury/payment_list.html",
+        {
+            "payments": page_obj,
+            "page_obj": page_obj,
+            "filter_query": filter_query,
+            "statuses": Payment.Status.choices,
+            "methods": Payment.Method.choices,
+        },
+    )
 
 
 @login_required
@@ -38,7 +55,24 @@ def cheque_list(request):
         .select_related("company", "payment__party")
         .order_by("due_date")
     )
-    return render(request, "treasury/cheque_list.html", {"cheques": cheques})
+    if request.GET.get("status"):
+        cheques = cheques.filter(status=request.GET["status"])
+    if request.GET.get("direction"):
+        cheques = cheques.filter(direction=request.GET["direction"])
+    cheques = apply_date_range(cheques, request.GET, "due_date")
+    # apply_date_range uses date_from/date_to on due_date; treasury uses it as due range.
+    page_obj, filter_query = paginate(request, cheques)
+    return render(
+        request,
+        "treasury/cheque_list.html",
+        {
+            "cheques": page_obj,
+            "page_obj": page_obj,
+            "filter_query": filter_query,
+            "statuses": Cheque.Status.choices,
+            "directions": Cheque.Direction.choices,
+        },
+    )
 
 
 @login_required
