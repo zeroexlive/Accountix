@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<h1>موجودی انبار</h1>
+<div class="card"><form method="get"><label>شرکت</label>
+<select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+<button type="submit">نمایش</button></form></div>
+{% if rows %}<div class="card"><table><tr><th>انبار</th><th>کد (SKU)</th><th>محصول</th><th>مقدار</th><th>ارزش</th><th>میانگین موزون</th></tr>
+{% for r in rows %}<tr><td>{{ r.warehouse_code }}</td><td>{{ r.sku }}</td><td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.value }}</td><td>{{ r.average_cost }}</td></tr>{% endfor %}
+</table></div>{% elif company %}<p class="empty">حرکتی برای این شرکت ثبت نشده است.</p>{% else %}<p class="empty">یک شرکت انتخاب کنید.</p>{% endif %}{% endblock %}
