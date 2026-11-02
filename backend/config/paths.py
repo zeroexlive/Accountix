@@ -24,6 +24,7 @@ from __future__ import annotations
 import os
 import secrets
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 APP_NAME = "Accountix"
@@ -31,7 +32,7 @@ DEFAULT_PORT = 8765
 
 
 def default_data_dir(
-    platform: str | None = None, env: dict | None = None, home: Path | None = None
+    platform: str | None = None, env: Mapping[str, str] | None = None, home: Path | None = None
 ) -> Path:
     """Return the default per-user data directory for the platform."""
     env = os.environ if env is None else env
@@ -109,7 +110,7 @@ def get_or_create_secret_key(path: Path | None = None) -> str:
     return key
 
 
-def configured_port(env: dict | None = None) -> int:
+def configured_port(env: Mapping[str, str] | None = None) -> int:
     env = os.environ if env is None else env
     raw = env.get("ACCOUNTIX_PORT", "").strip()
     if raw:
