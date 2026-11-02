@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>چک‌ها</h1>
+{% if cheques %}<div class="card"><table><tr><th>شماره</th><th>جهت</th><th>بانک</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr>
+{% for c in cheques %}<tr><td>{{ c.cheque_number }}</td><td>{{ c.direction }}</td><td>{{ c.bank_name }}</td><td>{{ c.amount }}</td><td>{{ c.due_date }}</td><td>{{ c.status }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">چکی ثبت نشده است.</p>{% endif %}{% endblock %}
