@@ -1,0 +1,58 @@
+# Accountix
+
+Accounting and inventory management software for small and medium-sized
+commercial businesses. Initial target market: Iran. Architecture is prepared
+for international markets without a rewrite.
+
+> **Status (2026-11-02): Sprint 01 foundation only.** Authentication,
+> companies/memberships, fiscal years/periods and an initial chart of accounts
+> exist and are tested. Journal entries, inventory, sales, purchasing,
+> treasury and reporting are **planned, not implemented** — see
+> `docs/engineering/CURRENT_STATE.md` and `docs/product/PRD.md`.
+
+## Stack
+
+Python (3.12 verified locally; 3.13 targeted — see CURRENT_STATE), Django
+5.2 LTS, Django REST Framework, Django Templates, Tailwind-planned UI with a
+hand-written offline CSS design system in Sprint 01, SQLite (local) /
+PostgreSQL (production, via `DATABASE_URL`), Waitress, pytest, Ruff.
+
+## Quick start (development)
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+cp .env.example .env   # set DJANGO_SECRET_KEY
+cd backend
+../.venv/bin/python manage.py migrate
+../.venv/bin/python manage.py createsuperuser
+../.venv/bin/python manage.py runserver   # development only, never production
+```
+
+Open http://127.0.0.1:8000/login/ — UI defaults to Persian / RTL
+(`lang="fa" dir="rtl"`), with English localization prepared via Django i18n.
+
+## Tests
+
+```bash
+.venv/bin/python -m pytest      # from the repository root
+.venv/bin/ruff check backend tests
+cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
+```
+
+## Documentation
+
+- Product: `docs/product/PRD.md`
+- Architecture: `docs/architecture/ARCHITECTURE.md`, `ERD.md`, `DECISIONS.md`
+- Engineering: `docs/engineering/CURRENT_STATE.md`, `DEVELOPMENT.md`,
+  `TESTING.md`, `SPRINT_01_REPORT.md`, `SPRINT_01_BACKLOG.md`
+- Domain rules: `docs/accounting/ACCOUNTING_RULES.md`,
+  `docs/inventory/INVENTORY_RULES.md`
+- Deployment & user guide: `docs/deployment/`, `docs/user-guide/`
+
+## Layout
+
+Modular monolith: `backend/apps/` contains `core`, `users`, `organizations`,
+`accounting`, `audit` (implemented in Sprint 01) and placeholder packages for
+`parties`, `catalog`, `inventory`, `sales`, `purchases`, `treasury`,
+`reporting` (planned, not installed).
