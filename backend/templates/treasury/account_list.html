@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>حساب‌های خزانه</h1>
+{% if rows %}<div class="card"><table><tr><th>نام</th><th>نوع</th><th>بانک</th><th>حساب دفتر کل</th><th>مانده</th></tr>
+{% for row in rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td>{{ row.account.bank_name }}</td><td>{{ row.account.gl_account.code }}</td><td>{{ row.balance }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">حساب خزانه‌ای ثبت نشده است.</p>{% endif %}{% endblock %}
