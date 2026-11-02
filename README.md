@@ -4,7 +4,7 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-02): Sprints 01-06 done; internal MVP reached.**
+> **Status (2026-11-03): Sprints 01-08 done; internal MVP reached.**
 > Authentication, companies/memberships, fiscal years/periods, chart of
 > accounts, the double-entry journal engine (posting/reversal, trial
 > balance, general ledger), the inventory engine (ledger-based stock
@@ -62,5 +62,7 @@ cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
 Modular monolith: `backend/apps/` contains `core`, `users`, `organizations`,
 `accounting`, `audit` (implemented in Sprint 01), `catalog`, `inventory`
 (Sprint 03), `parties`, `purchases` (Sprint 04), `sales` (Sprint 05) and
-`treasury` (Sprint 06); a placeholder package remains for `reporting`
-(planned, not installed).
+`treasury` (Sprint 06); Sprint 07 added inventory counts, fiscal
+closing and financial statements, and Sprint 08 installed `reporting`
+as a model-free presentation layer (dashboard aggregation, filters,
+CSV/XLSX exports, print templates).
