@@ -22,6 +22,8 @@
     <a href="{% url 'account_list' %}">حساب‌ها</a>
     <a href="{% url 'journal_list' %}">دفتر روزنامه</a>
     <a href="{% url 'trial_balance' %}">تراز آزمایشی</a>
+    <a href="{% url 'product_list' %}">محصولات</a>
+    <a href="{% url 'stock_balances' %}">موجودی انبار</a>
   </nav>
   {% if user.is_authenticated %}
   <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">خروج ({{ user.username }})</button></form>
