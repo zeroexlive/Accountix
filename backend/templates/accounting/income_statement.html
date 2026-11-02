@@ -2,15 +2,22 @@
 <h1>صورت سود و زیان</h1>
 <div class="card"><form method="get"><label>شرکت</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+<label>دوره مالی</label>
+<select name="period"><option value="">بدون دوره (بازه تاریخی)</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
+<label>از تاریخ</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<label>حساب‌های بهای تمام‌شده (COGS)</label>
+<select name="cogs" multiple size="4">{% for a in expense_accounts %}<option value="{{ a.pk }}" {% if a.pk|stringformat:"s" in selected_cogs_ids %}selected{% endif %}>{{ a.code }} — {{ a.name }}</option>{% endfor %}</select>
 <button type="submit">نمایش</button></form></div>
 {% if result %}<div class="card"><table>
 <tr><th>حساب</th><th>مبلغ</th></tr>
 <tr><th colspan="2">درآمدها</th></tr>
 {% for r in result.revenue_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
 <tr><th>جمع درآمد</th><th>{{ result.revenue_total }}</th></tr>
-<tr><th colspan="2">بهای تمام‌شده</th></tr>
+{% if result.cogs_rows %}<tr><th colspan="2">بهای تمام‌شده</th></tr>
 {% for r in result.cogs_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
-<tr><th>سود ناخالص</th><th>{{ result.gross_profit }}</th></tr>
+<tr><th>جمع بهای تمام‌شده</th><th>{{ result.cogs_total }}</th></tr>
+<tr><th>سود ناخالص</th><th>{{ result.gross_profit }}</th></tr>{% endif %}
 <tr><th colspan="2">هزینه‌ها</th></tr>
 {% for r in result.expense_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
 <tr><th>جمع هزینه‌ها</th><th>{{ result.expenses_total }}</th></tr>
