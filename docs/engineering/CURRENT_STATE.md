@@ -33,8 +33,14 @@ Modular monolith, single Django project under `backend/`:
   first migration), `organizations` (Company, Branch, CompanyMembership,
   FiscalYear, FiscalPeriod), `accounting` (Account only), `audit`
   (AuditEvent + `record_event` helper).
+- Update (Sprint 02/03): `accounting` also carries the journal engine;
+  `catalog` (Unit, ProductCategory, Product, ProductUnitConversion) and
+  `inventory` (Warehouse, StockDocument/Line, StockMovement,
+  StockDocumentReversal) are installed since Sprint 03.
 - Placeholder packages (not in `INSTALLED_APPS`, no models): `parties`,
-  `catalog`, `inventory`, `sales`, `purchases`, `treasury`, `reporting`.
+  `sales`, `purchases`, `treasury`, `reporting`. (`catalog`/`inventory`
+  graduated to real apps in Sprint 03; `parties` deferred to Sprint 04 —
+  ADR-014.)
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -54,7 +60,12 @@ services, trial balance and general ledger are now implemented and tested
 (42 tests total) — see `SPRINT_02_REPORT.md`. The paragraph below is the
 remaining gap list._
 
-Balance sheet / income statement / subsidiary ledgers, parties, products/units, all inventory, sales,
+_Update 2026-11-02 (Sprint 03): catalog (products/units/conversions) and
+the inventory ledger (warehouses, stock documents, MWAC movements,
+derived balances, opt-in GL posting) are implemented and tested
+(74 tests total) — see `SPRINT_03_REPORT.md`._
+
+Balance sheet / income statement / subsidiary ledgers, parties, sales,
 purchasing, treasury/cheques, reporting/PDF/Excel, API endpoints (DRF is
 installed but exposes nothing yet), desktop launcher (only directory
 skeleton), backups, MkDocs/OpenAPI, CI workflow execution on GitHub
@@ -76,7 +87,8 @@ Jalali date display, toman/rial display conversion.
   used and `pyproject.toml` declares all dependencies. Generate `uv.lock`
   when uv becomes available.
 - TD-6: Audit events are only written when a service calls `record_event`;
-  no business service writes them yet (no business operations exist yet).
+  since Sprint 02/03 the journal and stock posting/reversal services do
+  write them (`journal.posted/reversed`, `stock.posted/reversed`).
 
 ## 6. Security concerns
 
@@ -106,17 +118,18 @@ planned.
 
 ## 9. Test coverage assessment
 
-42 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+74 pytest tests, all passing (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
-Sprint 02: +17 journal/posting/reversal/reporting tests — see
-SPRINT_02_REPORT.md for exact commands). Coverage tooling (pytest-cov) is configured as a dev
+Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
+catalog/inventory tests — see the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
 
 ## 10. Recommended corrective actions & implementation priorities
 
-1. Sprint 02: accounting engine (JournalEntry/JournalLine, posting/reversal
-   services, fiscal-period posting gate, trial balance) with invariant tests.
+1. ~~Sprint 02: accounting engine~~ — done. Sprint 03 (inventory) — done.
+   Next: Sprint 04 purchasing (parties, purchase invoices posting into
+   inventory + GL via the Sprint 03 opt-in pattern).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
