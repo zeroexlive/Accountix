@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>سرفصل حساب‌ها</h1><p><a class="btn" href="{% url 'account_create' %}">حساب جدید</a></p>
+<div class="card"><table><tr><th>کد</th><th>نام</th><th>نوع</th><th>حساب والد</th><th>قابل ثبت</th></tr>
+{% for a in accounts %}<tr><td>{{ a.code }}</td><td>{{ a.name }}</td><td>{{ a.account_type }}</td><td>{{ a.parent|default:"—" }}</td><td>{{ a.is_postable }}</td></tr>
+{% empty %}<tr><td colspan="5" class="empty">موردی نیست</td></tr>{% endfor %}</table></div>{% endblock %}
