@@ -37,10 +37,12 @@ Modular monolith, single Django project under `backend/`:
   `catalog` (Unit, ProductCategory, Product, ProductUnitConversion) and
   `inventory` (Warehouse, StockDocument/Line, StockMovement,
   StockDocumentReversal) are installed since Sprint 03.
-- Placeholder packages (not in `INSTALLED_APPS`, no models): `parties`,
-  `sales`, `purchases`, `treasury`, `reporting`. (`catalog`/`inventory`
-  graduated to real apps in Sprint 03; `parties` deferred to Sprint 04 —
-  ADR-014.)
+- Update (Sprint 04): `parties` (Party, PartyContact, PartyAddress) and
+  `purchases` (PurchaseOrder/Line, PurchaseInvoice/Line, PurchaseReturn/
+  Line) are installed; `JournalLine` gained a nullable party tag for
+  subledgers (ADR-015).
+- Placeholder packages (not in `INSTALLED_APPS`, no models): `sales`,
+  `treasury`, `reporting`.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -65,8 +67,15 @@ the inventory ledger (warehouses, stock documents, MWAC movements,
 derived balances, opt-in GL posting) are implemented and tested
 (74 tests total) — see `SPRINT_03_REPORT.md`._
 
-Balance sheet / income statement / subsidiary ledgers, parties, sales,
-purchasing, treasury/cheques, reporting/PDF/Excel, API endpoints (DRF is
+_Update 2026-11-02 (Sprint 04): parties and purchasing are implemented
+and tested (99 tests total) — purchase invoices post into inventory and
+(optionally) the GL, supplier balances are a journal-line subledger —
+see `SPRINT_04_REPORT.md`. Additional purchase costs (landed-cost
+allocation) are deferred (ADR-017); no payment recording exists yet, so
+every posted invoice stays UNPAID until treasury._
+
+Balance sheet / income statement, sales, treasury/cheques,
+reporting/PDF/Excel, API endpoints (DRF is
 installed but exposes nothing yet), desktop launcher (only directory
 skeleton), backups, MkDocs/OpenAPI, CI workflow execution on GitHub
 (a workflow file is included but has never run), Persian `.po` translations,
@@ -118,18 +127,20 @@ planned.
 
 ## 9. Test coverage assessment
 
-74 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+99 pytest tests, all passing (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
-catalog/inventory tests — see the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
+catalog/inventory tests; Sprint 04: +25 parties/purchasing tests — see
+the sprint reports for exact commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
 
 ## 10. Recommended corrective actions & implementation priorities
 
 1. ~~Sprint 02: accounting engine~~ — done. Sprint 03 (inventory) — done.
-   Next: Sprint 04 purchasing (parties, purchase invoices posting into
-   inventory + GL via the Sprint 03 opt-in pattern).
+   Sprint 04 (purchasing + parties) — done. Next: Sprint 05 sales
+   (customers, sales invoices, COGS from MWAC, receivables subledger —
+   the internal MVP milestone), reusing the party-tag subledger.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
