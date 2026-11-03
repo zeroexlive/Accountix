@@ -29,6 +29,13 @@ sys.path.insert(0, BACKEND)
 hiddenimports = (
     collect_submodules("apps")
     + collect_submodules("config")
+    # django-axes (Sprint 16) is referenced from settings only by string
+    # (axes.middleware.AxesMiddleware, axes.backends.AxesStandaloneBackend)
+    # and its migrations are loaded by Django by name — static analysis
+    # follows none of that, so without this the frozen bundle ships axes
+    # without its middleware, backend or migrations (found by the Sprint 23
+    # rebuild census of the PYZ archive).
+    + collect_submodules("axes")
     + ["config.settings.standalone", "config.settings.base"]
     + [
         "serve",

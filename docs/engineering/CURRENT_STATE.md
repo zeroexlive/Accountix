@@ -295,6 +295,22 @@ Modular monolith, single Django project under `backend/`:
   before Sprint 22, English figures left-aligned; the `num`
   hook coverage stands (ADR-048 addendum). Suite: 367 passed + 3 skipped on SQLite, mypy
   clean.
+- Update (Sprint 23): the PyInstaller Linux bundle is rebuilt and
+  current — see `SPRINT_23_REPORT.md`. The rebuild census caught a
+  real defect the Sprint 09 spec would have shipped broken: the
+  frozen PYZ contained `axes` without its migrations, middleware or
+  backend (all referenced by string/by name since Sprint 16); the
+  spec now collects `axes` submodules, and the frozen smoke proves
+  the whole current app — 48 migrations applied by the bundle
+  itself (axes 0001–0010, treasury/0003), real login, an axes
+  access-attempt row after a failed login, Jalali rendering, all
+  feature pages 200, and a fully English UI from the bundled .mo
+  catalogs. Bundle: 116 MB in `dist/accountix/` (build output,
+  never synced). One release-relevant finding: **the bundle alone
+  cannot create its first user** (no management entry point; the
+  documented path is a source checkout's `createsuperuser` against
+  the data dir) — a Sprint 24 candidate. The Windows bundle
+  remains the only NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -481,8 +497,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    — done (Sprint 21, ADR-047; Jason took the product decision —
    the default UI's status/error vocabulary is now Persian).
    ~~LTR design pass~~ — done (Sprint 22, ADR-048).
-   Post-v1.0 candidates: Windows verification, rebuilding the
-   PyInstaller bundle.
+   Post-v1.0 candidates: Windows verification. ~~Rebuilding the
+   PyInstaller bundle~~ — done (Sprint 23; bundle current through
+   Sprint 22 + follow-up, frozen smoke green; new candidate from
+   that sprint: a first-user bootstrap for bundle recipients).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
