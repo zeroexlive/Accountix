@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% block content %}
+<h1>برگشت خرید {{ return.return_number }}</h1>
+<div class="card">
+<p>فاکتور اصلی: <a href="{% url 'purchase_invoice_detail' invoice.pk %}">{{ invoice.invoice_number }}</a> — تأمین‌کننده: {{ invoice.supplier.name }} — تاریخ برگشت: {{ return.return_date }}</p>
+<p>وضعیت: {{ return.status }} — مبلغ برگشت: {{ return.total_amount }}</p>
+<table><tr><th>کالا</th><th>واحد</th><th>مقدار برگشتی</th></tr>
+{% for line in return.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td>{{ line.quantity }}</td></tr>{% endfor %}
+</table>
+<p>سند انبار: {{ return.stock_document|default:"—" }} — سند حسابداری: {{ return.journal_entry|default:"—" }}</p>
+</div>
+{% if return.status == 'DRAFT' %}
+<div class="card action-card">
+<h2>ثبت نهایی برگشت</h2>
+<form method="post" action="{% url 'purchase_return_post' return.pk %}">{% csrf_token %}
+{% if needs_gl %}{{ post_form.non_field_errors }}{{ post_form.as_p }}<p class="empty">این برگشت روی فاکتوری است که سند حسابداری دارد؛ حساب‌های سند برگشت را انتخاب کنید.</p>{% endif %}
+<button type="submit">ثبت نهایی برگشت</button></form>
+</div>
+{% elif return.status == 'POSTED' %}
+<div class="card action-card">
+<h2>برگشت‌زدن این برگشت</h2>
+<form method="post" action="{% url 'purchase_return_reverse' return.pk %}" onsubmit="return confirm('این برگشت به‌طور کامل برگشت می‌خورد. ادامه می‌دهید؟')">{% csrf_token %}
+<p><label>دلیل (اختیاری)</label><input type="text" name="reason" maxlength="500"></p>
+<button type="submit" class="btn-danger">برگشت‌زدن برگشت</button></form>
+</div>
+{% endif %}
+<p><a class="btn btn-ghost" href="{% url 'purchase_invoice_detail' invoice.pk %}">بازگشت به فاکتور</a></p>
+{% endblock %}
