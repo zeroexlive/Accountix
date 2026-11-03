@@ -1,6 +1,6 @@
 # Current State — Repository Assessment (Phase 0)
 
-Date: 2026-11-02 (last updated Sprint 10, 2026-11-03). Assessor: Muse development coordinator (subagent).
+Date: 2026-11-02 (last updated Sprint 11, 2026-11-03). Assessor: Muse development coordinator (subagent).
 Repository: `zeroexlive/Accountix` (private, "Accountant software").
 
 ## 1. Evidence for the starting point (verified, not assumed)
@@ -84,10 +84,20 @@ Modular monolith, single Django project under `backend/`:
   Headline remaining limitation: the web UI is read-only for
   business documents (setup forms + admin only), Windows is still
   unverified, and there is no login rate limiting.
+- Update (Sprint 11): the screen UI was rebuilt on design system v2
+  (ADR-038) after the owner's "too dry and soulless" feedback — see
+  `SPRINT_11_REPORT.md`. Sidebar shell (RTL-mirrored), topbar, KPI
+  cards with previous-period delta badges, a pure-CSS revenue vs
+  expenses bar chart per fiscal period, a performance panel of
+  derived shares, status pills and a centered login card. Two new
+  derived helpers in the reporting app (`period_series`, KPI deltas)
+  are pinned equal to `income_statement` by tests; no business logic
+  changed. Print output is untouched.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
-  system in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
+  system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
   CDN would break the offline-first claim). Interactivity is server-rendered.
+  The web UI is still read-only for business documents.
 
 ## 3. Existing functionality (implemented + tested in Sprint 01)
 
@@ -173,7 +183,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-196 pytest tests, all passing (Sprint 01: 25 — authentication 5,
+214 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -187,7 +197,9 @@ Sprint 09: +15 standalone-settings, data-dir, launcher-logic, health
 polling and backup/restore tests, including a subprocess round-trip of
 the real management commands; Sprint 10: +9 tests (3 PostgreSQL
 concurrency — they skip on SQLite — 5 password-validator/security
-settings, 1 open-items query-count) — see the sprint reports for exact
+settings, 1 open-items query-count); Sprint 11: +12 dashboard-v2
+tests (series equality, delta cases, performance percentages and
+empty states, sidebar link integrity, print markers) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
