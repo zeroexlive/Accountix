@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% block content %}
+<h1>چک {{ cheque.cheque_number }}</h1>
+<div class="card">
+<p>جهت: {{ cheque.direction }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date }} — تاریخ صدور: {{ cheque.issue_date|default:"—" }} — شناسه صیاد: {{ cheque.sayad_id|default:"—" }}</p>
+<p>وضعیت: <strong>{{ cheque.status }}</strong> — حساب نگهدارنده: {{ cheque.holding_account|default:"—" }}</p>
+<p>دریافت/پرداخت مرتبط: {% if cheque.payment %}<a href="{% url 'payment_detail' cheque.payment.pk %}">{{ cheque.payment.amount }} — {{ cheque.payment.party.name }}</a>{% else %}—{% endif %}</p>
+<p>سند وصول: {{ cheque.clearing_journal_entry|default:"—" }} — سند برگشت/عودت: {{ cheque.bounce_journal_entry|default:"—" }}</p>
+</div>
+<div class="card action-card">
+<h2>عملیات چک</h2>
+{% if cheque.direction == 'RECEIVED' and cheque.status == 'RECEIVED' %}
+<form method="post" action="{% url 'cheque_deposit' cheque.pk %}" class="inline-form">{% csrf_token %}<button type="submit">واگذاری به بانک</button></form>
+{% endif %}
+{% if cheque.direction == 'RECEIVED' and cheque.status == 'RECEIVED' or cheque.direction == 'RECEIVED' and cheque.status == 'DEPOSITED' %}
+<form method="post" action="{% url 'cheque_clear' cheque.pk %}">{% csrf_token %}
+<h3>وصول چک</h3>
+{{ clear_form.as_p }}
+<button type="submit">ثبت وصول</button></form>
+<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('چک برگشتی ثبت می‌شود و تخصیص‌های پرداخت مرتبط باطل می‌شوند. ادامه می‌دهید؟')">{% csrf_token %}
+<h3>برگشت چک</h3>
+<p><label>تاریخ برگشت (اختیاری)</label><input type="date" name="bounce_date"></p>
+<button type="submit" class="btn-danger">ثبت برگشتی</button></form>
+<form method="post" action="{% url 'cheque_return' cheque.pk %}" onsubmit="return confirm('چک به صادرکننده عودت داده می‌شود. ادامه می‌دهید؟')">{% csrf_token %}
+<h3>عودت به صادرکننده</h3>
+<p><label>تاریخ عودت (اختیاری)</label><input type="date" name="return_date"></p>
+<button type="submit" class="btn-danger">عودت چک</button></form>
+{% endif %}
+{% if cheque.direction == 'ISSUED' and cheque.status == 'DELIVERED' %}
+<form method="post" action="{% url 'cheque_clear' cheque.pk %}">{% csrf_token %}
+<h3>وصول توسط ذی‌نفع (کسر از بانک)</h3>
+<p><label>تاریخ وصول (اختیاری)</label><input type="date" name="clearing_date"></p>
+<button type="submit">ثبت وصول چک پرداختی</button></form>
+<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('برگشت چک پرداختی ثبت می‌شود و بدهی به طرف‌حساب برمی‌گردد. ادامه می‌دهید؟')">{% csrf_token %}
+<h3>برگشت چک پرداختی</h3>
+<p><label>تاریخ برگشت (اختیاری)</label><input type="date" name="bounce_date"></p>
+<button type="submit" class="btn-danger">ثبت برگشتی</button></form>
+{% endif %}
+{% if cheque.status == 'CLEARED' or cheque.status == 'BOUNCED' or cheque.status == 'RETURNED' or cheque.status == 'REVERSED' %}
+<p class="empty">این چک در وضعیت نهایی «{{ cheque.status }}» است و عملیات دیگری ندارد.</p>
+{% endif %}
+</div>
+<p><a class="btn btn-ghost" href="{% url 'cheque_list' %}">بازگشت به فهرست چک‌ها</a></p>
+{% endblock %}
