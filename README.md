@@ -14,7 +14,7 @@ for international markets without a rewrite.
 > closing, opening balances, a reporting dashboard with CSV/XLSX
 > exports and print templates, a standalone launcher with
 > backup/restore, and a PostgreSQL-verified, type-checked codebase
-> (318 tests on SQLite).
+> (326 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -38,6 +38,11 @@ for international markets without a rewrite.
 > start/opening prefilled from the latest completed one). Note:
 > Sprints 14–15 add database migrations (`treasury/0002`,
 > `treasury/0003`); run `manage.py migrate` after pulling.
+> Sprint 16 closed release gate #20 — login rate limiting:
+> django-axes throttles failed logins per (username, IP) with a
+> one-hour cooloff and a Persian lockout page (ADR-043); the axes
+> package brings its own migrations, so run `manage.py migrate`
+> after pulling this sprint too.
 
 ## Stack
 

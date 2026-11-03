@@ -614,3 +614,83 @@ account's latest COMPLETED statement (by end date) and offers
 `(end_date, closing_balance)` as the next statement's prefill —
 OPEN statements are ignored because their closing is not yet
 agreed with the bank, and the prefill is always editable.
+
+## ADR-043 — Login throttling with django-axes: (username, IP) combination lockout, 1-hour cooloff, REMOTE_ADDR only (accepted, Sprint 16)
+Release gate #20 (`RELEASE_READINESS.md`) recorded the one standing
+security gap: no throttling existed on `/login/`, acceptable for the
+loopback standalone scope but blocking for any internet-facing or
+multi-user LAN deployment. Its recommendation was "reverse-proxy
+rate limiting or `django-axes`". This ADR implements the second, so
+the protection travels with the application (standalone, LAN and
+internet profiles alike) instead of depending on each operator's
+proxy being configured correctly. Hand-rolling attempt counters was
+rejected: axes is the maintained, check-guarded implementation of
+exactly this state machine, and it ships the admin + reset tooling
+an operator needs.
+(1) **Dependency and wiring**: `django-axes>=9,<10` (9.0.0 installed;
+Django 5.2 / Python ≥3.11 compatible; ships `py.typed`, so no mypy
+baseline entry was needed). Per the axes 9 installation docs:
+`axes` in `INSTALLED_APPS`; `axes.backends.AxesStandaloneBackend`
+FIRST in `AUTHENTICATION_BACKENDS` with `ModelBackend` second (the
+standalone backend only monitors/refuses — credential checking and
+permissions stay with ModelBackend); `axes.middleware.AxesMiddleware`
+LAST in `MIDDLEWARE` (it only rewrites a locked-out login response).
+All settings variants (test, local, production, standalone,
+postgres_test) inherit the wiring from `base.py` — `manage.py check`
+is clean under every one, with no axes W00x warnings.
+(2) **Lockout parameters are the (username, IP address)
+combination** — `AXES_LOCKOUT_PARAMETERS = [["username",
+"ip_address"]]`. IP-only locking would lock a whole office behind
+one NAT address because of one person's typos (this product's home
+ground is SMB LANs); username-only locking would let an attacker
+spray one account's password from many IPs (and lock the victim out
+of every address at once). The combination throttles exactly the
+attacker-controlled pair: a guessing client loses its own
+(username, IP) pair, legitimate users elsewhere are unaffected.
+This scoping is pinned by tests (same user/other IP and other
+user/same IP both still log in during a lockout).
+(3) **Policy values**: `AXES_FAILURE_LIMIT` = 5 and
+`AXES_COOLOFF_TIME` = 1 hour, both env-overridable
+(`AXES_FAILURE_LIMIT`, `AXES_COOLOFF_HOURS`) following the codebase's
+environment pattern. During the cooloff even the CORRECT password
+is refused — the lockout page is the response to the attempt that
+reaches the limit and to every attempt until expiry; failed attempts
+made during a lockout extend it (axes' documented default,
+`AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT`). A successful
+login resets the counter (`AXES_RESET_ON_SUCCESS`), proven by tests
+that fail 4, succeed, then fail 4 more without locking.
+(4) **Lockout UX**: `AXES_LOCKOUT_TEMPLATE` points at a Persian page
+on the same auth-card layout as login (design system v2). It states
+that entry is temporarily blocked and to retry later or contact the
+administrator; it echoes no username and no countdown.
+`AXES_HTTP_RESPONSE_CODE` is set to 403 explicitly: axes 9 changed
+its default to 429, and 403 is the status this product documents
+and tests.
+(5) **Client IP = REMOTE_ADDR, period.** django-ipware is
+deliberately NOT installed, so axes resolves the client IP from
+`request.META["REMOTE_ADDR"]` and `X-Forwarded-For` is never read,
+let alone trusted — a client cannot spoof its way out of a lockout
+(or frame another address into one). `AXES_IPWARE_META_PRECEDENCE_ORDER`
+is pinned to `("REMOTE_ADDR",)` so the intent is explicit in
+settings. A deployment that terminates TLS at a reverse proxy must
+opt in consciously: install `django-axes[ipware]` and configure
+the proxy count / trusted proxy IPs / meta precedence order for
+its own chain (documented in `docs/deployment/PRODUCTION.md`).
+Without that opt-in a proxied deployment simply throttles per
+proxy address — fail-closed, never fail-open.
+(6) **Operations**: axes' own admin (Access attempts / Access logs)
+is registered unchanged; an administrator unlocks a user by
+deleting the Access attempt row in the admin, or from the shell
+with `manage.py axes_reset_ip_username <ip> <username>` (or
+`axes_reset` for all). No custom unlock code exists.
+(7) **Scope is the login surface only.** DRF exposes no
+authentication endpoints in this product (Sprint 10 finding), so
+there is no API login to throttle; password policy, sessions and
+the login form itself are untouched (below the limit, a failed
+login renders exactly the same form error as before Sprint 16).
+One test-suite consequence: `Client.login()` calls
+`authenticate()` with no HTTP request, which the axes backend
+refuses by design; the two pre-existing `test_auth.py` tests that
+used it now POST real credentials through the login view instead —
+the rest of the suite already used `force_login()` and is
+unaffected.

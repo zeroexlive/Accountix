@@ -1,6 +1,7 @@
 """Base settings for Accountix. Secrets come from environment variables only."""
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "axes",
     "apps.core",
     "apps.users",
     "apps.organizations",
@@ -46,6 +48,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # AxesMiddleware must be LAST (django-axes installation docs): it only
+    # rewrites the response of a login attempt that axes has locked out.
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -109,6 +114,41 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
+
+# Authentication backends (Sprint 16, ADR-043): django-axes monitors the
+# login flow. AxesStandaloneBackend must be FIRST (axes installation
+# docs): it refuses authentication for locked-out clients and delegates
+# the actual credential check to ModelBackend, which stays second.
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# Login throttling (Sprint 16, ADR-043) — django-axes, closing release
+# gate #20. Policy: after AXES_FAILURE_LIMIT failed logins for the same
+# (username, IP address) combination, that combination is locked out
+# for the cooloff — even the correct password is refused until the
+# cooloff expires or an admin resets the attempt (Django admin → Axes →
+# Access attempts, or `manage.py axes_reset_ip_username`). A successful
+# login resets the counter. Both knobs are env-overridable like the
+# other settings in this module.
+AXES_FAILURE_LIMIT = int(os.environ.get("AXES_FAILURE_LIMIT", "5"))
+AXES_COOLOFF_TIME = timedelta(hours=float(os.environ.get("AXES_COOLOFF_HOURS", "1")))
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
+# Axes 9 defaults the lockout response to 429; 403 is the documented
+# behaviour this product shipped its lockout page for.
+AXES_HTTP_RESPONSE_CODE = 403
+# Client-IP resolution: REMOTE_ADDR only. django-ipware is deliberately
+# NOT installed, so axes falls back to request.META["REMOTE_ADDR"] and
+# X-Forwarded-For is never trusted — a client cannot spoof its way out
+# of (or into) a lockout. A deployment behind a reverse proxy must opt
+# in explicitly: install django-axes[ipware] and set
+# AXES_IPWARE_PROXY_COUNT / AXES_IPWARE_PROXY_TRUSTED_IPS /
+# AXES_IPWARE_META_PRECEDENCE_ORDER for its own proxy chain (see
+# docs/deployment/PRODUCTION.md).
+AXES_IPWARE_META_PRECEDENCE_ORDER = ("REMOTE_ADDR",)
 
 LANGUAGE_CODE = "fa"
 TIME_ZONE = "Asia/Tehran"

@@ -165,6 +165,22 @@ Modular monolith, single Django project under `backend/`:
   (bank reconciliation in Sprint 14, cheque books here). This
   sprint HAS a migration (`treasury/0003_chequebook_chequeleaf`).
   Suite: 318 passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 16): login rate limiting — see
+  `SPRINT_16_REPORT.md` and ADR-043. `django-axes` 9.0.0 now
+  throttles `/login/` in every settings profile: 5 failed attempts
+  for one (username, IP) combination lock that combination out for
+  a 1-hour cooloff (env-overridable), correct passwords are refused
+  during the cooloff, a success resets the counter, and the lockout
+  response is a Persian auth-card page with HTTP 403. Client IPs
+  come from `REMOTE_ADDR` only (django-ipware deliberately not
+  installed, so `X-Forwarded-For` is never trusted; proxied
+  deployments opt in via the documented ipware settings). This
+  closes release gate #20 of `RELEASE_READINESS.md`; that Sprint 10
+  document keeps its table as written — the gap it records is now
+  historical (remaining readiness items: PG restore drill and
+  Windows bundle still NOT VERIFIED). Axes ships its own migrations
+  (package tables only; no project model changes). Suite: 326
+  passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -236,8 +252,9 @@ Jalali date display, toman/rial display conversion.
   were run and triaged (see RELEASE_READINESS.md gates 5–8, 17–20);
   password validators were found absent and are now configured.
 - Not yet done: role-based permission checks beyond membership (roles exist
-  as data only) and **login rate limiting** (documented gap; acceptable
-  for loopback standalone, blocking for internet-facing deployment).
+  as data only). **Login rate limiting** is done (Sprint 16, ADR-043:
+  django-axes, (username, IP) lockout at 5 failures with a 1-hour
+  cooloff) — release gate #20 is closed.
 
 ## 7. Database concerns
 
@@ -260,7 +277,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-318 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+326 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -285,7 +302,11 @@ rejection and the draft-lines service); Sprint 14:
 +15 (reconciliation services incl. the difference-identity scenario,
 reconciliation UI, stock-document UI); Sprint 15:
 +20 (cheque-book generation/collision/consumption/lifecycle,
-chaining helper, cheque-book UI + prefill) — see the sprint reports for exact
+chaining helper, cheque-book UI + prefill); Sprint 16:
++8 (login throttling: below-limit behaviour + reset-on-success,
+lockout at the limit incl. correct-password refusal, cooloff
+expiry, (username, IP) scoping, axes admin registration,
+production/standalone settings wiring incl. env override) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -313,8 +334,9 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    document forms~~ — done (Sprint 14, ADR-041; the largest unbuilt
    treasury feature is closed). ~~Cheque books~~ — done (Sprint 15,
    ADR-042; with this, ALL Sprint 06 follow-ups are closed).
-   Post-v1.0 candidates: Windows verification, login rate
-   limiting, PG restore drill, .po translations.
+   ~~Login rate limiting~~ — done (Sprint 16, ADR-043; release
+   gate #20 closed). Post-v1.0 candidates: Windows verification,
+   PG restore drill, .po translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

@@ -4,6 +4,13 @@ from django.urls import reverse
 
 User = get_user_model()
 
+# NOTE (Sprint 16): these tests log in by POSTing real credentials to
+# the login view instead of Client.login(). Since django-axes guards
+# authentication (ADR-043), its backend requires the HTTP request by
+# design and raises for the request-less authenticate() call that
+# Client.login() performs. Posting through the view exercises the same
+# credential path an operator's browser takes.
+
 
 @pytest.fixture
 def user(db):
@@ -24,7 +31,8 @@ def test_dashboard_requires_login(client):
 
 @pytest.mark.django_db
 def test_login_and_dashboard(client, user):
-    assert client.login(username="jason", password="test-pass-12345")
+    resp = client.post(reverse("login"), {"username": "jason", "password": "test-pass-12345"})
+    assert resp.status_code == 302
     resp = client.get(reverse("dashboard"))
     assert resp.status_code == 200
 
@@ -39,7 +47,7 @@ def test_login_page_renders_rtl_persian(client):
 
 @pytest.mark.django_db
 def test_logout(client, user):
-    client.login(username="jason", password="test-pass-12345")
+    client.post(reverse("login"), {"username": "jason", "password": "test-pass-12345"})
     resp = client.post(reverse("logout"))
     assert resp.status_code == 302
     resp2 = client.get(reverse("dashboard"))
