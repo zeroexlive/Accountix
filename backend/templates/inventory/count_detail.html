@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% load jalali i18n access_tags %} %}{% block content %}{% company_can count.company "OPERATE" as can_act %}
-<h1>{% blocktrans with date=count.count_date|jalali status=count.status %}انبارگردانی {{ date }} — {{ status }}{% endblocktrans %}</h1>
+<h1>{% blocktrans with date=count.count_date|jalali status=count.get_status_display %}انبارگردانی {{ date }} — {{ status }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% trans "شرکت:" %} {{ count.company.name }} — {% trans "انبار:" %} {{ count.warehouse.code }} — {{ count.warehouse.name }}{% if count.description %} — {{ count.description }}{% endif %}</p>
 <p class="empty">{% trans "«موجودی سیستمی» لحظه ایجاد شمارش است و «موجودی فعلی» مانده زنده دفتر انبار. اگر این دو برای کالایی فرق کنند، یعنی انبار از زمان شمارش ثابت نمانده و ثبت نهایی رد می‌شود؛ در این صورت شمارش را رها کنید و انبارگردانی تازه بسازید." %}</p>

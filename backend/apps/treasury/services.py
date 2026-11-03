@@ -275,7 +275,8 @@ def post_payment(payment, *, user=None, gl_accounts=None):
         company=company,
         entry_date=payment.payment_date,
         lines=lines,
-        description=payment.description or f"{payment.direction} {payment.reference}".strip(),
+        description=payment.description
+        or f"{payment.get_direction_display()} {payment.reference}".strip(),
         user=user,
         source_type="PAYMENT",
         source_id=str(payment.id),
@@ -560,7 +561,7 @@ def clear_cheque(cheque, *, user=None, bank_treasury_account=None, clearing_date
         company=cheque.company,
         entry_date=entry_date,
         lines=lines,
-        description=f"Cheque {cheque.cheque_number} cleared",
+        description=_("Cheque %(number)s cleared") % {"number": cheque.cheque_number},
         user=user,
         source_type="CHEQUE_CLEAR",
         source_id=str(cheque.id),
@@ -598,17 +599,23 @@ def _reverse_cheque_receipt_effect(cheque, *, user, journal_date, key_prefix, so
             {"account": cheque.holding_account, "debit": cheque.amount},
             {"account": counterparty, "credit": cheque.amount, "party": payment.party},
         ]
+    if action == "bounced":
+        description = _("Cheque %(number)s bounced") % {"number": cheque.cheque_number}
+        void_reason = _("cheque bounced")
+    else:  # "returned" — the only other caller
+        description = _("Cheque %(number)s returned") % {"number": cheque.cheque_number}
+        void_reason = _("cheque returned")
     entry = post_journal_entry(
         company=cheque.company,
         entry_date=journal_date,
         lines=lines,
-        description=f"Cheque {cheque.cheque_number} {action}",
+        description=description,
         user=user,
         source_type=source_type,
         source_id=str(cheque.id),
         idempotency_key=f"{key_prefix}:{cheque.id}",
     )
-    _void_allocations_of_payment(payment, user=user, reason=f"cheque {action}")
+    _void_allocations_of_payment(payment, user=user, reason=void_reason)
     return entry
 
 

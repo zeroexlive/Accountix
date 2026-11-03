@@ -62,7 +62,9 @@ class TreasuryAccount(TimeStampedUUIDModel):
         ]
 
     def __str__(self):
-        return f"{self.name} [{self.kind}]"
+        # Rendered in app <select> options: the kind must be the
+        # translated display label, never the raw code (ADR-055).
+        return f"{self.name} [{self.get_kind_display()}]"
 
 
 _PAYMENT_MUTABLE_FIELDS = {
@@ -388,7 +390,12 @@ class BankStatementLine(TimeStampedUUIDModel):
         return self.matched_journal_line_id is not None
 
     def __str__(self):
-        return f"Statement line {self.line_date} {self.amount}"
+        # Rendered in the reconciliation match UI (Sprint 30,
+        # ADR-055): a gettext template, not an English f-string.
+        return str(
+            _("Statement line %(date)s %(amount)s")
+            % {"date": self.line_date, "amount": self.amount}
+        )
 
 
 class ChequeBook(TimeStampedUUIDModel):

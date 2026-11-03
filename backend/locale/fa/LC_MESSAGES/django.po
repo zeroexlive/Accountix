@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 21:34+0330\n"
+"POT-Creation-Date: 2026-11-04 01:03+0330\n"
 "PO-Revision-Date: 2026-11-03 15:11+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: Persian\n"
@@ -28,13 +28,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: apps/accounting/forms.py:41 apps/accounting/forms.py:95
-#: apps/catalog/forms.py:20 apps/catalog/forms.py:32 apps/catalog/forms.py:62
-#: apps/inventory/forms.py:17 apps/inventory/forms.py:31
-#: apps/inventory/forms.py:112 apps/parties/forms.py:17
-#: apps/purchases/forms.py:25 apps/sales/forms.py:22 apps/treasury/forms.py:25
-#: apps/treasury/forms.py:42 apps/treasury/forms.py:195
-#: apps/treasury/forms.py:262 apps/treasury/forms.py:292
-#: templates/_company_chooser.html:5 templates/accounting/balance_sheet.html:3
+#: apps/accounting/forms.py:161 apps/catalog/forms.py:20
+#: apps/catalog/forms.py:32 apps/catalog/forms.py:62 apps/inventory/forms.py:17
+#: apps/inventory/forms.py:31 apps/inventory/forms.py:112
+#: apps/organizations/forms.py:116 apps/organizations/forms.py:133
+#: apps/parties/forms.py:17 apps/purchases/forms.py:25 apps/sales/forms.py:22
+#: apps/treasury/forms.py:25 apps/treasury/forms.py:42
+#: apps/treasury/forms.py:195 apps/treasury/forms.py:262
+#: apps/treasury/forms.py:292 templates/_company_chooser.html:6
+#: templates/accounting/balance_sheet.html:3
 #: templates/accounting/income_statement.html:3
 #: templates/accounting/journal_list.html:9
 #: templates/accounting/trial_balance.html:3 templates/core/dashboard.html:5
@@ -73,7 +75,7 @@ msgstr ""
 #: templates/accounting/journal_detail.html:6
 #: templates/accounting/journal_form.html:17
 #: templates/accounting/opening_balance_form.html:33
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:100
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:109
 msgid "حساب"
 msgstr ""
 
@@ -99,7 +101,7 @@ msgstr ""
 #: apps/inventory/forms.py:134 apps/treasury/forms.py:230
 #: templates/accounting/journal_detail.html:6
 #: templates/accounting/journal_form.html:17
-#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:106
+#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:115
 #: templates/inventory/count_form.html:14
 #: templates/inventory/document_form.html:15
 #: templates/treasury/statement_detail.html:21
@@ -110,7 +112,7 @@ msgstr ""
 msgid "طرف‌حساب (برچسب فرعی)"
 msgstr ""
 
-#: apps/accounting/forms.py:97
+#: apps/accounting/forms.py:97 apps/organizations/forms.py:134
 #: templates/accounting/opening_balance_form.html:11
 msgid "سال مالی"
 msgstr ""
@@ -118,6 +120,49 @@ msgstr ""
 #: apps/accounting/forms.py:99
 #: templates/accounting/opening_balance_form.html:27
 msgid "حساب طرف تراز افتتاحیه"
+msgstr ""
+
+#: apps/accounting/forms.py:162 templates/accounting/account_list.html:3
+msgid "حساب والد"
+msgstr ""
+
+#: apps/accounting/forms.py:163 apps/parties/forms.py:19
+#: templates/accounting/account_list.html:3
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:111
+#: templates/parties/party_list.html:4 templates/purchases/ap_summary.html:8
+#: templates/sales/ar_summary.html:8
+msgid "کد"
+msgstr ""
+
+#: apps/accounting/forms.py:164 apps/organizations/forms.py:74
+#: apps/organizations/forms.py:100 apps/organizations/forms.py:117
+#: apps/organizations/forms.py:135 apps/parties/forms.py:20
+#: apps/users/forms.py:47 templates/accounting/account_list.html:3
+#: templates/inventory/product_list.html:4
+#: templates/organizations/company_list.html:3
+#: templates/organizations/fiscal_year_list.html:3
+#: templates/parties/party_list.html:4 templates/treasury/account_list.html:4
+msgid "نام"
+msgstr ""
+
+#: apps/accounting/forms.py:165 apps/treasury/forms.py:27
+msgid "نوع حساب"
+msgstr ""
+
+#: apps/accounting/forms.py:166
+msgid "ماهیت"
+msgstr ""
+
+#: apps/accounting/forms.py:167 templates/accounting/account_list.html:3
+msgid "قابل ثبت"
+msgstr ""
+
+#: apps/accounting/forms.py:168 apps/catalog/forms.py:23
+#: apps/catalog/forms.py:36 apps/catalog/forms.py:70 apps/inventory/forms.py:20
+#: apps/parties/forms.py:26 templates/inventory/product_list.html:4
+#: templates/organizations/company_members.html:8
+#: templates/parties/party_list.html:4
+msgid "فعال"
 msgstr ""
 
 #: apps/accounting/models.py:16
@@ -153,7 +198,7 @@ msgstr "بستانکار"
 #: apps/purchases/models.py:37 apps/purchases/models.py:149
 #: apps/purchases/models.py:319 apps/sales/models.py:115
 #: apps/sales/models.py:208 apps/sales/models.py:384
-#: apps/treasury/models.py:100
+#: apps/treasury/models.py:102
 msgid "Draft"
 msgstr "پیش‌نویس"
 
@@ -164,15 +209,15 @@ msgstr "تأییدشده"
 #: apps/accounting/models.py:84 apps/inventory/models.py:70
 #: apps/inventory/models.py:278 apps/purchases/models.py:150
 #: apps/purchases/models.py:320 apps/sales/models.py:209
-#: apps/sales/models.py:385 apps/treasury/models.py:101
+#: apps/sales/models.py:385 apps/treasury/models.py:103
 msgid "Posted"
 msgstr "ثبت‌شده"
 
 #: apps/accounting/models.py:85 apps/inventory/models.py:71
 #: apps/inventory/models.py:279 apps/purchases/models.py:151
 #: apps/purchases/models.py:321 apps/sales/models.py:210
-#: apps/sales/models.py:386 apps/treasury/models.py:102
-#: apps/treasury/models.py:253
+#: apps/sales/models.py:386 apps/treasury/models.py:104
+#: apps/treasury/models.py:255
 msgid "Reversed"
 msgstr "برگشت‌خورده"
 
@@ -184,13 +229,13 @@ msgstr "سندهای حسابداری ثبت‌شده قابل تغییر نیس
 msgid "Posted journal entries cannot be deleted."
 msgstr "سندهای حسابداری ثبت‌شده قابل حذف نیستند."
 
-#: apps/accounting/models.py:202 apps/accounting/models.py:213
+#: apps/accounting/models.py:204 apps/accounting/models.py:215
 msgid "Lines of a posted journal entry are immutable."
 msgstr "ردیف‌های سند حسابداری ثبت‌شده قابل تغییر نیستند."
 
 #: apps/accounting/reporting.py:216 apps/accounting/services.py:213
-#: apps/accounting/services.py:551 apps/accounting/services.py:640
-#: apps/accounting/services.py:736
+#: apps/accounting/services.py:554 apps/accounting/services.py:643
+#: apps/accounting/services.py:739
 msgid "Fiscal period belongs to a different company."
 msgstr "دوره مالی متعلق به شرکت دیگری است."
 
@@ -283,7 +328,7 @@ msgstr "سند حسابداری تراز نیست: بدهکار %(debit)s != ب�
 msgid "Journal entry total cannot be zero."
 msgstr "جمع سند حسابداری نمی‌تواند صفر باشد."
 
-#: apps/accounting/services.py:211 apps/accounting/services.py:434
+#: apps/accounting/services.py:211 apps/accounting/services.py:437
 msgid "Fiscal period is closed; posting is not allowed."
 msgstr "دوره مالی بسته است؛ ثبت سند مجاز نیست."
 
@@ -307,109 +352,129 @@ msgstr "دوره مالی تاریخ برگشت بسته است."
 msgid "Entry has fewer than two lines and cannot be reversed."
 msgstr "سند کمتر از دو ردیف دارد و قابل برگشت‌زدن نیست."
 
-#: apps/accounting/services.py:380
+#: apps/accounting/services.py:306
+#, python-format
+msgid "Reversal of %(date)s: %(description)s"
+msgstr "برگشت سند %(date)s: %(description)s"
+
+#: apps/accounting/services.py:383
 msgid "An entry with this idempotency key already exists for this company."
 msgstr "سندی با این کلید یکتایی برای این شرکت از قبل وجود دارد."
 
-#: apps/accounting/services.py:431
+#: apps/accounting/services.py:434
 msgid "Only a DRAFT journal entry can be posted."
 msgstr "فقط سند حسابداری پیش‌نویس قابل ثبت است."
 
-#: apps/accounting/services.py:484
+#: apps/accounting/services.py:487
 #, python-format
 msgid "Opening line %(line)s: expected a dict or tuple."
 msgstr "ردیف افتتاحیه %(line)s: باید دیکشنری یا تاپل باشد."
 
-#: apps/accounting/services.py:490
+#: apps/accounting/services.py:493
 #, python-format
 msgid "Opening line %(line)s: account not found."
 msgstr "ردیف افتتاحیه %(line)s: حساب یافت نشد."
 
-#: apps/accounting/services.py:494
+#: apps/accounting/services.py:497
 #, python-format
 msgid "Opening line %(line)s: account belongs to a different company."
 msgstr "ردیف افتتاحیه %(line)s: حساب متعلق به شرکت دیگری است."
 
-#: apps/accounting/services.py:498
+#: apps/accounting/services.py:501
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is not postable."
 msgstr "ردیف افتتاحیه %(line)s: حساب %(code)s قابل ثبت نیست."
 
-#: apps/accounting/services.py:503
+#: apps/accounting/services.py:506
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is inactive."
 msgstr "ردیف افتتاحیه %(line)s: حساب %(code)s غیرفعال است."
 
-#: apps/accounting/services.py:510
+#: apps/accounting/services.py:513
 #, python-format
 msgid "Opening line %(line)s: amounts cannot be negative."
 msgstr "ردیف افتتاحیه %(line)s: مبالغ نمی‌توانند منفی باشند."
 
-#: apps/accounting/services.py:514
+#: apps/accounting/services.py:517
 #, python-format
 msgid "Opening line %(line)s: a line is either debit or credit."
 msgstr "ردیف افتتاحیه %(line)s: هر ردیف یا بدهکار است یا بستانکار."
 
-#: apps/accounting/services.py:518
+#: apps/accounting/services.py:521
 #, python-format
 msgid "Opening line %(line)s: a line cannot be zero on both sides."
 msgstr "ردیف افتتاحیه %(line)s: ردیف نمی‌تواند در هر دو طرف صفر باشد."
 
-#: apps/accounting/services.py:546 apps/accounting/services.py:775
+#: apps/accounting/services.py:549 apps/accounting/services.py:778
 msgid "Fiscal year belongs to a different company."
 msgstr "سال مالی متعلق به شرکت دیگری است."
 
-#: apps/accounting/services.py:549
+#: apps/accounting/services.py:552
 msgid "The fiscal year has no periods."
 msgstr "سال مالی هیچ دوره‌ای ندارد."
 
-#: apps/accounting/services.py:554
+#: apps/accounting/services.py:557
 msgid "The first fiscal period is closed; opening balance cannot be posted."
 msgstr "اولین دوره مالی بسته است؛ تراز افتتاحیه قابل ثبت نیست."
 
-#: apps/accounting/services.py:560
+#: apps/accounting/services.py:563
 msgid "Offset account not found."
 msgstr "حساب مقابل یافت نشد."
 
-#: apps/accounting/services.py:562
+#: apps/accounting/services.py:565
 msgid "Offset account belongs to a different company."
 msgstr "حساب مقابل متعلق به شرکت دیگری است."
 
-#: apps/accounting/services.py:564
+#: apps/accounting/services.py:567
 msgid "Offset account is not postable/active."
 msgstr "حساب مقابل قابل ثبت یا فعال نیست."
 
-#: apps/accounting/services.py:567
+#: apps/accounting/services.py:570
 msgid "An opening balance needs at least one line."
 msgstr "تراز افتتاحیه دست‌کم به یک ردیف نیاز دارد."
 
-#: apps/accounting/services.py:582
+#: apps/accounting/services.py:585
 msgid "An opening balance needs at least two journal lines."
 msgstr "تراز افتتاحیه دست‌کم به دو ردیف سند حسابداری نیاز دارد."
 
-#: apps/accounting/services.py:642
+#: apps/accounting/services.py:591
+#, python-format
+msgid "Opening balance — %(name)s"
+msgstr "تراز افتتاحیه — %(name)s"
+
+#: apps/accounting/services.py:645
 msgid "This fiscal period is already closed."
 msgstr "این دوره مالی قبلاً بسته شده است."
 
-#: apps/accounting/services.py:644
+#: apps/accounting/services.py:647
 msgid "This fiscal period already has an active closing entry."
 msgstr "این دوره مالی از قبل یک سند اختتامیه فعال دارد."
 
-#: apps/accounting/services.py:649
+#: apps/accounting/services.py:652
 msgid "Retained earnings account not found."
 msgstr "حساب سود (زیان) انباشته یافت نشد."
 
-#: apps/accounting/services.py:651
+#: apps/accounting/services.py:654
 msgid "Retained earnings account belongs to a different company."
 msgstr "حساب سود (زیان) انباشته متعلق به شرکت دیگری است."
 
-#: apps/accounting/services.py:653
+#: apps/accounting/services.py:656
 msgid "Retained earnings account is not postable/active."
 msgstr "حساب سود (زیان) انباشته قابل ثبت یا فعال نیست."
 
-#: apps/accounting/services.py:738
+#: apps/accounting/services.py:705
+#, python-format
+msgid "Closing entry — %(name)s"
+msgstr "سند اختتامیه — %(name)s"
+
+#: apps/accounting/services.py:741
 msgid "Only a CLOSED fiscal period can be reopened."
 msgstr "فقط دوره مالی بسته قابل بازگشایی است."
+
+#: apps/accounting/services.py:752
+#, python-format
+msgid "Fiscal period %(name)s reopened"
+msgstr "دوره مالی %(name)s بازگشایی شد"
 
 #: apps/accounting/views.py:204
 msgid "سند دستی به‌صورت پیش‌نویس ایجاد شد."
@@ -433,14 +498,6 @@ msgstr ""
 
 #: apps/catalog/forms.py:22
 msgid "نام واحد"
-msgstr ""
-
-#: apps/catalog/forms.py:23 apps/catalog/forms.py:36 apps/catalog/forms.py:70
-#: apps/inventory/forms.py:20 apps/parties/forms.py:26
-#: templates/inventory/product_list.html:4
-#: templates/organizations/company_members.html:8
-#: templates/parties/party_list.html:4
-msgid "فعال"
 msgstr ""
 
 #: apps/catalog/forms.py:33
@@ -486,7 +543,7 @@ msgstr ""
 msgid "قابل انبارش"
 msgstr ""
 
-#: apps/catalog/forms.py:71
+#: apps/catalog/forms.py:71 apps/core/tours.py:249
 msgid "حداقل موجودی"
 msgstr ""
 
@@ -557,6 +614,602 @@ msgid ""
 msgstr ""
 "برای کالای %(sku)s هیچ تبدیلی از %(from_code)s به %(to_code)s وجود ندارد."
 
+#: apps/core/tours.py:21
+msgid "بعدی"
+msgstr ""
+
+#: apps/core/tours.py:22
+msgid "قبلی"
+msgstr ""
+
+#: apps/core/tours.py:23
+msgid "پایان تور"
+msgstr ""
+
+#: apps/core/tours.py:24
+msgid "بستن"
+msgstr ""
+
+#: apps/core/tours.py:25
+#, python-brace-format
+msgid "گام {i} از {n}"
+msgstr ""
+
+#: apps/core/tours.py:37 templates/_company_chooser.html:7
+msgid "انتخاب شرکت"
+msgstr ""
+
+#: apps/core/tours.py:39
+msgid ""
+"همه ارقام داشبورد متعلق به شرکتی است که اینجا انتخاب می‌کنید؛ با تغییر شرکت، "
+"تمام کارت‌ها و نمودارها برای همان شرکت تازه می‌شوند."
+msgstr ""
+
+#: apps/core/tours.py:45
+msgid "شاخص‌های دوره جاری"
+msgstr ""
+
+#: apps/core/tours.py:47
+msgid ""
+"درآمد، فروش و خرید دوره جاری، هرکدام با درصد تغییر نسبت به دوره قبل. اگر "
+"دوره قبلی وجود نداشته باشد، نشان تغییر نمایش داده نمی‌شود."
+msgstr ""
+
+#: apps/core/tours.py:53 templates/core/dashboard.html:42
+msgid "نمودار درآمد و هزینه"
+msgstr ""
+
+#: apps/core/tours.py:55
+msgid ""
+"روند درآمد و هزینه به تفکیک دوره‌های سال مالی. روی هر نقطه بایستید تا مبلغ "
+"دقیق آن دوره را ببینید؛ جمع نمودار همیشه با صورت سود و زیان یکی است."
+msgstr ""
+
+#: apps/core/tours.py:61 templates/core/dashboard.html:60
+msgid "عملکرد"
+msgstr ""
+
+#: apps/core/tours.py:63
+msgid ""
+"چهار سهم کلیدی: وصول مطالبات، تسویه بدهی‌ها، چک‌های وصول‌شده و سلامت موجودی. "
+"حلقه هر ردیف همان درصدی است که کنارش نوشته شده؛ اگر داده‌ای نباشد، به‌جای عدد "
+"ساختگی پیام «هنوز …» می‌بینید."
+msgstr ""
+
+#: apps/core/tours.py:69 templates/core/dashboard.html:80
+msgid "دسترسی سریع"
+msgstr ""
+
+#: apps/core/tours.py:71
+msgid ""
+"از اینجا مستقیم به ساخت فاکتور فروش، فاکتور خرید، سند دستی، دریافت/پرداخت و "
+"کالای جدید می‌روید. این بخش فقط برای نقش‌هایی نمایش داده می‌شود که اجازه ثبت "
+"دارند."
+msgstr ""
+
+#: apps/core/tours.py:77 templates/core/dashboard.html:90
+msgid "آخرین فاکتورهای فروش"
+msgstr ""
+
+#: apps/core/tours.py:79
+msgid ""
+"تازه‌ترین فاکتورهای فروش و وضعیت پرداخت هرکدام. با کلیک روی شماره فاکتور، "
+"جزئیات و عملیات آن باز می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:84
+msgid "تصویر کلی"
+msgstr ""
+
+#: apps/core/tours.py:86
+msgid ""
+"مطالبات و بدهی‌های معین، ارزش موجودی انبار، سود خالص دوره، اقلام باز، چک‌های "
+"وصول‌نشده و کالاهای کم‌موجودی — همه از دفاتر و به‌صورت زنده محاسبه می‌شوند."
+msgstr ""
+
+#: apps/core/tours.py:93 templates/core/dashboard.html:82
+#: templates/sales/invoice_form.html:2 templates/sales/invoice_list.html:3
+msgid "فاکتور فروش جدید"
+msgstr ""
+
+#: apps/core/tours.py:94
+msgid ""
+"ثبت فاکتور از همین دکمه شروع می‌شود: فاکتور اول پیش‌نویس است و با «ثبت نهایی» "
+"در دفاتر می‌نشیند و موجودی کم می‌کند."
+msgstr ""
+
+#: apps/core/tours.py:98 apps/core/tours.py:149
+msgid "پالایش فهرست"
+msgstr ""
+
+#: apps/core/tours.py:99
+msgid ""
+"بر اساس وضعیت ثبت، وضعیت پرداخت، نام مشتری یا بازه تاریخ پالایش کنید تا "
+"فاکتور موردنظرتان را سریع پیدا کنید."
+msgstr ""
+
+#: apps/core/tours.py:103 apps/core/tours.py:154
+msgid "فهرست فاکتورها"
+msgstr ""
+
+#: apps/core/tours.py:105
+msgid ""
+"هر سطر یک فاکتور است: وضعیت ثبت (پیش‌نویس/ثبت‌شده) و وضعیت پرداخت (پرداخت‌نشده/"
+"بخشی/کامل) جدا از هم نمایش داده می‌شوند. برای مشاهده جزئیات، دریافت وجه و "
+"برگشت، روی فاکتور کلیک کنید."
+msgstr ""
+
+#: apps/core/tours.py:111
+msgid "پرداخت از داخل فاکتور"
+msgstr ""
+
+#: apps/core/tours.py:112
+msgid ""
+"برای ثبت دریافت و تخصیص آن به فاکتور، وارد جزئیات فاکتور شوید؛ وضعیت پرداخت "
+"به‌صورت خودکار از روی تخصیص‌ها به‌روز می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:118
+msgid "مشخصات فاکتور"
+msgstr ""
+
+#: apps/core/tours.py:119
+msgid ""
+"مشتری، شماره و تاریخ فاکتور و انباری که کالا از آن خارج می‌شود. شماره فاکتور "
+"باید در شرکت یکتا باشد."
+msgstr ""
+
+#: apps/core/tours.py:123 templates/purchases/invoice_form.html:16
+#: templates/sales/invoice_form.html:16
+msgid "ردیف‌های فاکتور"
+msgstr ""
+
+#: apps/core/tours.py:125
+msgid ""
+"برای هر کالا یک ردیف: مقدار، قیمت واحد، تخفیف و نرخ مالیات. بهای تمام‌شده "
+"هنگام ثبت نهایی با میانگین موزون موجودی محاسبه می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:130
+msgid "ردیف بیشتر"
+msgstr ""
+
+#: apps/core/tours.py:131
+msgid ""
+"با دکمه «+ ردیف جدید» به فاکتور ردیف اضافه کنید و با ستون حذف، ردیف اضافی را "
+"بردارید."
+msgstr ""
+
+#: apps/core/tours.py:135 templates/treasury/payment_form.html:28
+msgid "ایجاد پیش‌نویس"
+msgstr ""
+
+#: apps/core/tours.py:137
+msgid ""
+"فاکتور اول به‌صورت پیش‌نویس ساخته می‌شود و هیچ اثر مالی ندارد. از صفحه جزئیات، "
+"آن را بررسی و «ثبت نهایی» کنید تا سند حسابداری و خروج انبار ثبت شود."
+msgstr ""
+
+#: apps/core/tours.py:144 templates/core/dashboard.html:83
+#: templates/purchases/invoice_form.html:2
+#: templates/purchases/invoice_list.html:3
+msgid "فاکتور خرید جدید"
+msgstr ""
+
+#: apps/core/tours.py:145
+msgid ""
+"خرید کالا از تأمین‌کننده از اینجا شروع می‌شود؛ فاکتور خرید با ثبت نهایی، "
+"موجودی و میانگین بهای کالا را به‌روز می‌کند."
+msgstr ""
+
+#: apps/core/tours.py:150
+msgid ""
+"بر اساس وضعیت ثبت، وضعیت پرداخت، نام تأمین‌کننده یا بازه تاریخ پالایش کنید."
+msgstr ""
+
+#: apps/core/tours.py:155
+msgid ""
+"وضعیت ثبت و وضعیت پرداخت هر فاکتور جدا نمایش داده می‌شود. برای پرداخت به "
+"تأمین‌کننده و برگشت خرید، وارد جزئیات فاکتور شوید."
+msgstr ""
+
+#: apps/core/tours.py:159
+msgid "بدهی به تأمین‌کننده"
+msgstr ""
+
+#: apps/core/tours.py:160
+msgid ""
+"مانده پرداخت‌نشده هر فاکتور در گزارش «بدهی به تأمین‌کنندگان» هم دیده می‌شود و "
+"با تخصیص پرداخت‌ها کم می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:166 templates/core/dashboard.html:85
+#: templates/treasury/payment_form.html:2
+#: templates/treasury/payment_list.html:3
+msgid "دریافت / پرداخت جدید"
+msgstr ""
+
+#: apps/core/tours.py:167
+msgid ""
+"دریافت از مشتری یا پرداخت به طرف‌حساب (نقد، بانک یا چک) از اینجا ثبت می‌شود و "
+"پس از ثبت نهایی سند حسابداری می‌خورد."
+msgstr ""
+
+#: apps/core/tours.py:171 templates/accounting/journal_list.html:8
+#: templates/inventory/movement_list.html:8
+#: templates/purchases/invoice_list.html:10
+#: templates/sales/invoice_list.html:10 templates/treasury/cheque_list.html:8
+#: templates/treasury/payment_list.html:9
+msgid "پالایش"
+msgstr ""
+
+#: apps/core/tours.py:172
+msgid "بر اساس وضعیت، روش (نقد/بانک/چک) یا بازه تاریخ پالایش کنید."
+msgstr ""
+
+#: apps/core/tours.py:176
+msgid "فهرست دریافت و پرداخت"
+msgstr ""
+
+#: apps/core/tours.py:177
+msgid ""
+"جهت، طرف‌حساب، روش و مبلغ هر دریافت/پرداخت. روی هر سطر کلیک کنید تا تخصیص آن "
+"به فاکتورها را ببینید یا انجام دهید."
+msgstr ""
+
+#: apps/core/tours.py:181
+msgid "تخصیص یعنی چه؟"
+msgstr ""
+
+#: apps/core/tours.py:182
+msgid ""
+"تخصیص مشخص می‌کند هر دریافت بابت کدام فاکتور است؛ وضعیت پرداخت فاکتورها فقط "
+"از روی تخصیص‌ها محاسبه می‌شود، نه از روی حدس."
+msgstr ""
+
+#: apps/core/tours.py:188
+msgid "پالایش چک‌ها"
+msgstr ""
+
+#: apps/core/tours.py:189
+msgid ""
+"بر اساس وضعیت (در دست، واگذارشده به بانک، وصول‌شده، برگشتی و…)، جهت (دریافتی/"
+"پرداختی) یا سررسید پالایش کنید."
+msgstr ""
+
+#: apps/core/tours.py:193
+msgid "دفتر چک‌ها"
+msgstr ""
+
+#: apps/core/tours.py:194
+msgid ""
+"همه چک‌های دریافتی و پرداختی با بانک، مبلغ و سررسید شمسی. چک دریافتی تا وقتی "
+"وصول نشود «در دست» است و جزو موجودی بانک حساب نمی‌شود."
+msgstr ""
+
+#: apps/core/tours.py:198 templates/treasury/cheque_detail.html:11
+msgid "عملیات چک"
+msgstr ""
+
+#: apps/core/tours.py:199
+msgid ""
+"با کلیک روی هر چک، عملیاتش را انجام دهید: واگذاری به بانک، وصول، برگشت یا "
+"عودت. هر عملیات سند حسابداری خودش را دارد و برگشت چک، فاکتور مربوط را دوباره "
+"باز می‌کند."
+msgstr ""
+
+#: apps/core/tours.py:203
+msgid "سررسیدها را از دست ندهید"
+msgstr ""
+
+#: apps/core/tours.py:204
+msgid ""
+"با پالایش سررسید، چک‌هایی را که موعدشان نزدیک است زودتر ببینید؛ چک‌های "
+"وصول‌نشده در داشبورد هم شمرده می‌شوند."
+msgstr ""
+
+#: apps/core/tours.py:210
+msgid "خلاصه تطبیق"
+msgstr ""
+
+#: apps/core/tours.py:212
+msgid ""
+"مانده دفاتر در برابر مانده بانک، تعداد ردیف‌های تطبیق‌شده و اختلاف. دکمه‌های "
+"بالای همین کارت: تطبیق خودکار، نهایی‌کردن (قفل) و بازگشایی."
+msgstr ""
+
+#: apps/core/tours.py:217 templates/treasury/statement_detail.html:20
+msgid "ردیف‌های صورت‌حساب"
+msgstr ""
+
+#: apps/core/tours.py:218
+msgid ""
+"هر ردیف یعنی یک حرکت واقعی بانک. ردیف تطبیق‌شده علامت می‌خورد و اگر اشتباه "
+"بود، از همین‌جا لغو تطبیق می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:222
+msgid "تطبیق دستی"
+msgstr ""
+
+#: apps/core/tours.py:223
+msgid ""
+"حرکات دفتری که هنوز به صورت‌حساب وصل نشده‌اند اینجاست؛ هر حرکت را به ردیف "
+"متناظرش وصل کنید تا اختلاف صفر شود."
+msgstr ""
+
+#: apps/core/tours.py:227 templates/treasury/statement_detail.html:31
+msgid "افزودن ردیف دستی"
+msgstr ""
+
+#: apps/core/tours.py:228
+msgid ""
+"اگر بانکی حرکتی دارد که در فایل نیست (مثل کارمزد)، دستی اضافه‌اش کنید تا "
+"صورت‌حساب کامل شود."
+msgstr ""
+
+#: apps/core/tours.py:232
+msgid "بارگذاری از فایل"
+msgstr ""
+
+#: apps/core/tours.py:233
+msgid ""
+"فایل صورت‌حساب بانکی (CSV یا CAMT.053 یا OFX) را بارگذاری کنید؛ ردیف‌ها خوانده "
+"و اعتبارسنجی می‌شوند و مانده آغازین و پایانی کنترل می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:239
+msgid "کالا و پیش‌نیازها"
+msgstr ""
+
+#: apps/core/tours.py:240
+msgid ""
+"کالای جدید از همین‌جا؛ واحدها، دسته‌بندی‌ها و انبارها هم از دکمه‌های کناری تعریف "
+"می‌شوند. هر کالا یک واحد پایه دارد."
+msgstr ""
+
+#: apps/core/tours.py:244
+msgid "فهرست کالاها"
+msgstr ""
+
+#: apps/core/tours.py:245
+msgid ""
+"کد کالا (SKU)، دسته، واحد پایه و فعال‌بودن هر کالا. موجودی و بهای میانگین "
+"کالا در بخش «موجودی انبار» دیده می‌شود، نه اینجا."
+msgstr ""
+
+#: apps/core/tours.py:250
+msgid ""
+"در ویرایش کالا می‌توانید حداقل موجودی تعیین کنید؛ کالای زیر حداقل، در داشبورد "
+"به‌عنوان کم‌موجودی هشدار می‌گیرد."
+msgstr ""
+
+#: apps/core/tours.py:254
+msgid "ترتیب کار"
+msgstr ""
+
+#: apps/core/tours.py:255
+msgid ""
+"اول واحد و انبار، بعد کالا؛ سپس با فاکتور خرید یا سند انبار، موجودی کالا شکل "
+"می‌گیرد."
+msgstr ""
+
+#: apps/core/tours.py:261 apps/inventory/views.py:264
+#: templates/accounting/opening_balance_form.html:6
+#: templates/inventory/document_list.html:3
+msgid "سند انبار جدید"
+msgstr ""
+
+#: apps/core/tours.py:262
+msgid ""
+"ورود، خروج و انتقال بین انبارها با سند انبار انجام می‌شود؛ سند پیش‌نویس اثری "
+"ندارد تا وقتی ثبت نهایی شود."
+msgstr ""
+
+#: apps/core/tours.py:266
+msgid "فهرست اسناد"
+msgstr ""
+
+#: apps/core/tours.py:267
+msgid ""
+"نوع سند، انبار مبدأ و مقصد و وضعیت هر سند. ستون «سند حسابداری» نشان می‌دهد "
+"سند به دفاتر وصل شده یا نه."
+msgstr ""
+
+#: apps/core/tours.py:271
+msgid "موجودی از روی اسناد"
+msgstr ""
+
+#: apps/core/tours.py:272
+msgid ""
+"موجودی هر کالا جمع جبری همین اسناد ثبت‌شده است (دفتر انبار)؛ خروجی بیش از "
+"موجودی ممکن نیست و بها با میانگین موزون حساب می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:276
+msgid "انبارگردانی جدا است"
+msgstr ""
+
+#: apps/core/tours.py:277
+msgid ""
+"برای اصلاح موجودیِ شمارش‌شده از بخش «انبارگردانی‌ها» استفاده کنید، نه سند خروج "
+"دستی؛ مغایرت آنجا سند حسابداری خودش را دارد."
+msgstr ""
+
+#: apps/core/tours.py:283
+msgid "بازه گزارش"
+msgstr ""
+
+#: apps/core/tours.py:284
+msgid ""
+"شرکت و دوره مالی را انتخاب کنید یا بازه تاریخی بدهید. گزارش فقط از اسناد "
+"ثبت‌شده ساخته می‌شود؛ پیش‌نویس‌ها اثری ندارند."
+msgstr ""
+
+#: apps/core/tours.py:288
+msgid "بهای تمام‌شده (COGS)"
+msgstr ""
+
+#: apps/core/tours.py:290
+msgid ""
+"اگر می‌خواهید سود ناخالص ببینید، حساب‌های بهای تمام‌شده را اینجا مشخص کنید؛ آن "
+"حساب‌ها از هزینه‌ها جدا و سود ناخالص و خالص جدا نمایش داده می‌شوند. در داشبورد "
+"این تفکیک انجام نمی‌شود."
+msgstr ""
+
+#: apps/core/tours.py:295 templates/accounting/income_statement.html:2
+#: templates/base.html:54
+msgid "صورت سود و زیان"
+msgstr ""
+
+#: apps/core/tours.py:296
+msgid ""
+"درآمدها، هزینه‌ها و نتیجه دوره. جمع همین ارقام است که نمودار داشبورد از آن "
+"ساخته می‌شود، پس همیشه با هم می‌خوانند."
+msgstr ""
+
+#: apps/core/tours.py:300
+msgid "خروجی"
+msgstr ""
+
+#: apps/core/tours.py:301
+msgid ""
+"از همین صفحه می‌توانید بازه را عوض و گزارش را دوباره بگیرید؛ برای چاپ، از "
+"چاپگر مرورگر استفاده کنید."
+msgstr ""
+
+#: apps/core/tours.py:307
+msgid "دوره‌های سال مالی"
+msgstr ""
+
+#: apps/core/tours.py:308
+msgid ""
+"هر دوره با بازه و وضعیتش (باز/بسته) فهرست شده. ثبت سند فقط در دوره باز ممکن "
+"است؛ دوره بسته سند جدید نمی‌پذیرد."
+msgstr ""
+
+#: apps/core/tours.py:312 templates/organizations/fiscal_period_close.html:13
+#: templates/organizations/fiscal_year_detail.html:8
+msgid "بستن دوره"
+msgstr ""
+
+#: apps/core/tours.py:314
+msgid ""
+"بستن دوره، سند اختتامیه می‌سازد: حساب‌های سود و زیانی صفر و نتیجه به سود "
+"انباشته می‌رود. دوره بسته را می‌توان بازگشایی کرد؛ سند اختتامیه به‌صورت خودکار "
+"برگشت می‌خورد."
+msgstr ""
+
+#: apps/core/tours.py:319 templates/organizations/fiscal_year_close.html:13
+#: templates/organizations/fiscal_year_detail.html:14
+#: templates/organizations/fiscal_year_detail.html:16
+msgid "بستن سال مالی"
+msgstr ""
+
+#: apps/core/tours.py:320
+msgid ""
+"وقتی همه دوره‌ها بسته شدند، سال مالی بسته می‌شود. این کار برای نقش‌های «مدیر "
+"سیستم» شرکت (مالک و مدیر) است."
+msgstr ""
+
+#: apps/core/tours.py:324 templates/accounting/opening_balance_form.html:2
+#: templates/base.html:31
+msgid "تراز افتتاحیه"
+msgstr ""
+
+#: apps/core/tours.py:325
+msgid ""
+"برای شروع کار با یک شرکت، تراز افتتاحیه سال را از صفحه سال‌های مالی ثبت کنید "
+"تا مانده‌های اول دوره در دفاتر بنشیند."
+msgstr ""
+
+#: apps/core/tours.py:331
+msgid "اعضای شرکت و نقش‌ها"
+msgstr ""
+
+#: apps/core/tours.py:333
+msgid ""
+"نقش هر عضو تعیین می‌کند چه کارهایی می‌تواند بکند: مشاهده‌گر فقط می‌خواند؛ نقش‌های "
+"عملیاتی ثبت می‌کنند؛ مدیر و مالک بستن دوره و مدیریت اعضا را هم دارند. تغییر "
+"نقش بلافاصله اثر می‌کند."
+msgstr ""
+
+#: apps/core/tours.py:338
+msgid "حذف یعنی غیرفعال‌سازی"
+msgstr ""
+
+#: apps/core/tours.py:339
+msgid ""
+"عضو حذف نمی‌شود؛ غیرفعال می‌شود و دسترسی‌اش همان لحظه قطع می‌شود. مالکِ تنها را "
+"نمی‌توان غیرفعال یا تنزل داد تا شرکت بی‌صاحب نماند."
+msgstr ""
+
+#: apps/core/tours.py:343 templates/organizations/company_members.html:18
+msgid "افزودن عضو موجود"
+msgstr ""
+
+#: apps/core/tours.py:344
+msgid ""
+"اگر کاربر قبلاً در سیستم ساخته شده، با نام کاربری دقیق پیدایش کنید و با یک "
+"نقش به این شرکت وصلش کنید."
+msgstr ""
+
+#: apps/core/tours.py:348 templates/organizations/company_members.html:23
+msgid "ساخت کاربر جدید"
+msgstr ""
+
+#: apps/core/tours.py:349
+msgid ""
+"کاربر تازه با گذرواژه‌ای که همین‌جا تعیین می‌کنید ساخته می‌شود و از همان لحظه "
+"می‌تواند وارد شود. دعوت ایمیلی وجود ندارد؛ اکانتیکس آفلاین کار می‌کند."
+msgstr ""
+
+#: apps/core/tours.py:355
+msgid "نام و ایمیل"
+msgstr ""
+
+#: apps/core/tours.py:356
+msgid ""
+"نام، نام خانوادگی و ایمیل‌تان را اینجا ویرایش کنید. نام کاربری شناسه ورود است "
+"و تغییر نمی‌کند."
+msgstr ""
+
+#: apps/core/tours.py:360 templates/accounting/account_form.html:2
+#: templates/organizations/company_form.html:2
+#: templates/organizations/fiscal_year_form.html:2
+#: templates/users/profile.html:9
+msgid "ذخیره"
+msgstr ""
+
+#: apps/core/tours.py:361
+msgid ""
+"تغییرات با دکمه «ذخیره» همان لحظه اعمال می‌شوند و در سربرگ صفحات هم نام شما "
+"به‌روز دیده می‌شود."
+msgstr ""
+
+#: apps/core/tours.py:365 templates/base.html:67
+#: templates/users/password_change.html:3
+#: templates/users/password_change.html:5
+#: templates/users/password_change.html:7 templates/users/profile.html:14
+msgid "تغییر گذرواژه"
+msgstr ""
+
+#: apps/core/tours.py:366
+msgid ""
+"برای تغییر گذرواژه، گذرواژه فعلی لازم است. بعد از تغییر، همین نشست باز "
+"می‌ماند ولی نشست‌های دیگر باید دوباره وارد شوند."
+msgstr ""
+
+#: apps/core/tours.py:370
+msgid "گذرواژه را فراموش کرده‌اید؟"
+msgstr ""
+
+#: apps/core/tours.py:371
+msgid ""
+"بازیابی خودکار گذرواژه وجود ندارد؛ از مدیر سیستم بخواهید با دستور مدیریتی "
+"برایتان گذرواژه تازه بگذارد."
+msgstr ""
+
 #: apps/inventory/forms.py:18
 msgid "کد انبار"
 msgstr ""
@@ -566,7 +1219,7 @@ msgid "نام انبار"
 msgstr ""
 
 #: apps/inventory/forms.py:33 apps/inventory/forms.py:124
-#: apps/purchases/forms.py:30 apps/sales/forms.py:27 templates/base.html:31
+#: apps/purchases/forms.py:30 apps/sales/forms.py:27 templates/base.html:32
 #: templates/inventory/count_form.html:12 templates/inventory/count_list.html:5
 #: templates/inventory/document_form.html:12
 #: templates/inventory/document_list.html:5
@@ -701,7 +1354,7 @@ msgid ""
 "هیچ‌کدام را انتخاب نکنید."
 msgstr ""
 
-#: apps/inventory/models.py:63 apps/treasury/models.py:91
+#: apps/inventory/models.py:63 apps/treasury/models.py:93
 msgid "Receipt"
 msgstr "رسید"
 
@@ -755,14 +1408,14 @@ msgstr "ردیف‌های انبارگردانی ثبت‌شده قابل تغی
 msgid "Unknown stock document type: %(doc_type)s."
 msgstr "نوع سند انبار نامشخص: %(doc_type)s."
 
-#: apps/inventory/services.py:71 apps/inventory/services.py:508
+#: apps/inventory/services.py:71 apps/inventory/services.py:509
 #: apps/purchases/services.py:158 apps/purchases/services.py:305
 #: apps/sales/services.py:145 apps/sales/services.py:386
 msgid "Warehouse belongs to a different company."
 msgstr "انبار متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:73 apps/inventory/services.py:83
-#: apps/inventory/services.py:510 apps/purchases/services.py:160
+#: apps/inventory/services.py:511 apps/purchases/services.py:160
 #: apps/sales/services.py:147
 #, python-format
 msgid "Warehouse %(code)s is inactive."
@@ -789,7 +1442,7 @@ msgstr "فقط برای انتقال انبار مقصد تعیین می‌شو�
 msgid "Line product belongs to a different company (or is missing)."
 msgstr "کالای ردیف متعلق به شرکت دیگری است (یا یافت نشد)."
 
-#: apps/inventory/services.py:94 apps/inventory/services.py:526
+#: apps/inventory/services.py:94 apps/inventory/services.py:527
 #: apps/purchases/services.py:74 apps/sales/services.py:72
 #, python-format
 msgid "Product %(sku)s is inactive."
@@ -814,8 +1467,8 @@ msgstr "مقدار ردیف نمی‌تواند صفر باشد."
 msgid "Line quantity must be positive for this document type."
 msgstr "مقدار ردیف برای این نوع سند باید مثبت باشد."
 
-#: apps/inventory/services.py:112 apps/inventory/services.py:543
-#: apps/inventory/services.py:595
+#: apps/inventory/services.py:112 apps/inventory/services.py:544
+#: apps/inventory/services.py:596
 msgid "Unit cost cannot be negative."
 msgstr "بهای واحد نمی‌تواند منفی باشد."
 
@@ -867,63 +1520,68 @@ msgstr "ثبت سند دفتر کل فقط برای اسناد رسید و حو�
 msgid "gl_accounts must be (inventory_account, offset_account)."
 msgstr "gl_accounts باید (inventory_account, offset_account) باشد."
 
-#: apps/inventory/services.py:512 apps/inventory/services.py:653
+#: apps/inventory/services.py:341
+#, python-format
+msgid "Stock %(type)s %(id)s"
+msgstr "سند انبار %(type)s %(id)s"
+
+#: apps/inventory/services.py:513 apps/inventory/services.py:654
 msgid "An inventory count needs at least one line."
 msgstr "انبارگردانی دست‌کم به یک ردیف نیاز دارد."
 
-#: apps/inventory/services.py:524
+#: apps/inventory/services.py:525
 msgid "Count line product belongs to a different company."
 msgstr "کالای ردیف شمارش متعلق به شرکت دیگری است."
 
-#: apps/inventory/services.py:529
+#: apps/inventory/services.py:530
 #, python-format
 msgid "Product %(sku)s is not stockable and cannot be counted."
 msgstr "کالای %(sku)s قابل انبارش نیست و قابل شمارش نیست."
 
-#: apps/inventory/services.py:533
+#: apps/inventory/services.py:534
 #, python-format
 msgid "Product %(sku)s appears twice in this count."
 msgstr "کالای %(sku)s دو بار در این شمارش آمده است."
 
-#: apps/inventory/services.py:538 apps/inventory/services.py:589
+#: apps/inventory/services.py:539 apps/inventory/services.py:590
 msgid "Counted quantity cannot be negative."
 msgstr "مقدار شمارش‌شده نمی‌تواند منفی باشد."
 
-#: apps/inventory/services.py:574
+#: apps/inventory/services.py:575
 msgid "Only a DRAFT inventory count can be edited."
 msgstr "فقط انبارگردانی پیش‌نویس قابل ویرایش است."
 
-#: apps/inventory/services.py:583
+#: apps/inventory/services.py:584
 msgid "Count line product is not part of this count."
 msgstr "کالای ردیف شمارش در این شمارش وجود ندارد."
 
-#: apps/inventory/services.py:585
+#: apps/inventory/services.py:586
 #, python-format
 msgid "Product %(sku)s appears twice."
 msgstr "کالای %(sku)s دو بار آمده است."
 
-#: apps/inventory/services.py:617 apps/purchases/services.py:132
+#: apps/inventory/services.py:618 apps/purchases/services.py:132
 #: apps/sales/services.py:135
 #, python-format
 msgid "GL account '%(key)s' not found."
 msgstr "حساب دفتر کل «%(key)s» یافت نشد."
 
-#: apps/inventory/services.py:620 apps/purchases/services.py:135
+#: apps/inventory/services.py:621 apps/purchases/services.py:135
 #: apps/sales/services.py:138
 #, python-format
 msgid "GL account '%(key)s' belongs to a different company."
 msgstr "حساب دفتر کل «%(key)s» متعلق به شرکت دیگری است."
 
-#: apps/inventory/services.py:623
+#: apps/inventory/services.py:624
 #, python-format
 msgid "GL account '%(key)s' is not postable/active."
 msgstr "حساب دفتر کل «%(key)s» قابل ثبت یا فعال نیست."
 
-#: apps/inventory/services.py:649
+#: apps/inventory/services.py:650
 msgid "Only a DRAFT inventory count can be posted."
 msgstr "فقط انبارگردانی پیش‌نویس قابل ثبت است."
 
-#: apps/inventory/services.py:659
+#: apps/inventory/services.py:660
 #, python-format
 msgid ""
 "Stock of %(sku)s moved since the count was taken (snapshot %(snapshot)s, now "
@@ -932,43 +1590,63 @@ msgstr ""
 "موجودی کالای %(sku)s از زمان شمارش تغییر کرده است (مقطع شمارش %(snapshot)s، "
 "اکنون %(current)s)؛ شمارش را دوباره ایجاد کنید."
 
-#: apps/inventory/services.py:671
+#: apps/inventory/services.py:672
 msgid "gl_accounts must include 'inventory' and 'variance' accounts."
 msgstr "gl_accounts باید حساب‌های «inventory» و «variance» را شامل شود."
 
-#: apps/inventory/services.py:754
+#: apps/inventory/services.py:692
+#, python-format
+msgid "Inventory count %(date)s variances"
+msgstr "مغایرت‌های انبارگردانی %(date)s"
+
+#: apps/inventory/services.py:717
+#, python-format
+msgid "Inventory count %(date)s variance"
+msgstr "مغایرت انبارگردانی %(date)s"
+
+#: apps/inventory/services.py:755
 msgid "A reversal count cannot itself be reversed."
 msgstr "انبارگردانی برگشتی خود قابل برگشت‌زدن نیست."
 
-#: apps/inventory/services.py:756
+#: apps/inventory/services.py:757
 msgid "This inventory count has already been reversed."
 msgstr "این انبارگردانی قبلاً برگشت خورده است."
 
-#: apps/inventory/services.py:758
+#: apps/inventory/services.py:759
 msgid "Only a POSTED inventory count can be reversed."
 msgstr "فقط انبارگردانی ثبت‌شده قابل برگشت‌زدن است."
 
-#: apps/inventory/services.py:840
+#: apps/inventory/services.py:784
+#, python-format
+msgid "Reversal of count %(date)s: %(reason)s"
+msgstr "برگشت انبارگردانی %(date)s: %(reason)s"
+
+#: apps/inventory/services.py:844
 msgid "A reversal document cannot itself be reversed."
 msgstr "سند برگشتی خود قابل برگشت‌زدن نیست."
 
-#: apps/inventory/services.py:842 apps/inventory/services.py:846
+#: apps/inventory/services.py:846 apps/inventory/services.py:850
 msgid "This document has already been reversed."
 msgstr "این سند قبلاً برگشت خورده است."
 
-#: apps/inventory/services.py:844
+#: apps/inventory/services.py:848
 msgid "Only a POSTED stock document can be reversed."
 msgstr "فقط سند انبار ثبت‌شده قابل برگشت‌زدن است."
 
-#: apps/inventory/services.py:850
+#: apps/inventory/services.py:854
 msgid "Document has no movements and cannot be reversed."
 msgstr "سند هیچ گردشی ندارد و قابل برگشت‌زدن نیست."
 
-#: apps/inventory/services.py:858
+#: apps/inventory/services.py:862
 #, python-format
 msgid ""
 "Reversal would make stock of %(sku)s negative in warehouse %(warehouse)s."
 msgstr "برگشت‌زدن، موجودی کالای %(sku)s را در انبار %(warehouse)s منفی می‌کند."
+
+#: apps/inventory/services.py:880
+#, python-format
+msgid "Reversal of %(type)s %(date)s: %(reason)s"
+msgstr "برگشت %(type)s %(date)s: %(reason)s"
 
 #: apps/inventory/views.py:66
 msgid "کالا ایجاد شد."
@@ -996,11 +1674,6 @@ msgstr ""
 
 #: apps/inventory/views.py:254
 msgid "سند انبار به‌صورت پیش‌نویس ایجاد شد."
-msgstr ""
-
-#: apps/inventory/views.py:264 templates/accounting/opening_balance_form.html:6
-#: templates/inventory/document_list.html:3
-msgid "سند انبار جدید"
 msgstr ""
 
 #: apps/inventory/views.py:302
@@ -1049,17 +1722,49 @@ msgstr ""
 msgid "این کاربر از قبل عضو این شرکت است."
 msgstr ""
 
-#: apps/organizations/forms.py:74 apps/parties/forms.py:20
-#: apps/users/forms.py:47 templates/accounting/account_list.html:3
-#: templates/inventory/product_list.html:4
-#: templates/organizations/company_list.html:3
-#: templates/organizations/fiscal_year_list.html:3
-#: templates/parties/party_list.html:4 templates/treasury/account_list.html:4
-msgid "نام"
-msgstr ""
-
 #: apps/organizations/forms.py:75 apps/users/forms.py:48
 msgid "نام خانوادگی"
+msgstr ""
+
+#: apps/organizations/forms.py:101 apps/parties/forms.py:21
+msgid "نام قانونی"
+msgstr ""
+
+#: apps/organizations/forms.py:102 apps/parties/forms.py:23
+msgid "شماره ثبت"
+msgstr ""
+
+#: apps/organizations/forms.py:103
+msgid "ارز پیش‌فرض"
+msgstr ""
+
+#: apps/organizations/forms.py:118 apps/organizations/forms.py:136
+msgid "تاریخ شروع"
+msgstr ""
+
+#: apps/organizations/forms.py:119 apps/organizations/forms.py:137
+msgid "تاریخ پایان"
+msgstr ""
+
+#: apps/organizations/forms.py:120 apps/organizations/forms.py:138
+#: templates/accounting/journal_list.html:5
+#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:115
+#: templates/inventory/count_list.html:5
+#: templates/inventory/document_list.html:5
+#: templates/organizations/company_list.html:3
+#: templates/organizations/company_members.html:4
+#: templates/organizations/fiscal_year_detail.html:5
+#: templates/organizations/fiscal_year_list.html:3
+#: templates/purchases/invoice_detail.html:31
+#: templates/purchases/invoice_list.html:11
+#: templates/sales/invoice_detail.html:31 templates/sales/invoice_list.html:11
+#: templates/treasury/cheque_book_detail.html:8
+#: templates/treasury/cheque_list.html:4 templates/treasury/cheque_list.html:9
+#: templates/treasury/payment_detail.html:23
+#: templates/treasury/payment_list.html:5
+#: templates/treasury/payment_list.html:10
+#: templates/treasury/statement_list.html:10
+msgid "وضعیت"
 msgstr ""
 
 #: apps/organizations/models.py:41
@@ -1095,7 +1800,7 @@ msgid "Viewer"
 msgstr "مشاهده‌کننده"
 
 #: apps/organizations/models.py:75 apps/organizations/models.py:103
-#: apps/treasury/models.py:319
+#: apps/treasury/models.py:321
 msgid "Open"
 msgstr "باز"
 
@@ -1194,23 +1899,8 @@ msgstr ""
 msgid "نوع طرف‌حساب"
 msgstr ""
 
-#: apps/parties/forms.py:19 templates/accounting/account_list.html:3
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:102
-#: templates/parties/party_list.html:4 templates/purchases/ap_summary.html:8
-#: templates/sales/ar_summary.html:8
-msgid "کد"
-msgstr ""
-
-#: apps/parties/forms.py:21
-msgid "نام قانونی"
-msgstr ""
-
 #: apps/parties/forms.py:22 templates/parties/party_list.html:4
 msgid "شناسه مالیاتی"
-msgstr ""
-
-#: apps/parties/forms.py:23
-msgid "شماره ثبت"
 msgstr ""
 
 #: apps/parties/forms.py:24 apps/users/forms.py:49
@@ -1280,7 +1970,7 @@ msgstr "طرف‌حساب %(code)s مشتری نیست."
 msgid "طرف‌حساب ذخیره شد."
 msgstr ""
 
-#: apps/purchases/forms.py:27 templates/core/dashboard.html:108
+#: apps/purchases/forms.py:27 templates/core/dashboard.html:117
 #: templates/purchases/ap_summary.html:8
 #: templates/purchases/invoice_form.html:9
 #: templates/purchases/invoice_list.html:11
@@ -1473,6 +2163,11 @@ msgstr "gl_accounts باید یک حساب «expense» را شامل شود."
 msgid "gl_accounts must include a 'tax' account when tax is charged."
 msgstr "gl_accounts باید هنگام اعمال مالیات، یک حساب «tax» را شامل شود."
 
+#: apps/purchases/services.py:353 apps/purchases/services.py:392
+#, python-format
+msgid "Purchase invoice %(number)s"
+msgstr "فاکتور خرید %(number)s"
+
 #: apps/purchases/services.py:432
 msgid "This purchase invoice has already been reversed."
 msgstr "این فاکتور خرید قبلاً برگشت خورده است."
@@ -1480,6 +2175,11 @@ msgstr "این فاکتور خرید قبلاً برگشت خورده است."
 #: apps/purchases/services.py:434
 msgid "Only a POSTED purchase invoice can be reversed."
 msgstr "فقط فاکتور خرید ثبت‌شده قابل برگشت‌زدن است."
+
+#: apps/purchases/services.py:442
+#, python-format
+msgid "Purchase invoice %(number)s reversed"
+msgstr "فاکتور خرید %(number)s برگشت خورد"
 
 #: apps/purchases/services.py:493
 msgid "Only a DRAFT purchase return can be posted."
@@ -1498,6 +2198,11 @@ msgstr ""
 "مقدار برگشت کالای %(sku)s از مقدار خریداری‌شده پس از کسر برگشت‌های قبلی بیشتر "
 "است (تاکنون %(already)s برگشت خورده است)."
 
+#: apps/purchases/services.py:523 apps/purchases/services.py:550
+#, python-format
+msgid "Purchase return %(number)s"
+msgstr "برگشت خرید %(number)s"
+
 #: apps/purchases/services.py:539
 msgid ""
 "gl_accounts must include 'inventory' and 'payables' for a return against a "
@@ -1513,6 +2218,11 @@ msgstr "این برگشت خرید قبلاً برگشت خورده است."
 #: apps/purchases/services.py:593
 msgid "Only a POSTED purchase return can be reversed."
 msgstr "فقط برگشت خرید ثبت‌شده قابل برگشت‌زدن است."
+
+#: apps/purchases/services.py:601
+#, python-format
+msgid "Purchase return %(number)s reversed"
+msgstr "برگشت خرید %(number)s برگشت خورد"
 
 #: apps/purchases/views.py:131
 msgid "فاکتور خرید به‌صورت پیش‌نویس ایجاد شد."
@@ -1542,62 +2252,62 @@ msgstr ""
 msgid "برگشت خرید برگشت خورد."
 msgstr ""
 
-#: apps/reporting/services.py:202
+#: apps/reporting/services.py:203
 msgid "وصول مطالبات از مشتریان"
 msgstr ""
 
-#: apps/reporting/services.py:204
+#: apps/reporting/services.py:205
 #, python-format
 msgid "%(sales_collected)s از %(sales_all)s فاکتورهای فروش وصول شده است."
 msgstr ""
 
-#: apps/reporting/services.py:206
+#: apps/reporting/services.py:207
 msgid "هنوز فاکتور فروش ثبت‌شده‌ای وجود ندارد."
 msgstr ""
 
-#: apps/reporting/services.py:210
+#: apps/reporting/services.py:211
 msgid "تسویه بدهی به تأمین‌کنندگان"
 msgstr ""
 
-#: apps/reporting/services.py:212
+#: apps/reporting/services.py:213
 #, python-format
 msgid ""
 "%(purchases_settled)s از %(purchases_all)s فاکتورهای خرید تسویه شده است."
 msgstr ""
 
-#: apps/reporting/services.py:214
+#: apps/reporting/services.py:215
 msgid "هنوز فاکتور خرید ثبت‌شده‌ای وجود ندارد."
 msgstr ""
 
-#: apps/reporting/services.py:218
+#: apps/reporting/services.py:219
 msgid "چک‌های دریافتی وصول‌شده (بر اساس مبلغ)"
 msgstr ""
 
-#: apps/reporting/services.py:220
+#: apps/reporting/services.py:221
 #, python-format
 msgid "%(cleared)s وصول شده و %(outstanding)s در انتظار وصول است."
 msgstr ""
 
-#: apps/reporting/services.py:222
+#: apps/reporting/services.py:223
 msgid "هنوز چک دریافتی ثبت نشده است."
 msgstr ""
 
-#: apps/reporting/services.py:226
+#: apps/reporting/services.py:227
 msgid "سلامت موجودی انبار"
 msgstr ""
 
-#: apps/reporting/services.py:229
+#: apps/reporting/services.py:230
 #, python-format
 msgid ""
 "%(low_stock_count)s کالای کم‌موجودی از %(products_with_stock)s کالای دارای "
 "موجودی."
 msgstr ""
 
-#: apps/reporting/services.py:232
+#: apps/reporting/services.py:233
 msgid "هنوز کالای دارای موجودی ثبت نشده است."
 msgstr ""
 
-#: apps/sales/forms.py:24 templates/core/dashboard.html:82
+#: apps/sales/forms.py:24 templates/core/dashboard.html:91
 #: templates/sales/ar_summary.html:8 templates/sales/customer_statement.html:7
 #: templates/sales/invoice_form.html:9 templates/sales/invoice_list.html:11
 msgid "مشتری"
@@ -1698,6 +2408,16 @@ msgstr ""
 "gl_accounts برای ردیف‌های قابل انبارش باید حساب‌های «cogs» و «inventory» را "
 "شامل شود."
 
+#: apps/sales/services.py:432 apps/sales/services.py:470
+#, python-format
+msgid "Sales invoice %(number)s"
+msgstr "فاکتور فروش %(number)s"
+
+#: apps/sales/services.py:484
+#, python-format
+msgid "Sales invoice %(number)s — cost of goods sold"
+msgstr "فاکتور فروش %(number)s — بهای تمام‌شده کالای فروش‌رفته"
+
 #: apps/sales/services.py:528
 msgid "This sales invoice has already been reversed."
 msgstr "این فاکتور فروش قبلاً برگشت خورده است."
@@ -1705,6 +2425,11 @@ msgstr "این فاکتور فروش قبلاً برگشت خورده است."
 #: apps/sales/services.py:530
 msgid "Only a POSTED sales invoice can be reversed."
 msgstr "فقط فاکتور فروش ثبت‌شده قابل برگشت‌زدن است."
+
+#: apps/sales/services.py:556
+#, python-format
+msgid "Sales invoice %(number)s reversed"
+msgstr "فاکتور فروش %(number)s برگشت خورد"
 
 #: apps/sales/services.py:618
 msgid "Only a DRAFT sales return can be posted."
@@ -1728,6 +2453,11 @@ msgstr ""
 msgid "No issue movement found for %(sku)s on the original invoice."
 msgstr "هیچ گردش حواله‌ای برای کالای %(sku)s روی فاکتور اصلی یافت نشد."
 
+#: apps/sales/services.py:680 apps/sales/services.py:719
+#, python-format
+msgid "Sales return %(number)s"
+msgstr "برگشت فروش %(number)s"
+
 #: apps/sales/services.py:699
 msgid ""
 "gl_accounts must include 'receivables' and 'revenue' for a return against a "
@@ -1749,6 +2479,11 @@ msgstr ""
 "gl_accounts برای برگشت در برابر فاکتوری که سند دفتر کل خورده است باید "
 "«inventory» و «cogs» را شامل شود."
 
+#: apps/sales/services.py:742
+#, python-format
+msgid "Sales return %(number)s — cost restored"
+msgstr "برگشت فروش %(number)s — برگشت بهای تمام‌شده"
+
 #: apps/sales/services.py:789
 msgid "This sales return has already been reversed."
 msgstr "این برگشت فروش قبلاً برگشت خورده است."
@@ -1756,6 +2491,11 @@ msgstr "این برگشت فروش قبلاً برگشت خورده است."
 #: apps/sales/services.py:791
 msgid "Only a POSTED sales return can be reversed."
 msgstr "فقط برگشت فروش ثبت‌شده قابل برگشت‌زدن است."
+
+#: apps/sales/services.py:817
+#, python-format
+msgid "Sales return %(number)s reversed"
+msgstr "برگشت فروش %(number)s برگشت خورد"
 
 #: apps/sales/views.py:132
 msgid "فاکتور فروش به‌صورت پیش‌نویس ایجاد شد."
@@ -1848,10 +2588,6 @@ msgstr "برگ چک متعلق به حساب بانکی دیگری غیر از �
 msgid "Cheque leaf %(number)s is %(status)s, not UNUSED."
 msgstr "برگ چک %(number)s ‏%(status)s است، نه استفاده‌نشده."
 
-#: apps/treasury/forms.py:27
-msgid "نوع حساب"
-msgstr ""
-
 #: apps/treasury/forms.py:28
 msgid "نام حساب"
 msgstr ""
@@ -1907,8 +2643,8 @@ msgid "مبلغ"
 msgstr ""
 
 #: apps/treasury/forms.py:51 templates/accounting/journal_list.html:9
-#: templates/core/dashboard.html:82 templates/core/dashboard.html:106
-#: templates/core/dashboard.html:108 templates/inventory/count_list.html:5
+#: templates/core/dashboard.html:91 templates/core/dashboard.html:115
+#: templates/core/dashboard.html:117 templates/inventory/count_list.html:5
 #: templates/inventory/document_list.html:5
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:31
@@ -2090,7 +2826,7 @@ msgstr ""
 msgid "ردیف صورت‌حساب"
 msgstr ""
 
-#: apps/treasury/models.py:42 apps/treasury/models.py:95
+#: apps/treasury/models.py:42 apps/treasury/models.py:97
 msgid "Cash"
 msgstr "نقد"
 
@@ -2098,71 +2834,76 @@ msgstr "نقد"
 msgid "Bank"
 msgstr "بانک"
 
-#: apps/treasury/models.py:92
+#: apps/treasury/models.py:94
 msgid "Payment"
 msgstr "پرداخت"
 
-#: apps/treasury/models.py:96
+#: apps/treasury/models.py:98
 msgid "Bank transfer"
 msgstr "انتقال بانکی"
 
-#: apps/treasury/models.py:97
+#: apps/treasury/models.py:99
 msgid "Cheque"
 msgstr "چک"
 
-#: apps/treasury/models.py:161
+#: apps/treasury/models.py:163
 msgid "Posted payments are immutable; reverse instead."
 msgstr "پرداخت‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن برگشت بزنید."
 
-#: apps/treasury/models.py:168
+#: apps/treasury/models.py:170
 msgid "Posted payments cannot be deleted; reverse instead."
 msgstr "پرداخت‌های ثبت‌شده قابل حذف نیستند؛ به‌جای آن برگشت بزنید."
 
-#: apps/treasury/models.py:184
+#: apps/treasury/models.py:186
 msgid "Active"
 msgstr "فعال"
 
-#: apps/treasury/models.py:185 apps/treasury/models.py:437
+#: apps/treasury/models.py:187 apps/treasury/models.py:444
 msgid "Void"
 msgstr "باطل‌شده"
 
-#: apps/treasury/models.py:243 apps/treasury/models.py:247
+#: apps/treasury/models.py:245 apps/treasury/models.py:249
 msgid "Received"
 msgstr "دریافت‌شده"
 
-#: apps/treasury/models.py:244
+#: apps/treasury/models.py:246
 msgid "Issued"
 msgstr "صادرشده"
 
-#: apps/treasury/models.py:248
+#: apps/treasury/models.py:250
 msgid "Deposited"
 msgstr "واگذارشده"
 
-#: apps/treasury/models.py:249
+#: apps/treasury/models.py:251
 msgid "Delivered"
 msgstr "تحویل‌شده"
 
-#: apps/treasury/models.py:250
+#: apps/treasury/models.py:252
 msgid "Cleared"
 msgstr "وصول‌شده"
 
-#: apps/treasury/models.py:251
+#: apps/treasury/models.py:253
 msgid "Bounced"
 msgstr "برگشتی"
 
-#: apps/treasury/models.py:252
+#: apps/treasury/models.py:254
 msgid "Returned"
 msgstr "عودت‌داده‌شده"
 
-#: apps/treasury/models.py:320
+#: apps/treasury/models.py:322
 msgid "Completed"
 msgstr "تکمیل‌شده"
 
-#: apps/treasury/models.py:435
+#: apps/treasury/models.py:396
+#, python-format
+msgid "Statement line %(date)s %(amount)s"
+msgstr "ردیف صورت‌حساب %(date)s %(amount)s"
+
+#: apps/treasury/models.py:442
 msgid "Unused"
 msgstr "استفاده‌نشده"
 
-#: apps/treasury/models.py:436
+#: apps/treasury/models.py:443
 msgid "Used"
 msgstr "استفاده‌شده"
 
@@ -2305,6 +3046,14 @@ msgstr ""
 msgid "Only a completed statement can be reopened."
 msgstr "فقط صورت‌حساب تکمیل‌شده قابل بازگشایی است."
 
+#: apps/treasury/reporting.py:94
+msgid "فروش"
+msgstr ""
+
+#: apps/treasury/reporting.py:109
+msgid "خرید"
+msgstr ""
+
 #: apps/treasury/services.py:52
 #, python-format
 msgid "Cheque cannot move from %(status)s to %(target)s."
@@ -2384,88 +3133,111 @@ msgstr "فقط پرداخت پیش‌نویس قابل ثبت است."
 msgid "CHEQUE payment has no cheque attached."
 msgstr "به پرداخت با چک، چکی متصل نیست."
 
-#: apps/treasury/services.py:358
+#: apps/treasury/services.py:359
 msgid "Allocation amount must be positive."
 msgstr "مبلغ تخصیص باید مثبت باشد."
 
-#: apps/treasury/services.py:361
+#: apps/treasury/services.py:362
 msgid "Allocations are only allowed on POSTED payments (ADR-023)."
 msgstr "تخصیص فقط روی پرداخت‌های ثبت‌شده مجاز است (ADR-023)."
 
-#: apps/treasury/services.py:366
+#: apps/treasury/services.py:367
 msgid "Allocation target must be a sales or purchase invoice."
 msgstr "هدف تخصیص باید فاکتور فروش یا فاکتور خرید باشد."
 
-#: apps/treasury/services.py:368
+#: apps/treasury/services.py:369
 msgid "Only a RECEIPT can be allocated to a sales invoice."
 msgstr "فقط دریافت قابل تخصیص به فاکتور فروش است."
 
-#: apps/treasury/services.py:370
+#: apps/treasury/services.py:371
 msgid "Only a PAYMENT can be allocated to a purchase invoice."
 msgstr "فقط پرداخت قابل تخصیص به فاکتور خرید است."
 
-#: apps/treasury/services.py:374
+#: apps/treasury/services.py:375
 msgid "Invoice belongs to a different company."
 msgstr "فاکتور متعلق به شرکت دیگری است."
 
-#: apps/treasury/services.py:376
+#: apps/treasury/services.py:377
 msgid "Allocations target only POSTED invoices."
 msgstr "هدف تخصیص فقط می‌تواند فاکتور ثبت‌شده باشد."
 
-#: apps/treasury/services.py:379
+#: apps/treasury/services.py:380
 msgid "Invoice party does not match the payment party."
 msgstr "طرف‌حساب فاکتور با طرف‌حساب پرداخت مطابقت ندارد."
 
-#: apps/treasury/services.py:382
+#: apps/treasury/services.py:383
 msgid "Allocations would exceed the payment amount."
 msgstr "تخصیص‌ها از مبلغ پرداخت بیشتر می‌شوند."
 
-#: apps/treasury/services.py:384
+#: apps/treasury/services.py:385
 msgid "Allocations would exceed the invoice grand total."
 msgstr "تخصیص‌ها از جمع کل فاکتور بیشتر می‌شوند."
 
-#: apps/treasury/services.py:415
+#: apps/treasury/services.py:416
 msgid "Only an ACTIVE allocation can be voided."
 msgstr "فقط تخصیص فعال قابل ابطال است."
 
-#: apps/treasury/services.py:466
+#: apps/treasury/services.py:467
 msgid "This payment has already been reversed."
 msgstr "این پرداخت قبلاً برگشت خورده است."
 
-#: apps/treasury/services.py:468
+#: apps/treasury/services.py:469
 msgid "Only a POSTED payment can be reversed."
 msgstr "فقط پرداخت ثبت‌شده قابل برگشت‌زدن است."
 
-#: apps/treasury/services.py:472
+#: apps/treasury/services.py:473
 #, python-format
 msgid "A payment whose cheque is %(status)s cannot be reversed."
 msgstr "پرداختی که چکش %(status)s است قابل برگشت‌زدن نیست."
 
-#: apps/treasury/services.py:514
+#: apps/treasury/services.py:515
 msgid "Only a received cheque can be deposited."
 msgstr "فقط چک دریافتی قابل واگذاری است."
 
-#: apps/treasury/services.py:537
+#: apps/treasury/services.py:538
 msgid "Cheque has no holding account; its payment is not posted."
 msgstr "چک حساب واسط ندارد؛ پرداخت آن ثبت نشده است."
 
-#: apps/treasury/services.py:541
+#: apps/treasury/services.py:542
 msgid "Clearing a received cheque needs a bank treasury account."
 msgstr "وصول چک دریافتی به یک حساب خزانه بانکی نیاز دارد."
 
-#: apps/treasury/services.py:544
+#: apps/treasury/services.py:545
 msgid "Received cheques clear into a BANK treasury account."
 msgstr "چک‌های دریافتی در یک حساب خزانه بانکی وصول می‌شوند."
 
-#: apps/treasury/services.py:553
+#: apps/treasury/services.py:554
 msgid "Issued cheque has no payment."
 msgstr "برای چک صادره پرداختی وجود ندارد."
 
-#: apps/treasury/services.py:589
+#: apps/treasury/services.py:564
+#, python-format
+msgid "Cheque %(number)s cleared"
+msgstr "چک %(number)s وصول شد"
+
+#: apps/treasury/services.py:590
 msgid "Cheque payment is not posted; nothing to reverse."
 msgstr "پرداخت چک ثبت نشده است؛ چیزی برای برگشت‌زدن نیست."
 
-#: apps/treasury/services.py:656
+#: apps/treasury/services.py:603
+#, python-format
+msgid "Cheque %(number)s bounced"
+msgstr "چک %(number)s برگشت خورد"
+
+#: apps/treasury/services.py:604
+msgid "cheque bounced"
+msgstr "برگشت چک"
+
+#: apps/treasury/services.py:606
+#, python-format
+msgid "Cheque %(number)s returned"
+msgstr "چک %(number)s عودت داده شد"
+
+#: apps/treasury/services.py:607
+msgid "cheque returned"
+msgstr "عودت چک"
+
+#: apps/treasury/services.py:663
 msgid "Only a received cheque can be returned."
 msgstr "فقط چک دریافتی قابل عودت است."
 
@@ -2659,8 +3431,8 @@ msgstr ""
 msgid "دسترسی مجاز نیست"
 msgstr ""
 
-#: templates/403.html:2 templates/base.html:6 templates/base.html:23
-#: templates/base.html:73 templates/registration/lockout.html:5
+#: templates/403.html:2 templates/base.html:6 templates/base.html:24
+#: templates/base.html:74 templates/registration/lockout.html:5
 #: templates/registration/login.html:5 templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr ""
@@ -2675,11 +3447,7 @@ msgstr ""
 msgid "بازگشت به داشبورد"
 msgstr ""
 
-#: templates/_company_chooser.html:6
-msgid "انتخاب شرکت"
-msgstr ""
-
-#: templates/_company_chooser.html:7
+#: templates/_company_chooser.html:8
 msgid ""
 "برای ادامه، شرکت را انتخاب کنید؛ فهرست‌های انتخابی فرم بر اساس شرکت انتخاب‌شده "
 "محدود می‌شوند."
@@ -2703,29 +3471,32 @@ msgstr ""
 msgid "حساب جدید"
 msgstr ""
 
-#: templates/accounting/account_form.html:2
-#: templates/organizations/company_form.html:2
-#: templates/organizations/fiscal_year_form.html:2
-#: templates/users/profile.html:9
-msgid "ذخیره"
-msgstr ""
-
 #: templates/accounting/account_list.html:2
 msgid "سرفصل حساب‌ها"
 msgstr ""
 
-#: templates/accounting/account_list.html:3 templates/core/dashboard.html:100
+#: templates/accounting/account_list.html:3 templates/core/dashboard.html:109
 #: templates/inventory/document_list.html:5 templates/parties/party_list.html:4
 #: templates/treasury/account_list.html:4 templates/treasury/open_items.html:3
 msgid "نوع"
 msgstr ""
 
-#: templates/accounting/account_list.html:3
-msgid "حساب والد"
+#: templates/accounting/account_list.html:4
+#: templates/accounting/balance_sheet.html:22
+#: templates/accounting/trial_balance.html:14
+#: templates/inventory/product_list.html:5
+#: templates/organizations/company_list.html:4
+#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+msgid "بله"
 msgstr ""
 
-#: templates/accounting/account_list.html:3
-msgid "قابل ثبت"
+#: templates/accounting/account_list.html:4
+#: templates/accounting/balance_sheet.html:22
+#: templates/accounting/trial_balance.html:14
+#: templates/inventory/product_list.html:5
+#: templates/organizations/company_list.html:4
+#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+msgid "خیر"
 msgstr ""
 
 #: templates/accounting/account_list.html:5
@@ -2734,7 +3505,7 @@ msgstr ""
 msgid "موردی نیست"
 msgstr ""
 
-#: templates/accounting/balance_sheet.html:2 templates/base.html:54
+#: templates/accounting/balance_sheet.html:2 templates/base.html:55
 msgid "ترازنامه"
 msgstr ""
 
@@ -2799,10 +3570,6 @@ msgstr ""
 #: templates/accounting/trial_balance.html:15
 #: templates/inventory/stock_balances.html:15
 msgid "یک شرکت انتخاب کنید."
-msgstr ""
-
-#: templates/accounting/income_statement.html:2 templates/base.html:53
-msgid "صورت سود و زیان"
 msgstr ""
 
 #: templates/accounting/income_statement.html:5
@@ -2910,7 +3677,7 @@ msgid "بازگشت به دفتر روزنامه"
 msgstr ""
 
 #: templates/accounting/journal_form.html:2
-#: templates/accounting/journal_list.html:3 templates/core/dashboard.html:75
+#: templates/accounting/journal_list.html:3 templates/core/dashboard.html:84
 msgid "سند دستی جدید"
 msgstr ""
 
@@ -2972,28 +3739,8 @@ msgstr ""
 msgid "بازگشت"
 msgstr ""
 
-#: templates/accounting/journal_list.html:2 templates/base.html:29
+#: templates/accounting/journal_list.html:2 templates/base.html:30
 msgid "دفتر روزنامه"
-msgstr ""
-
-#: templates/accounting/journal_list.html:5
-#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:106
-#: templates/inventory/count_list.html:5
-#: templates/inventory/document_list.html:5
-#: templates/organizations/company_list.html:3
-#: templates/organizations/company_members.html:4
-#: templates/organizations/fiscal_year_detail.html:5
-#: templates/organizations/fiscal_year_list.html:3
-#: templates/purchases/invoice_detail.html:31
-#: templates/purchases/invoice_list.html:11
-#: templates/sales/invoice_detail.html:31 templates/sales/invoice_list.html:11
-#: templates/treasury/cheque_book_detail.html:8
-#: templates/treasury/cheque_list.html:4 templates/treasury/cheque_list.html:9
-#: templates/treasury/payment_detail.html:23
-#: templates/treasury/payment_list.html:5
-#: templates/treasury/payment_list.html:10
-#: templates/treasury/statement_list.html:10
-msgid "وضعیت"
 msgstr ""
 
 #: templates/accounting/journal_list.html:5
@@ -3009,14 +3756,6 @@ msgstr ""
 msgid "همه"
 msgstr ""
 
-#: templates/accounting/journal_list.html:8
-#: templates/inventory/movement_list.html:8
-#: templates/purchases/invoice_list.html:10
-#: templates/sales/invoice_list.html:10 templates/treasury/cheque_list.html:8
-#: templates/treasury/payment_list.html:9
-msgid "پالایش"
-msgstr ""
-
 #: templates/accounting/journal_list.html:10
 #: templates/inventory/movement_list.html:9
 msgid "سند"
@@ -3024,10 +3763,6 @@ msgstr ""
 
 #: templates/accounting/journal_list.html:11
 msgid "سندی یافت نشد"
-msgstr ""
-
-#: templates/accounting/opening_balance_form.html:2 templates/base.html:30
-msgid "تراز افتتاحیه"
 msgstr ""
 
 #: templates/accounting/opening_balance_form.html:5
@@ -3050,7 +3785,7 @@ msgstr ""
 msgid "استفاده کنید؛ مانده‌های فعلی انبار را در"
 msgstr ""
 
-#: templates/accounting/opening_balance_form.html:6 templates/base.html:33
+#: templates/accounting/opening_balance_form.html:6 templates/base.html:34
 #: templates/inventory/stock_balances.html:2
 msgid "موجودی انبار"
 msgstr ""
@@ -3092,7 +3827,7 @@ msgstr ""
 msgid "این شرکت هنوز سال مالی ندارد. ابتدا از بخش سازمان یک سال مالی بسازید."
 msgstr ""
 
-#: templates/accounting/trial_balance.html:2 templates/base.html:52
+#: templates/accounting/trial_balance.html:2 templates/base.html:53
 msgid "تراز آزمایشی"
 msgstr ""
 
@@ -3108,7 +3843,7 @@ msgstr ""
 msgid "خروجی Excel"
 msgstr ""
 
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:100
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:109
 #: templates/treasury/account_list.html:4
 #: templates/treasury/payment_detail.html:32
 msgid "مانده"
@@ -3118,132 +3853,130 @@ msgstr ""
 msgid "متوازن:"
 msgstr ""
 
-#: templates/base.html:23
+#: templates/base.html:24
 msgid "نرم‌افزار حسابداری و انبار"
 msgstr ""
 
-#: templates/base.html:26 templates/core/dashboard.html:3
+#: templates/base.html:27 templates/core/dashboard.html:3
 msgid "داشبورد"
 msgstr ""
 
-#: templates/base.html:27
+#: templates/base.html:28
 msgid "حسابداری"
 msgstr ""
 
-#: templates/base.html:28
+#: templates/base.html:29
 msgid "حساب‌ها"
 msgstr ""
 
-#: templates/base.html:32 templates/inventory/product_list.html:2
+#: templates/base.html:33 templates/inventory/product_list.html:2
 msgid "محصولات"
 msgstr ""
 
-#: templates/base.html:34 templates/inventory/movement_list.html:2
+#: templates/base.html:35 templates/inventory/movement_list.html:2
 msgid "حرکات انبار"
 msgstr ""
 
-#: templates/base.html:35 templates/inventory/count_list.html:2
+#: templates/base.html:36 templates/inventory/count_list.html:2
 msgid "انبارگردانی‌ها"
 msgstr ""
 
-#: templates/base.html:36 templates/inventory/document_list.html:2
+#: templates/base.html:37 templates/inventory/document_list.html:2
 msgid "اسناد انبار"
 msgstr ""
 
-#: templates/base.html:37
+#: templates/base.html:38
 msgid "خرید و فروش"
 msgstr ""
 
-#: templates/base.html:38 templates/parties/party_list.html:2
+#: templates/base.html:39 templates/parties/party_list.html:2
 msgid "طرف‌حساب‌ها"
 msgstr ""
 
-#: templates/base.html:39 templates/purchases/invoice_list.html:2
+#: templates/base.html:40 templates/purchases/invoice_list.html:2
 msgid "فاکتورهای خرید"
 msgstr ""
 
-#: templates/base.html:40
+#: templates/base.html:41
 msgid "بدهی به تأمین‌کنندگان"
 msgstr ""
 
-#: templates/base.html:41 templates/sales/invoice_list.html:2
+#: templates/base.html:42 templates/sales/invoice_list.html:2
 msgid "فاکتورهای فروش"
 msgstr ""
 
-#: templates/base.html:42
+#: templates/base.html:43
 msgid "مطالبات از مشتریان"
 msgstr ""
 
-#: templates/base.html:43 templates/sales/customer_statement.html:2
+#: templates/base.html:44 templates/sales/customer_statement.html:2
 msgid "صورت‌حساب مشتری"
 msgstr ""
 
-#: templates/base.html:44
+#: templates/base.html:45
 msgid "خزانه‌داری"
 msgstr ""
 
-#: templates/base.html:45 templates/core/dashboard.html:100
+#: templates/base.html:46 templates/core/dashboard.html:109
 #: templates/treasury/account_list.html:2
 msgid "حساب‌های خزانه"
 msgstr ""
 
-#: templates/base.html:46
+#: templates/base.html:47
 msgid "دریافت و پرداخت"
 msgstr ""
 
-#: templates/base.html:47 templates/treasury/cheque_list.html:2
+#: templates/base.html:48 templates/treasury/cheque_list.html:2
 msgid "چک‌ها"
 msgstr ""
 
-#: templates/base.html:48 templates/treasury/open_items.html:2
+#: templates/base.html:49 templates/treasury/open_items.html:2
 msgid "اقلام باز"
 msgstr ""
 
-#: templates/base.html:49 templates/treasury/statement_list.html:2
+#: templates/base.html:50 templates/treasury/statement_list.html:2
 msgid "تطبیق بانکی"
 msgstr ""
 
-#: templates/base.html:50 templates/treasury/cheque_book_list.html:2
+#: templates/base.html:51 templates/treasury/cheque_book_list.html:2
 msgid "دفترچه‌های چک"
 msgstr ""
 
-#: templates/base.html:51
+#: templates/base.html:52
 msgid "گزارش‌ها"
 msgstr ""
 
-#: templates/base.html:55
+#: templates/base.html:56
 msgid "سازمان"
 msgstr ""
 
-#: templates/base.html:56 templates/organizations/company_list.html:2
+#: templates/base.html:57 templates/organizations/company_list.html:2
 msgid "شرکت‌ها"
 msgstr ""
 
-#: templates/base.html:57 templates/organizations/fiscal_year_list.html:2
+#: templates/base.html:58 templates/organizations/fiscal_year_list.html:2
 msgid "سال‌های مالی"
 msgstr ""
 
-#: templates/base.html:61
+#: templates/base.html:62
 msgid "کاربر سیستم"
 msgstr ""
 
-#: templates/base.html:62
+#: templates/base.html:63
 msgid "خروج"
 msgstr ""
 
-#: templates/base.html:65 templates/users/profile.html:3
+#: templates/base.html:66 templates/users/profile.html:3
 #: templates/users/profile.html:5
 msgid "پروفایل من"
 msgstr ""
 
-#: templates/base.html:66 templates/users/password_change.html:3
-#: templates/users/password_change.html:5
-#: templates/users/password_change.html:7 templates/users/profile.html:14
-msgid "تغییر گذرواژه"
+#: templates/base.html:70 templates/registration/login.html:9
+msgid "نسخه"
 msgstr ""
 
-#: templates/base.html:69 templates/registration/login.html:9
-msgid "نسخه"
+#: templates/base.html:76
+msgid "راهنمای صفحه"
 msgstr ""
 
 #: templates/core/dashboard.html:2
@@ -3320,57 +4053,34 @@ msgstr ""
 msgid "هزینه"
 msgstr ""
 
-#: templates/core/dashboard.html:45
+#: templates/core/dashboard.html:50
 #, python-format
 msgid "درآمد %(label)s: %(value)s"
 msgstr ""
 
-#: templates/core/dashboard.html:46
+#: templates/core/dashboard.html:51
 #, python-format
 msgid "هزینه %(label)s: %(value)s"
 msgstr ""
 
-#: templates/core/dashboard.html:52
+#: templates/core/dashboard.html:56
+msgid "در این سال مالی هنوز درآمد یا هزینه‌ای ثبت نشده است."
+msgstr ""
+
+#: templates/core/dashboard.html:57
 msgid "دوره‌ای برای نمایش نمودار وجود ندارد."
 msgstr ""
 
-#: templates/core/dashboard.html:55
-msgid "عملکرد"
-msgstr ""
-
-#: templates/core/dashboard.html:71
-msgid "دسترسی سریع"
-msgstr ""
-
-#: templates/core/dashboard.html:73 templates/sales/invoice_form.html:2
-#: templates/sales/invoice_list.html:3
-msgid "فاکتور فروش جدید"
-msgstr ""
-
-#: templates/core/dashboard.html:74 templates/purchases/invoice_form.html:2
-#: templates/purchases/invoice_list.html:3
-msgid "فاکتور خرید جدید"
-msgstr ""
-
-#: templates/core/dashboard.html:76 templates/treasury/payment_form.html:2
-#: templates/treasury/payment_list.html:3
-msgid "دریافت / پرداخت جدید"
-msgstr ""
-
-#: templates/core/dashboard.html:77 templates/inventory/product_form.html:2
+#: templates/core/dashboard.html:86 templates/inventory/product_form.html:2
 #: templates/inventory/product_list.html:3
 msgid "کالای جدید"
 msgstr ""
 
-#: templates/core/dashboard.html:81
-msgid "آخرین فاکتورهای فروش"
-msgstr ""
-
-#: templates/core/dashboard.html:81
+#: templates/core/dashboard.html:90
 msgid "همه فاکتورها"
 msgstr ""
 
-#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
+#: templates/core/dashboard.html:91 templates/core/dashboard.html:117
 #: templates/purchases/invoice_detail.html:31
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:15
@@ -3379,7 +4089,7 @@ msgstr ""
 msgid "شماره"
 msgstr ""
 
-#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
+#: templates/core/dashboard.html:91 templates/core/dashboard.html:117
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:13
 #: templates/sales/invoice_list.html:11 templates/treasury/open_items.html:3
@@ -3387,7 +4097,7 @@ msgstr ""
 msgid "مبلغ کل"
 msgstr ""
 
-#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
+#: templates/core/dashboard.html:91 templates/core/dashboard.html:117
 #: templates/purchases/invoice_list.html:6
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:13
@@ -3395,86 +4105,86 @@ msgstr ""
 msgid "وضعیت پرداخت"
 msgstr ""
 
-#: templates/core/dashboard.html:83 templates/core/dashboard.html:109
+#: templates/core/dashboard.html:92 templates/core/dashboard.html:118
 msgid "فاکتوری ثبت نشده است."
 msgstr ""
 
-#: templates/core/dashboard.html:87
+#: templates/core/dashboard.html:96
 msgid "مطالبات از مشتریان (معین)"
 msgstr ""
 
-#: templates/core/dashboard.html:88
+#: templates/core/dashboard.html:97
 msgid "بدهی به تأمین‌کنندگان (معین)"
 msgstr ""
 
-#: templates/core/dashboard.html:89
+#: templates/core/dashboard.html:98
 msgid "ارزش موجودی انبار"
 msgstr ""
 
-#: templates/core/dashboard.html:90
+#: templates/core/dashboard.html:99
 msgid "سود خالص دوره"
 msgstr ""
 
-#: templates/core/dashboard.html:91
+#: templates/core/dashboard.html:100
 msgid ""
 "سود ناخالص فقط در صفحه صورت سود و زیان و پس از تعیین حساب‌های بهای تمام‌شده "
 "نمایش داده می‌شود."
 msgstr ""
 
-#: templates/core/dashboard.html:92
+#: templates/core/dashboard.html:101
 msgid "اقلام باز — دریافتنی"
 msgstr ""
 
-#: templates/core/dashboard.html:93
+#: templates/core/dashboard.html:102
 msgid "اقلام باز — پرداختنی"
 msgstr ""
 
-#: templates/core/dashboard.html:94
+#: templates/core/dashboard.html:103
 msgid "چک‌های وصول‌نشده"
 msgstr ""
 
-#: templates/core/dashboard.html:94
+#: templates/core/dashboard.html:103
 #, python-format
 msgid "%(count)s فقره"
 msgstr ""
 
-#: templates/core/dashboard.html:94
+#: templates/core/dashboard.html:103
 msgid "مبلغ:"
 msgstr ""
 
-#: templates/core/dashboard.html:95
+#: templates/core/dashboard.html:104
 msgid "کالاهای کم‌موجودی"
 msgstr ""
 
-#: templates/core/dashboard.html:101
+#: templates/core/dashboard.html:110
 msgid "حساب خزانه‌ای تعریف نشده است."
 msgstr ""
 
-#: templates/core/dashboard.html:102
+#: templates/core/dashboard.html:111
 msgid "هشدار موجودی"
 msgstr ""
 
-#: templates/core/dashboard.html:102 templates/inventory/stock_balances.html:13
+#: templates/core/dashboard.html:111 templates/inventory/stock_balances.html:13
 msgid "محصول"
 msgstr ""
 
-#: templates/core/dashboard.html:102
+#: templates/core/dashboard.html:111
 msgid "موجودی"
 msgstr ""
 
-#: templates/core/dashboard.html:102
+#: templates/core/dashboard.html:111
 msgid "حداقل"
 msgstr ""
 
-#: templates/core/dashboard.html:106
+#: templates/core/dashboard.html:115
 msgid "آخرین اسناد دفتر روزنامه"
 msgstr ""
 
-#: templates/core/dashboard.html:107
+#: templates/core/dashboard.html:116
 msgid "سندی ثبت نشده است."
 msgstr ""
 
-#: templates/core/dashboard.html:108
+#: templates/core/dashboard.html:117
 msgid "آخرین فاکتورهای خرید"
 msgstr ""
 
@@ -3846,10 +4556,6 @@ msgstr ""
 msgid "این شرکت عضوی ندارد."
 msgstr ""
 
-#: templates/organizations/company_members.html:18
-msgid "افزودن عضو موجود"
-msgstr ""
-
 #: templates/organizations/company_members.html:19
 msgid ""
 "اگر کاربر از قبل در سیستم حساب دارد، با نام کاربری دقیق او را به این شرکت "
@@ -3858,10 +4564,6 @@ msgstr ""
 
 #: templates/organizations/company_members.html:20
 msgid "افزودن عضو"
-msgstr ""
-
-#: templates/organizations/company_members.html:23
-msgid "ساخت کاربر جدید"
 msgstr ""
 
 #: templates/organizations/company_members.html:24
@@ -3912,11 +4614,6 @@ msgstr ""
 msgid "تأیید بستن دوره"
 msgstr ""
 
-#: templates/organizations/fiscal_period_close.html:13
-#: templates/organizations/fiscal_year_detail.html:8
-msgid "بستن دوره"
-msgstr ""
-
 #: templates/organizations/fiscal_period_close.html:15
 #: templates/organizations/fiscal_year_close.html:15
 msgid "بازگشت به سال مالی"
@@ -3957,12 +4654,6 @@ msgstr ""
 
 #: templates/organizations/fiscal_year_close.html:9
 msgid "تأیید بستن سال مالی"
-msgstr ""
-
-#: templates/organizations/fiscal_year_close.html:13
-#: templates/organizations/fiscal_year_detail.html:14
-#: templates/organizations/fiscal_year_detail.html:16
-msgid "بستن سال مالی"
 msgstr ""
 
 #: templates/organizations/fiscal_year_detail.html:2
@@ -4219,11 +4910,6 @@ msgstr ""
 #: templates/purchases/invoice_form.html:6 templates/sales/invoice_form.html:6
 #, python-format
 msgid "شرکت: <strong>%(name)s</strong>"
-msgstr ""
-
-#: templates/purchases/invoice_form.html:16
-#: templates/sales/invoice_form.html:16
-msgid "ردیف‌های فاکتور"
 msgstr ""
 
 #: templates/purchases/invoice_form.html:25
@@ -4653,10 +5339,6 @@ msgstr ""
 msgid "سند وصول: %(clearing)s — سند برگشت/عودت: %(bounce)s"
 msgstr ""
 
-#: templates/treasury/cheque_detail.html:11
-msgid "عملیات چک"
-msgstr ""
-
 #: templates/treasury/cheque_detail.html:13
 msgid "واگذاری به بانک"
 msgstr ""
@@ -4875,10 +5557,6 @@ msgid ""
 "می‌نشیند (ADR-026)."
 msgstr ""
 
-#: templates/treasury/payment_form.html:28
-msgid "ایجاد پیش‌نویس"
-msgstr ""
-
 #: templates/treasury/payment_list.html:2
 msgid "دریافت‌ها و پرداخت‌ها"
 msgstr ""
@@ -4959,10 +5637,6 @@ msgstr ""
 msgid "بازگشایی صورت‌حساب"
 msgstr ""
 
-#: templates/treasury/statement_detail.html:20
-msgid "ردیف‌های صورت‌حساب"
-msgstr ""
-
 #: templates/treasury/statement_detail.html:21
 msgid "ارجاع"
 msgstr ""
@@ -4985,10 +5659,6 @@ msgstr ""
 msgid ""
 "هنوز ردیفی وارد نشده است؛ از فرم ورود دستی یا بارگذاری فایل (CSV / "
 "CAMT.053 / OFX) استفاده کنید."
-msgstr ""
-
-#: templates/treasury/statement_detail.html:31
-msgid "افزودن ردیف دستی"
 msgstr ""
 
 #: templates/treasury/statement_detail.html:35

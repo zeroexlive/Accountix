@@ -69,6 +69,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.company_roles",
                 "apps.core.context_processors.app_version",
+                "apps.core.context_processors.tour_data",
             ],
         },
     },

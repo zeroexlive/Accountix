@@ -19,6 +19,6 @@
 <tr><td>{% trans "نتیجه دوره جاری (بسته‌نشده)" %}</td><td class="num">{{ result.current_period_result }}</td></tr>
 <tr><th>{% trans "جمع حقوق صاحبان سرمایه" %}</th><th class="num">{{ result.equity_with_result }}</th></tr>
 <tr><th>{% trans "جمع بدهی و سرمایه" %}</th><th class="num">{{ result.total_liabilities_and_equity }}</th></tr>
-<tr><th>{% trans "متوازن" %}</th><th>{{ result.is_balanced }}</th></tr>
+<tr><th>{% trans "متوازن" %}</th><th>{% if result.is_balanced %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</th></tr>
 </table></div>
 {% else %}<p class="empty">{% trans "یک شرکت انتخاب کنید." %}</p>{% endif %}{% endblock %}

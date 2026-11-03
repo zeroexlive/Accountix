@@ -33,6 +33,7 @@ from apps.accounting.models import JournalLine
 from apps.inventory import reporting as inv_reporting
 from apps.organizations.models import FiscalPeriod
 from apps.purchases.models import PurchaseInvoice
+from apps.reporting import charts
 from apps.sales.models import SalesInvoice
 from apps.treasury import reporting as treasury_reporting
 from apps.treasury.models import TreasuryAccount
@@ -297,6 +298,16 @@ def dashboard_data(company, *, period=None, recent_limit=10):
     }
     fiscal_year = period.fiscal_year if period is not None else None
     series = period_series(company, fiscal_year)
+    performance = _performance(
+        company,
+        open_receivable_total=open_receivable_total,
+        open_payable_total=open_payable_total,
+        low_stock_count=len(low_stock_rows),
+    )
+    for row in performance:
+        # Sprint 30 (ADR-056): each share also gets its ring geometry;
+        # percent=None rows keep ring=None and the empty state.
+        row["ring"] = charts.percent_ring(row["percent"])
 
     from apps.accounting.models import JournalEntry
 
@@ -318,14 +329,10 @@ def dashboard_data(company, *, period=None, recent_limit=10):
         "kpis": kpis,
         "fiscal_year": fiscal_year,
         "period_series": series,
+        "chart": charts.area_chart(series),
         "series_revenue_total": sum((row["revenue"] for row in series), ZERO),
         "series_expenses_total": sum((row["expenses"] for row in series), ZERO),
-        "performance": _performance(
-            company,
-            open_receivable_total=open_receivable_total,
-            open_payable_total=open_payable_total,
-            low_stock_count=len(low_stock_rows),
-        ),
+        "performance": performance,
         "revenue_total": statement["revenue_total"],
         "expenses_total": statement["expenses_total"] + statement["cogs_total"],
         "net_income": statement["net_income"],

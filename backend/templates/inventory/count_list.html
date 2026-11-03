@@ -4,7 +4,7 @@
 <div class="card"><table>
 <tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرکت" %}</th><th>{% trans "انبار" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "کالا" %}</th><th class="num">{% trans "سیستمی" %}</th><th class="num">{% trans "شمارش‌شده" %}</th><th class="num">{% trans "مغایرت" %}</th><th></th></tr>
 {% for count in counts %}{% for line in count.lines.all %}
-<tr><td>{{ count.count_date|jalali }}</td><td>{{ count.company.name }}</td><td>{{ count.warehouse.code }}</td><td>{{ count.status }}</td><td>{{ line.product.sku }}</td><td class="num">{{ line.system_qty }}</td><td class="num">{{ line.counted_qty }}</td><td class="num">{{ line.variance }}</td><td><a href="{% url 'inventory_count_detail' count.pk %}">{% trans "جزئیات" %}</a></td></tr>
+<tr><td>{{ count.count_date|jalali }}</td><td>{{ count.company.name }}</td><td>{{ count.warehouse.code }}</td><td>{{ count.get_status_display }}</td><td>{{ line.product.sku }}</td><td class="num">{{ line.system_qty }}</td><td class="num">{{ line.counted_qty }}</td><td class="num">{{ line.variance }}</td><td><a href="{% url 'inventory_count_detail' count.pk %}">{% trans "جزئیات" %}</a></td></tr>
 {% endfor %}{% empty %}
 <tr><td colspan="9" class="empty">{% trans "انبارگردانی‌ای ثبت نشده است." %}</td></tr>
 {% endfor %}

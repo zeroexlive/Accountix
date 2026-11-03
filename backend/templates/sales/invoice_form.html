@@ -2,7 +2,7 @@
 <h1>{% trans "فاکتور فروش جدید" %}</h1>
 {% if not company %}{% include "_company_chooser.html" %}{% else %}
 <form method="post" class="doc-form">{% csrf_token %}
-<div class="card">
+<div class="card" data-tour="head">
 <p>{% blocktrans with name=company.name %}شرکت: <strong>{{ name }}</strong>{% endblocktrans %}</p>
 {{ form.company }}
 {{ form.non_field_errors }}
@@ -12,7 +12,7 @@
 <p><label for="{{ form.warehouse.id_for_label }}">{% trans "انبار" %}</label>{{ form.warehouse }}{{ form.warehouse.errors }}</p>
 <p><label for="{{ form.description.id_for_label }}">{% trans "توضیحات" %}</label>{{ form.description }}{{ form.description.errors }}</p>
 </div>
-<div class="card">
+<div class="card" data-tour="lines">
 <h2>{% trans "ردیف‌های فاکتور" %}</h2>
 {{ lines.management_form }}
 {{ lines.non_form_errors }}
@@ -22,7 +22,7 @@
 </tbody></table>
 <p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">{% trans "+ ردیف جدید" %}</button></p>
 </div>
-<p><button type="submit">{% trans "ایجاد پیش‌نویس فاکتور" %}</button> <a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "بازگشت" %}</a></p>
+<p data-tour="submit"><button type="submit">{% trans "ایجاد پیش‌نویس فاکتور" %}</button> <a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "بازگشت" %}</a></p>
 </form>
 {% include "_line_formset_js.html" with formset=lines %}
 {% endif %}

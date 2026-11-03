@@ -421,6 +421,29 @@ Modular monolith, single Django project under `backend/`:
   changed; the suite is unchanged at 455 passed + 3 skipped.
   The Windows bundle remains the only NOT VERIFIED release-gate
   item.
+- Update (Sprint 30): three workstreams on top of the 1.0.0
+  release (version unchanged) — see `SPRINT_30_REPORT.md` and
+  ADR-055/056/057. (A) The fa UI leaks behind Jason's bug report
+  are closed: a full fa-mode crawl over a populated world found
+  multi-line `{# #}` comments rendering as text, untranslated
+  auto-generated form labels, and raw enum codes bypassing the
+  translated choice labels (all fixed), plus 25 f-string service
+  strings converted to gettext templates so NEW records store
+  Persian descriptions under fa (history is never rewritten);
+  framework strings proven clean against Django's bundled fa
+  catalog. The crawl is now a permanent regression test. (B) The
+  dashboard chart is a server-rendered SVG area/line chart and
+  the performance rows carry SVG rings — both from the same
+  pinned derived data — with all motion CSS-only inside
+  `@media (prefers-reduced-motion: no-preference)`. (C) A
+  self-hosted guided-tour engine (`static/js/tour.js`) with
+  server-rendered bilingual steps covers 13 pages / 56 steps;
+  the topbar «راهنمای صفحه» button ships hidden and is revealed
+  by the engine only where a tour exists. Catalogs: 1,212
+  msgids per language. Suite: 476 passed + 3 skipped. The Linux
+  bundle was rebuilt so `dist/` carries Sprint 30 (the released
+  1.0.0 artifact is untouched). The Windows bundle remains the
+  only NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -617,7 +640,17 @@ five quick-action links for an OWNER and the same tiles without
 quick actions for a VIEWER); Sprint 29:
 +0 (packaging + upgrade-verification sprint, count-neutral; the
 evidence is the artifact checksum/extraction smoke and the
-upgrade fingerprint comparison, not new tests)
+upgrade fingerprint comparison, not new tests); Sprint 30:
++21 (the fa crawl becomes three permanent tests — GET crawl,
+POST-error crawl, stored-description language contract; ten
+chart/motion tests pinning SVG geometry against period_series,
+donut arc sums, and the reduced-motion CSS scoping; eight tour
+tests pinning payloads, anchors, the VIEWER skip contract and
+the en payload; one Sprint 28 sprite test gains the scoped
+chart exception and the zero-external scan grows to cover
+tour.js; one Sprint 11 markup assertion moves from CSS bars to
+the SVG chart, numerics untouched; one pre-existing test's raw
+"POSTED" assertion becomes the translated label it now renders)
 — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do

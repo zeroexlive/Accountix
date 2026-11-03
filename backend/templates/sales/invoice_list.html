@@ -1,13 +1,13 @@
 {% extends "base.html" %}{% load i18n jalali %}{% block content %}
 <h1>{% trans "فاکتورهای فروش" %}</h1>
-{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'sales_invoice_create' %}">{% trans "فاکتور فروش جدید" %}</a></p>{% endif %}
-<div class="card"><form method="get">
+{% if can_operate_anywhere %}<p data-tour="create"><a class="btn" href="{% url 'sales_invoice_create' %}">{% trans "فاکتور فروش جدید" %}</a></p>{% endif %}
+<div class="card" data-tour="filters"><form method="get">
 <label>{% trans "وضعیت ثبت" %}</label><select name="status"><option value="">{% trans "همه" %}</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
 <label>{% trans "وضعیت پرداخت" %}</label><select name="payment_status"><option value="">{% trans "همه" %}</option>{% for v,l in payment_statuses %}<option value="{{ v }}" {% if request.GET.payment_status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
 <label>{% trans "جستجوی مشتری" %}</label><input type="text" name="q" value="{{ request.GET.q }}">
 <label>{% trans "از تاریخ" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
 <label>{% trans "تا تاریخ" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">{% trans "پالایش" %}</button></form></div>
-{% if invoices %}<div class="card"><table><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th>{% trans "انبار" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "وضعیت پرداخت" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th></th></tr>
-{% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.status }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td><td class="num">{{ inv.grand_total }}</td><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
+{% if invoices %}<div class="card" data-tour="table"><table><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th>{% trans "انبار" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "وضعیت پرداخت" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th></th></tr>
+{% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.get_status_display }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.get_payment_status_display }}</span></td><td class="num">{{ inv.grand_total }}</td><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
 </table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">{% trans "فاکتور فروشی یافت نشد." %}</p>{% endif %}{% endblock %}

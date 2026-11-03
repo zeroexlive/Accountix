@@ -338,7 +338,8 @@ def post_stock_document(document, *, user=None, gl_accounts=None):
             company=doc.company,
             entry_date=doc.doc_date,
             lines=gl_lines,
-            description=f"Stock {doc.doc_type.lower()} {doc.id}",
+            description=_("Stock %(type)s %(id)s")
+            % {"type": doc.get_doc_type_display(), "id": doc.id},
             user=user,
             source_type="STOCK_DOCUMENT",
             source_id=str(doc.id),
@@ -688,7 +689,7 @@ def post_inventory_count(count, *, user=None, gl_accounts=None):
                 }
                 for line in variance_lines
             ],
-            description=f"Inventory count {count.count_date} variances",
+            description=_("Inventory count %(date)s variances") % {"date": count.count_date},
             source_type="INVENTORY_COUNT",
             source_id=str(count.id),
         )
@@ -713,7 +714,7 @@ def post_inventory_count(count, *, user=None, gl_accounts=None):
             company=count.company,
             entry_date=count.count_date,
             lines=gl_lines,
-            description=f"Inventory count {count.count_date} variance",
+            description=_("Inventory count %(date)s variance") % {"date": count.count_date},
             user=user,
             source_type="INVENTORY_COUNT",
             source_id=str(count.id),
@@ -779,7 +780,10 @@ def reverse_inventory_count(count, *, user=None, reason=""):
         company=count.company,
         warehouse=count.warehouse,
         count_date=count.count_date,
-        description=f"Reversal of count {count.count_date}: {reason}".strip(),
+        description=str(
+            _("Reversal of count %(date)s: %(reason)s")
+            % {"date": count.count_date, "reason": reason}
+        ).strip(),
         stock_document=reversal_doc,
         reversal_of=count,
     )
@@ -872,7 +876,10 @@ def reverse_stock_document(document, *, user=None, reason="", reversal_date=None
         destination_warehouse=doc.destination_warehouse,
         doc_type=doc.doc_type,
         doc_date=rev_date,
-        description=f"Reversal of {doc.doc_type} {doc.doc_date}: {reason}".strip(),
+        description=str(
+            _("Reversal of %(type)s %(date)s: %(reason)s")
+            % {"type": doc.get_doc_type_display(), "date": doc.doc_date, "reason": reason}
+        ).strip(),
         source_type="REVERSAL",
         source_id=str(doc.id),
         reversal_of=doc,

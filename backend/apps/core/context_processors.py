@@ -20,6 +20,18 @@ def app_version(request):
     return {"app_version": APP_VERSION}
 
 
+def tour_data(request):
+    """Guided-tour payload for the current page (Sprint 30,
+    ADR-057): the ``tour_payload`` context var the shell renders via
+    ``json_script`` when the page's URL name has registered steps.
+    Data-only (a dict lookup) — no queries."""
+    from apps.core.tours import tour_payload
+
+    match = getattr(request, "resolver_match", None)
+    payload = tour_payload(match.url_name if match else None)
+    return {"tour_payload": payload} if payload else {}
+
+
 def company_roles(request):
     user = getattr(request, "user", None)
     if user is None or not user.is_authenticated:

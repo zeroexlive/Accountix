@@ -2,7 +2,7 @@
 {% block title %}{% trans "داشبورد | اکانتیکس" %}{% endblock %}
 {% block page_title %}{% trans "داشبورد" %}{% endblock %}
 {% block content %}
-<div class="card"><form method="get" class="inline-form"><span><label>{% trans "شرکت" %}</label>
+<div class="card" data-tour="company-picker"><form method="get" class="inline-form"><span><label>{% trans "شرکت" %}</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></span>
 <button type="submit">{% trans "نمایش" %}</button></form>
 {% if not companies %}<p class="empty">{% trans "هنوز شرکتی ندارید." %} <a href="{% url 'company_create' %}">{% trans "ایجاد شرکت" %}</a></p>{% endif %}</div>
@@ -13,7 +13,7 @@
   {% if dashboard.period %}<span class="pill pill-info">{{ dashboard.period.name }}</span><span>{{ dashboard.period.start_date|jalali }} {% trans "تا" %} {{ dashboard.period.end_date|jalali }}</span>{% else %}<span>{% trans "دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است." %}</span>{% endif %}
 </div>
 
-<div class="bento-kpis">
+<div class="bento-kpis" data-tour="kpis">
   <div class="card kpi"><div class="kpi-top"><span class="tile-ic tint-accent"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-trending-up"/></svg></span><p class="kpi-label">{% trans "درآمد دوره" %}</p></div>
     <p class="kpi-value">{{ dashboard.kpis.revenue.current }}{% if dashboard.kpis.revenue.delta_pct != None %}<span class="delta {% if dashboard.kpis.revenue.delta_pct >= 0 %}up{% else %}down{% endif %}">{% if dashboard.kpis.revenue.delta_pct >= 0 %}↑{% else %}↓{% endif %} {{ dashboard.kpis.revenue.delta_pct }}٪</span>{% endif %}</p>
     <p class="kpi-sub">{% if dashboard.kpis.revenue.previous != None %}{% trans "دوره قبل:" %} {{ dashboard.kpis.revenue.previous }}{% else %}{% trans "دوره قبلی برای مقایسه وجود ندارد" %}{% endif %}</p></div>
@@ -29,7 +29,7 @@
 </div>
 
 <div class="bento-main">
-  <div class="card">
+  <div class="card" data-tour="chart">
     <div class="card-head">
       <div><h2>{% trans "درآمد و هزینه" %}</h2><p class="kpi-sub">{% trans "به تفکیک دوره‌های سال مالی" %}{% if dashboard.fiscal_year %} {{ dashboard.fiscal_year.name }}{% endif %}</p></div>
       <div class="head-side chart-legend">
@@ -37,29 +37,38 @@
         <span><span class="legend-dot exp"></span>{% trans "هزینه" %} <span class="lg-value">{{ dashboard.series_expenses_total }}</span></span>
       </div>
     </div>
-    {% if dashboard.period_series %}
-    <div class="bar-chart">
-      {% for row in dashboard.period_series %}
-      <div class="bar-group">
-        <div class="bar-pair">
-          <div class="bar rev" style="height:{{ row.revenue_height }}%" title="{% blocktrans with label=row.label value=row.revenue %}درآمد {{ label }}: {{ value }}{% endblocktrans %}"></div>
-          <div class="bar exp" style="height:{{ row.expenses_height }}%" title="{% blocktrans with label=row.label value=row.expenses %}هزینه {{ label }}: {{ value }}{% endblocktrans %}"></div>
-        </div>
-        <span class="bar-label">{{ row.label }}</span>
-      </div>
-      {% endfor %}
+    {% if dashboard.chart %}
+    <div class="chart-svg" dir="ltr">
+      <svg viewBox="0 0 {{ dashboard.chart.width }} {{ dashboard.chart.height }}" role="img" aria-label="{% trans "نمودار درآمد و هزینه" %}">
+        <line class="axis" x1="8" y1="{{ dashboard.chart.baseline }}" x2="712" y2="{{ dashboard.chart.baseline }}"/>
+        <text class="peak-label" x="8" y="12">{{ dashboard.chart.peak_label }}</text>
+        <path class="area rev" d="{{ dashboard.chart.revenue_area }}"/>
+        <path class="area exp" d="{{ dashboard.chart.expenses_area }}"/>
+        <polyline class="line rev" pathLength="1" points="{{ dashboard.chart.revenue_points }}"/>
+        <polyline class="line exp" pathLength="1" points="{{ dashboard.chart.expenses_points }}"/>
+        {% for d in dashboard.chart.dots %}
+        <circle class="dot rev" cx="{{ d.x }}" cy="{{ d.revenue_y }}" r="3.5"><title>{% blocktrans with label=d.label value=d.revenue %}درآمد {{ label }}: {{ value }}{% endblocktrans %}</title></circle>
+        <circle class="dot exp" cx="{{ d.x }}" cy="{{ d.expenses_y }}" r="3.5"><title>{% blocktrans with label=d.label value=d.expenses %}هزینه {{ label }}: {{ value }}{% endblocktrans %}</title></circle>
+        {% endfor %}
+        {% for l in dashboard.chart.labels %}<text class="x-label" x="{{ l.x }}" y="{{ l.y }}">{{ l.text }}</text>{% endfor %}
+      </svg>
     </div>
+    {% elif dashboard.period_series %}<p class="empty-state"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-inbox"/></svg><br>{% trans "در این سال مالی هنوز درآمد یا هزینه‌ای ثبت نشده است." %}</p>
     {% else %}<p class="empty-state"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-inbox"/></svg><br>{% trans "دوره‌ای برای نمایش نمودار وجود ندارد." %}</p>{% endif %}
   </div>
-  <div class="card">
+  <div class="card" data-tour="performance">
     <div class="tile-head"><span class="tile-ic tint-violet"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-gauge"/></svg></span><h2>{% trans "عملکرد" %}</h2></div>
     {% for row in dashboard.performance %}
     <div class="perf-row">
-      <div class="perf-head"><span class="perf-label">{{ row.label }}</span>{% if row.percent != None %}<span class="perf-pct">{{ row.percent }}٪</span>{% endif %}</div>
-      {% if row.percent != None %}
-      <p class="perf-caption">{{ row.caption }}</p>
-      <div class="progress {% cycle '' 'c-accent' 'c-blue' 'c-amber' %}"><i style="width:{{ row.percent }}%"></i></div>
-      {% else %}<p class="perf-caption">{{ row.empty }}</p>{% endif %}
+      {% if row.ring %}
+      <svg class="ring {% cycle '' 'c-accent' 'c-blue' 'c-amber' %}" viewBox="0 0 84 84" aria-hidden="true"><circle class="ring-track" cx="42" cy="42" r="30"/><circle class="ring-val" cx="42" cy="42" r="30" stroke-dasharray="{{ row.ring.dash }} {{ row.ring.circumference }}" transform="rotate(-90 42 42)"/></svg>
+      {% endif %}
+      <div class="perf-body">
+        <div class="perf-head"><span class="perf-label">{{ row.label }}</span>{% if row.percent != None %}<span class="perf-pct">{{ row.percent }}٪</span>{% endif %}</div>
+        {% if row.percent != None %}
+        <p class="perf-caption">{{ row.caption }}</p>
+        {% else %}<p class="perf-caption">{{ row.empty }}</p>{% endif %}
+      </div>
     </div>
     {% endfor %}
   </div>
@@ -67,7 +76,7 @@
 
 <div class="bento-split">
   {% if can_operate %}
-  <div class="card">
+  <div class="card" data-tour="quick-actions">
     <div class="tile-head"><span class="tile-ic tint-amber"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-plus"/></svg></span><h2>{% trans "دسترسی سریع" %}</h2></div>
     <div class="quick-list">
       <a href="{% url 'sales_invoice_create' %}"><span class="tile-ic tint-accent"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-receipt-text"/></svg></span>{% trans "فاکتور فروش جدید" %}</a>
@@ -78,12 +87,12 @@
     </div>
   </div>
   {% endif %}
-  <div class="card"><div class="card-head"><h2>{% trans "آخرین فاکتورهای فروش" %}</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "همه فاکتورها" %}</a></span></div>
+  <div class="card" data-tour="recent-sales"><div class="card-head"><h2>{% trans "آخرین فاکتورهای فروش" %}</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "همه فاکتورها" %}</a></span></div>
   <table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
-  <tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+  <tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.get_payment_status_display }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
 </div>
 
-<div class="bento-minis">
+<div class="bento-minis" data-tour="minis">
   <div class="card kpi mini"><div class="kpi-top"><span class="tile-ic tint-blue"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-hand-coins"/></svg></span><h3>{% trans "مطالبات از مشتریان (معین)" %}</h3></div><p class="kpi-value">{{ dashboard.ar_total }}</p></div>
   <div class="card kpi mini"><div class="kpi-top"><span class="tile-ic tint-accent"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-credit-card"/></svg></span><h3>{% trans "بدهی به تأمین‌کنندگان (معین)" %}</h3></div><p class="kpi-value">{{ dashboard.ap_total }}</p></div>
   <div class="card kpi mini"><div class="kpi-top"><span class="tile-ic tint-violet"><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-package"/></svg></span><h3>{% trans "ارزش موجودی انبار" %}</h3></div><p class="kpi-value">{{ dashboard.inventory_valuation }}</p></div>
@@ -98,15 +107,15 @@
 <div class="cols-2">
   <div class="dash-stack">
     <div class="card"><h2>{% trans "حساب‌های خزانه" %}</h2><table><thead><tr><th>{% trans "حساب" %}</th><th>{% trans "نوع" %}</th><th class="num">{% trans "مانده" %}</th></tr></thead>
-    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td class="num">{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "حساب خزانه‌ای تعریف نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.get_kind_display }}</td><td class="num">{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "حساب خزانه‌ای تعریف نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
     {% if dashboard.low_stock_rows %}<div class="card"><h2>{% trans "هشدار موجودی" %}</h2><table><thead><tr><th>{% trans "کد" %}</th><th>{% trans "محصول" %}</th><th class="num">{% trans "موجودی" %}</th><th class="num">{% trans "حداقل" %}</th></tr></thead>
     <tbody>{% for r in dashboard.low_stock_rows %}<tr><td>{{ r.sku }}</td><td>{{ r.name }}</td><td class="num">{{ r.quantity }}</td><td class="num">{{ r.min_stock_level }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
   </div>
   <div class="dash-stack">
     <div class="card"><h2>{% trans "آخرین اسناد دفتر روزنامه" %}</h2><table><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "وضعیت" %}</th></tr></thead>
-    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "سندی ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.get_status_display }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "سندی ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
     <div class="card"><h2>{% trans "آخرین فاکتورهای خرید" %}</h2><table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "تأمین‌کننده" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th class="num">{% trans "وضعیت پرداخت" %}</th></tr></thead>
-    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.get_payment_status_display }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
   </div>
 </div>
 {% endif %}

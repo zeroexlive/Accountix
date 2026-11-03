@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% load jalali i18n access_tags %} %}{% block content %}{% company_can entry.company "OPERATE" as can_act %}
-<h1>{% blocktrans with date=entry.entry_date|jalali status=entry.status %}سند {{ date }} — {{ status }}{% endblocktrans %}</h1>
+<h1>{% blocktrans with date=entry.entry_date|jalali status=entry.get_status_display %}سند {{ date }} — {{ status }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% blocktrans with company=entry.company.name period=entry.fiscal_period source=entry.source_type %}شرکت: {{ company }} — دوره مالی: {{ period }} — نوع منبع: {{ source }}{% endblocktrans %}{% if entry.reversal_of %} — {% trans "برگشتِ سند" %} <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
 {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}

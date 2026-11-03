@@ -1503,3 +1503,151 @@ the suite is the regression net (455 passed + 3 skipped,
 unchanged) and the new evidence is the artifact + the upgrade
 drill, recorded in `docs/engineering/SPRINT_29_REPORT.md` and
 `docs/engineering/RELEASE_STATUS.md`.
+
+## ADR-055 — fa leak closure: the crawl is the spec, display labels everywhere, stored text in the creation language (accepted, Sprint 30)
+
+Jason reported English sentences inside Persian pages. A full
+fa-mode crawl (every app page as OWNER over a populated,
+Persian-data world; visible text + placeholder/title/aria-label/
+alt + submit values; POST error flows included) classified every
+hit, and each class got its own fix:
+
+(1) **Empty fa msgstr for English-source msgids — none existed.**
+The committed catalog had zero such entries (verified
+mechanically), so the leaks Jason saw were NOT untranslated
+catalog entries in this tree. (On a developer clone without
+compiled catalogs, ALL English-source strings fall back to
+English — `compilemessages` is the standing instruction there;
+the launcher and the test suite compile automatically.)
+(2) **Unwrapped literals and raw codes in templates — the bulk.**
+Three families: `{# #}` template comments spanning multiple
+lines RENDER as visible text (Django comments are single-line
+only — proven on 5.2.18; the three offenders became
+`{% comment %}` blocks); ModelForms whose models define no
+`verbose_name` rendered auto-generated English field labels
+(AccountForm, CompanyForm, FiscalYearForm, FiscalPeriodForm now
+carry full `Meta.labels`); and templates interpolating raw enum
+codes (`{{ inv.payment_status }}` → "PAID") instead of
+`get_FOO_display` — the Sprint 21 translated choice labels were
+being bypassed in ~24 render sites plus 11 `blocktrans`
+interpolations, two model `__str__`s that reach the UI
+(TreasuryAccount, JournalEntry), boolean `True`/`False` renders
+(now بله/خیر), and the open-items report label. Print templates
+keep raw-by-design status text per ADR-045 (Persian print docs).
+(3) **Framework strings — clean, with evidence.** Django's
+bundled fa translations cover every framework string the crawl
+exercises (auth error, password validators, required-field,
+UserCreationForm, import errors). Project catalogs were not
+needed; the crawl's POST cases pin this continuously.
+(4) **Service strings built by f-strings — 25 sites** (journal
+descriptions, reversal reasons, cheque/payment/stock texts, one
+model `__str__`) became gettext templates with named
+placeholders, per the ADR-046 no-f-string rule, with Persian
+translations in fa.po (fa.po additions placeholder-verified
+mechanically; en.po entries for them are the msgids themselves).
+(5) **Stored descriptions are frozen in the creation language.**
+History is never rewritten. What changed is that NEW records
+created under fa now store Persian (class 4 made the templates
+exist); a data-layer test pins both directions (fa→Persian,
+en→English) so the behaviour is contractual, and users with
+pre-1.0.0 English descriptions keep them — the report says so
+plainly.
+
+**The regression is the audit itself**, permanent in
+`apps/core/tests/test_i18n_fa_crawl.py` beside the zero-external
+test: sentence rule (≥2 consecutive Latin words), strict-zone
+rule (any pure-alpha Latin token ≥3 letters inside
+label/th/button/option/legend/h1–h3 — catches one-word labels),
+digit-bearing tokens exempt as user-data identifiers, the
+world's own data codes exempt as data, and a short explicit
+allowlist (file formats CSV/CAMT.053/OFX/XLSX/PDF, the deliberate
+bilingual labels (COGS)/(SKU), the language switcher's own name,
+the brand + attribution proper names). The fa.po Plural-Forms
+header stays as-is: the catalog still contains zero plural
+msgids (verified), so the header is inert.
+
+## ADR-056 — Charts are server-rendered SVG from the same derived data; motion is CSS-only and reduced-motion gated (accepted, Sprint 30)
+
+The dashboard's CSS bars and progress bars are replaced by
+geometry computed in Python (`apps/reporting/charts.py`), in the
+ADR-031 presentation-layer tradition:
+
+(1) **Area/line chart** from the same `period_series` rows. The
+helper returns `None` for no rows or a zero peak — the template
+then renders an honest empty state (with a distinct "nothing
+recorded yet" text when periods exist but are all zero). A single
+period renders a centred degenerate point + sliver area. Tests
+invert every plotted y and recover the `period_series` values;
+the peak touches the plot top exactly. Time runs left-to-right
+in both locales (chart convention, like numerals); the SVG is
+wrapped in `dir="ltr"`.
+(2) **Rings for the performance tile.** The four `_performance`
+shares are independent ratios, not parts of one whole, so a
+single combined donut would fabricate a composition. Each row
+gets its own two-segment ring (achieved vs remainder) from a
+generic `donut_segments` whose arcs are rounded cumulatively and
+therefore sum to the full circle exactly; the legend numbers —
+label, exact percent, caption — are unchanged, and a zero
+denominator keeps the existing empty text. Sprint 11's numeric
+assertions (series sums, heights, percents, deltas) pass
+unchanged; `period_series` still computes its bar heights (now
+unused by the template, kept as pinned derived data).
+(3) **The Sprint 28 sprite test gains one scoped exception:**
+inline `<svg viewBox>` is allowed for the dashboard's data chart
+(+ its class-marked rings) because per-request geometry cannot
+be a static sprite symbol. The rule still governs icons.
+(4) **Motion.** All keyframes, all animations, and every
+geometry-moving transition (the card hover lift moved in) live
+inside `@media (prefers-reduced-motion: no-preference)`;
+durations are 150–250 ms (entrance fade-up with ≤30 ms stagger
+steps, line draw-in via `pathLength=1` dashoffset, area/dot fade,
+ring scale-in). Sub-150 ms colour-only hover transitions from
+earlier sprints animate no geometry and stay outside — stated
+here so the boundary is a decision, not an oversight. A
+string-level CSS test pins the scoping: no `@keyframes`, no
+`animation:`, and no transform-bearing `transition:` outside
+the block.
+
+## ADR-057 — Guided tours: in-house engine, server-rendered bilingual steps, anchor contract (accepted, Sprint 30)
+
+Jason asked for a step-by-step guided tour (0→100) on every page.
+No library was vendored (offline-first, zero-external): the
+engine is one self-hosted file, `static/js/tour.js` (~6 KB),
+plus styles in `app.css`.
+
+(1) **Step data is server-rendered.** `apps/core/tours.py` holds
+a registry keyed by URL name; titles/bodies are gettext strings
+(Persian source, English translations — additive catalogs). A
+context processor injects the payload and `base.html` renders it
+via `json_script`. Steps point at stable `data-tour="key"`
+anchors in the templates; a step may reuse an anchor with a
+different explanation.
+(2) **The button cannot be a dead control.** The shell renders
+«راهنمای صفحه» with the `hidden` attribute; the engine reveals
+it only when a payload exists AND at least one step's anchor is
+present in the DOM. No JS → no button; no tour data → no button.
+(3) **Absent anchors are skipped silently** — that is the role
+contract: a VIEWER's dashboard tour lists the quick-actions
+step, the anchor is absent (OPERATE-gated since Sprint 28), and
+the engine steps over it. A test pins that the set of missing
+anchors for VIEWER is exactly `{quick-actions}`.
+(4) **Keyboard + RTL.** Esc exits; arrow keys navigate with
+LOGICAL next/prev semantics mapped to the visual direction:
+in RTL, ArrowLeft is "next" (forward reads leftward) and
+ArrowRight is "prev"; LTR mirrors. Click outside ends the tour;
+the tooltip flips above the target near the viewport bottom and
+clamps horizontally; positioning tracks resize and scroll;
+`scrollIntoView` uses `behavior:"auto"` under
+`prefers-reduced-motion`, `"smooth"` otherwise.
+(5) **Coverage** (4–8 steps each, reading order): dashboard (7),
+sales invoices list (4) + create (4), purchase invoices list (4),
+payments list (4), cheques list (4), bank reconciliation
+statement detail (5), products list (4), stock documents (4),
+income statement (4), fiscal-year detail (4), members (4),
+profile (4) — 56 steps, 116 catalog strings.
+(6) **Honest limit.** There is no headless browser in this
+environment: the engine is verified server-side (payload
+validity, anchor existence, role contract, static serving,
+zero-external scan extended to the JS, `node --check`) but
+interactive stepping is not automated; Jason's eye is the final
+check, as with Sprint 28's pixels.

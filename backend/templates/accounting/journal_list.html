@@ -7,5 +7,5 @@
 <label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">{% trans "پالایش" %}</button></form></div>
 <div class="card"><table><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "شرکت" %}</th><th>{% trans "وضعیت" %}</th><th class="num">{% trans "بدهکار" %}</th><th class="num">{% trans "بستانکار" %}</th></tr>
-{% for e in entries %}<tr><td>{{ e.entry_date|jalali }}</td><td><a href="{% url 'journal_detail' e.pk %}">{% if e.description %}{{ e.description }}{% else %}{% trans "سند" %}{% endif %}</a></td><td>{{ e.company }}</td><td>{{ e.status }}</td><td class="num">{{ e.total_debit }}</td><td class="num">{{ e.total_credit }}</td></tr>
+{% for e in entries %}<tr><td>{{ e.entry_date|jalali }}</td><td><a href="{% url 'journal_detail' e.pk %}">{% if e.description %}{{ e.description }}{% else %}{% trans "سند" %}{% endif %}</a></td><td>{{ e.company }}</td><td>{{ e.get_status_display }}</td><td class="num">{{ e.total_debit }}</td><td class="num">{{ e.total_credit }}</td></tr>
 {% empty %}<tr><td colspan="6" class="empty">{% trans "سندی یافت نشد" %}</td></tr>{% endfor %}</table>{% include "_pagination.html" %}</div>{% endblock %}

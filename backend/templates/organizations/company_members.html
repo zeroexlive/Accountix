@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n jalali %}{% block content %}
 <h1>{% blocktrans with name=company.name %}اعضای شرکت {{ name }}{% endblocktrans %}</h1>
-<div class="card">
+<div class="card" data-tour="members">
 <table><tr><th>{% trans "کاربر" %}</th><th>{% trans "نقش" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "تاریخ عضویت" %}</th><th>{% trans "عملیات" %}</th></tr>
 {% for m in memberships %}<tr>
 <td>{{ m.user.username }}{% if m.user.get_full_name %} — {{ m.user.get_full_name }}{% endif %}</td>
@@ -14,12 +14,12 @@
 </td></tr>
 {% empty %}<tr><td colspan="5" class="empty">{% trans "این شرکت عضوی ندارد." %}</td></tr>{% endfor %}</table>
 </div>
-<div class="card">
+<div class="card" data-tour="add-existing">
 <h2>{% trans "افزودن عضو موجود" %}</h2>
 <p class="empty">{% trans "اگر کاربر از قبل در سیستم حساب دارد، با نام کاربری دقیق او را به این شرکت اضافه کنید." %}</p>
 <form method="post" action="{% url 'company_member_add_existing' company.pk %}">{% csrf_token %}{{ attach_form.as_p }}<button type="submit">{% trans "افزودن عضو" %}</button></form>
 </div>
-<div class="card">
+<div class="card" data-tour="add-new">
 <h2>{% trans "ساخت کاربر جدید" %}</h2>
 <p class="empty">{% trans "برای فردی که هنوز حساب ندارد، همین‌جا کاربر بسازید؛ می‌تواند بلافاصله وارد شود." %}</p>
 <form method="post" action="{% url 'company_member_add_new' company.pk %}">{% csrf_token %}{{ create_form.as_p }}<button type="submit">{% trans "ساخت و افزودن" %}</button></form>

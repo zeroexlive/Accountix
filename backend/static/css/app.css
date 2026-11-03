@@ -325,8 +325,6 @@ td.num,th.num{text-align:start;font-variant-numeric:tabular-nums}
 /* ---- dashboard: bento grid (Sprint 28, ADR-053) ---- */
 .bento-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1.15rem;margin-bottom:1.15rem}
 .bento-kpis .card,.bento-minis .card{margin-bottom:0}
-.bento-kpis .card,.bento-minis .card{transition:transform .18s ease,box-shadow .18s ease}
-.bento-kpis .card:hover,.bento-minis .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .bento-main{display:grid;grid-template-columns:2fr 1fr;gap:1.15rem;align-items:stretch;margin-bottom:1.15rem}
 .bento-main .card{margin-bottom:0}
 .bento-split{display:grid;grid-template-columns:330px 1fr;gap:1.15rem;align-items:start;margin-bottom:1.15rem}
@@ -364,41 +362,34 @@ td.num,th.num{text-align:start;font-variant-numeric:tabular-nums}
 .legend-dot.rev{background:var(--accent)}
 .legend-dot.exp{background:var(--accent-2)}
 .chart-legend .lg-value{font-weight:800;color:var(--ink);font-size:1.02rem}
-.bar-chart{
-  display:flex;align-items:stretch;gap:.4rem;
-  height:210px;padding-top:.6rem;
-  border-bottom:1px solid var(--line);
-}
-.bar-group{
-  flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;
-}
-.bar-pair{
-  flex:1;display:flex;align-items:flex-end;gap:4px;width:100%;justify-content:center;
-}
-.bar{width:16px;border-radius:6px 6px 0 0;min-height:2px;transition:filter .15s ease}
-.bar:hover{filter:brightness(1.12)}
-.bar.rev{background:linear-gradient(180deg,#e7548a,var(--accent))}
-.bar.exp{background:linear-gradient(180deg,#7aa7f2,var(--accent-2))}
-.bar-label{font-size:.74rem;color:var(--muted);padding-top:.45rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.chart-svg svg{width:100%;height:auto;display:block}
+.chart-svg .axis{stroke:var(--line);stroke-width:1}
+.chart-svg .line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart-svg .line.rev{stroke:var(--accent)}
+.chart-svg .line.exp{stroke:var(--accent-2)}
+.chart-svg .area.rev{fill:var(--accent);opacity:.13}
+.chart-svg .area.exp{fill:var(--accent-2);opacity:.12}
+.chart-svg .dot{stroke:#fff;stroke-width:1.5}
+.chart-svg .dot.rev{fill:var(--accent)}
+.chart-svg .dot.exp{fill:var(--accent-2)}
+.chart-svg .x-label{font-size:11px;fill:var(--muted);text-anchor:middle}
+.chart-svg .peak-label{font-size:11px;fill:var(--muted)}
 
 /* ---- dashboard: performance panel ---- */
-.perf-row{padding:.85rem 0;border-bottom:1px solid var(--line-soft)}
+.perf-row{padding:.85rem 0;border-bottom:1px solid var(--line-soft);display:flex;gap:.9rem;align-items:center}
+.perf-body{flex:1;min-width:0}
+.ring{width:56px;height:56px;flex:none}
+.ring-track{fill:none;stroke:#eef0f4;stroke-width:9}
+.ring-val{fill:none;stroke:var(--up);stroke-width:9;stroke-linecap:round}
+.ring.c-accent .ring-val{stroke:var(--accent)}
+.ring.c-blue .ring-val{stroke:var(--accent-2)}
+.ring.c-amber .ring-val{stroke:var(--amber)}
 .perf-row:last-child{border-bottom:0;padding-bottom:.1rem}
 .perf-row:first-child{padding-top:.1rem}
 .perf-head{display:flex;align-items:baseline;gap:.6rem}
 .perf-head .perf-label{font-weight:700;color:var(--ink);font-size:.92rem}
 .perf-head .perf-pct{margin-inline-start:auto;font-weight:800;color:var(--ink)}
 .perf-caption{color:var(--muted);font-size:.8rem;margin:.15rem 0 .5rem}
-.progress{
-  height:9px;border-radius:99px;background:#eef0f4;overflow:hidden;
-  box-shadow:inset 0 1px 2px rgba(23,23,60,.06);
-}
-.progress > i{
-  display:block;height:100%;border-radius:99px;background:var(--up);
-}
-.progress.c-accent > i{background:var(--accent)}
-.progress.c-blue > i{background:var(--accent-2)}
-.progress.c-amber > i{background:var(--amber)}
 
 /* ---- language switcher (Sprint 19, ADR-045) ---- */
 .side-lang{margin-top:.1rem}
@@ -506,5 +497,53 @@ html[lang="en"] .brand-name,html[lang="en"] .kpi-value{letter-spacing:-.01em}
   .cols-2{grid-template-columns:1fr}
   .card > form:not(.inline-form){grid-template-columns:1fr}
   .card > form > label{padding-top:0}
-  .bar{width:11px}
+}
+
+/* ---- guided tour (Sprint 30, ADR-057) ---- */
+.tour-root{position:fixed;inset:0;z-index:200}
+.tour-spot{
+  position:fixed;border-radius:14px;pointer-events:none;
+  box-shadow:0 0 0 9999px rgba(13,16,38,.58);
+  outline:2px solid var(--accent);outline-offset:1px;
+}
+.tour-card{
+  position:fixed;z-index:201;background:var(--surface);
+  border:1px solid var(--line-soft);border-radius:var(--radius-md);
+  box-shadow:var(--shadow-lg);padding:1rem 1.1rem;
+}
+.tour-counter{color:var(--muted);font-size:.76rem;margin:0 0 .25rem;font-variant-numeric:tabular-nums}
+.tour-title{margin:0 0 .35rem;font-size:1.02rem;color:var(--ink)}
+.tour-body{margin:0;color:var(--text-2);font-size:.88rem;line-height:1.7}
+.tour-nav{display:flex;gap:.5rem;margin-top:.8rem;align-items:center}
+.tour-nav .tour-next{margin-inline-start:auto}
+.tour-start .icon{margin-inline-end:.3rem}
+
+/* ---- motion (Sprint 30, ADR-056) ----
+   Every keyframe animation and every geometry-moving transition
+   lives inside this block: with reduced motion the UI is fully
+   static. (Sub-150ms color-only hover transitions elsewhere in
+   this sheet predate the pass and animate no geometry.) */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes tile-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes draw-line{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+  @keyframes fade-in{from{opacity:0}to{opacity:1}}
+  @keyframes ring-in{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+  .bento-kpis .card,.bento-main .card,.bento-split .card,.bento-minis .card{animation:tile-in .22s ease both}
+  .bento-kpis .card:nth-child(2){animation-delay:.03s}
+  .bento-kpis .card:nth-child(3){animation-delay:.06s}
+  .bento-kpis .card:nth-child(4){animation-delay:.09s}
+  .bento-minis .card:nth-child(2){animation-delay:.03s}
+  .bento-minis .card:nth-child(3){animation-delay:.06s}
+  .bento-minis .card:nth-child(4){animation-delay:.09s}
+  .bento-minis .card:nth-child(5){animation-delay:.12s}
+  .bento-minis .card:nth-child(6){animation-delay:.15s}
+  .bento-minis .card:nth-child(7){animation-delay:.18s}
+  .bento-minis .card:nth-child(8){animation-delay:.21s}
+  .chart-svg .line{stroke-dasharray:1;animation:draw-line .25s ease-out both}
+  .chart-svg .area{animation:fade-in .25s ease-out both}
+  .chart-svg .dot{animation:fade-in .25s ease-out both}
+  .ring{animation:ring-in .22s ease both;transform-origin:center}
+  .tour-spot{transition:top .18s ease,left .18s ease,width .18s ease,height .18s ease}
+  .bento-kpis .card,.bento-minis .card{transition:transform .18s ease,box-shadow .18s ease}
+  .bento-kpis .card:hover,.bento-minis .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 }

@@ -160,7 +160,9 @@ class JournalEntry(TimeStampedUUIDModel):
         return super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.entry_date} {self.description} [{self.status}]"
+        # Rendered on the payment detail page: the status must be
+        # the translated display label, never the raw code (ADR-055).
+        return f"{self.entry_date} {self.description} [{self.get_status_display()}]"
 
 
 class JournalLine(TimeStampedUUIDModel):

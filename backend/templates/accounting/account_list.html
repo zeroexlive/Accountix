@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% load i18n %}{% block content %}
 <h1>{% trans "سرفصل حساب‌ها" %}</h1>{% if can_administer_anywhere %}<p><a class="btn" href="{% url 'account_create' %}">{% trans "حساب جدید" %}</a></p>{% endif %}
 <div class="card"><table><tr><th>{% trans "کد" %}</th><th>{% trans "نام" %}</th><th>{% trans "نوع" %}</th><th>{% trans "حساب والد" %}</th><th>{% trans "قابل ثبت" %}</th></tr>
-{% for a in accounts %}<tr><td>{{ a.code }}</td><td>{{ a.name }}</td><td>{{ a.account_type }}</td><td>{{ a.parent|default:"—" }}</td><td>{{ a.is_postable }}</td></tr>
+{% for a in accounts %}<tr><td>{{ a.code }}</td><td>{{ a.name }}</td><td>{{ a.get_account_type_display }}</td><td>{{ a.parent|default:"—" }}</td><td>{% if a.is_postable %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</td></tr>
 {% empty %}<tr><td colspan="5" class="empty">{% trans "موردی نیست" %}</td></tr>{% endfor %}</table></div>{% endblock %}

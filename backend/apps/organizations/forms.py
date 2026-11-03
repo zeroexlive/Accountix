@@ -93,6 +93,15 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ["name", "legal_name", "registration_number", "default_currency"]
+        # Explicit labels (Sprint 30, ADR-055): no verbose_names on
+        # the models, so auto-generated English labels would render
+        # verbatim in the Persian UI.
+        labels = {
+            "name": _("نام"),
+            "legal_name": _("نام قانونی"),
+            "registration_number": _("شماره ثبت"),
+            "default_currency": _("ارز پیش‌فرض"),
+        }
 
 
 class FiscalYearForm(forms.ModelForm):
@@ -103,6 +112,13 @@ class FiscalYearForm(forms.ModelForm):
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
         }
+        labels = {
+            "company": _("شرکت"),
+            "name": _("نام"),
+            "start_date": _("تاریخ شروع"),
+            "end_date": _("تاریخ پایان"),
+            "status": _("وضعیت"),
+        }
 
 
 class FiscalPeriodForm(forms.ModelForm):
@@ -112,4 +128,12 @@ class FiscalPeriodForm(forms.ModelForm):
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
+        }
+        labels = {
+            "company": _("شرکت"),
+            "fiscal_year": _("سال مالی"),
+            "name": _("نام"),
+            "start_date": _("تاریخ شروع"),
+            "end_date": _("تاریخ پایان"),
+            "status": _("وضعیت"),
         }

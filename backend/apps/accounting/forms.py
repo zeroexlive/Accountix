@@ -152,3 +152,18 @@ class AccountForm(forms.ModelForm):
             "is_postable",
             "is_active",
         ]
+        # Explicit labels (Sprint 30, ADR-055): the Account model has
+        # no verbose_names, so without this dict Django auto-generates
+        # English labels from the field names and they render verbatim
+        # in the Persian UI — the Sprint 20 sweep only covered forms
+        # that defined their labels.
+        labels = {
+            "company": _("شرکت"),
+            "parent": _("حساب والد"),
+            "code": _("کد"),
+            "name": _("نام"),
+            "account_type": _("نوع حساب"),
+            "normal_balance": _("ماهیت"),
+            "is_postable": _("قابل ثبت"),
+            "is_active": _("فعال"),
+        }

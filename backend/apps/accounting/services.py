@@ -302,7 +302,10 @@ def reverse_journal_entry(*, entry, user=None, reason="", reversal_date=None):
         company=entry.company,
         fiscal_period=period,
         entry_date=rev_date,
-        description=f"Reversal of {entry.entry_date}: {entry.description}".strip(),
+        description=str(
+            _("Reversal of %(date)s: %(description)s")
+            % {"date": entry.entry_date, "description": entry.description}
+        ).strip(),
         status=JournalEntry.Status.VALIDATED,
         source_type="REVERSAL",
         source_id=str(entry.id),
@@ -585,7 +588,7 @@ def post_opening_balance(*, company, fiscal_year, lines, offset_account, user=No
         company=company,
         entry_date=period.start_date,
         lines=journal_lines,
-        description=f"Opening balance — {fiscal_year.name}",
+        description=_("Opening balance — %(name)s") % {"name": fiscal_year.name},
         user=user,
         source_type="opening_balance",
         source_id=str(fiscal_year.id),
@@ -699,7 +702,7 @@ def close_fiscal_period(*, company, period, retained_earnings, user=None):
             company=company,
             entry_date=period.end_date,
             lines=journal_lines,
-            description=f"Closing entry — {period.name}",
+            description=_("Closing entry — %(name)s") % {"name": period.name},
             user=user,
             source_type="CLOSING",
             source_id=str(period.id),
@@ -746,7 +749,7 @@ def reopen_fiscal_period(*, company, period, user=None):
         reversal = reverse_journal_entry(
             entry=closing_entry,
             user=user,
-            reason=f"Fiscal period {period.name} reopened",
+            reason=_("Fiscal period %(name)s reopened") % {"name": period.name},
             reversal_date=period.end_date,
         )
     record_event(

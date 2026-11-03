@@ -122,6 +122,16 @@ def test_every_sprite_symbol_is_used():
 
 def test_no_inline_svg_left_in_templates():
     for name, text in _template_texts().items():
+        if name == "core/dashboard.html":
+            # Sprint 30 (ADR-056): the dashboard's inline SVGs are
+            # the server-rendered data chart + performance rings —
+            # geometry computed per request, so they cannot be
+            # static sprite symbols. The sprite rule governs ICONS;
+            # charts are data. Exactly one bare chart SVG (the
+            # <svg viewBox form), marked as an image, is allowed.
+            assert text.count("<svg viewBox") == 1
+            assert 'role="img"' in text
+            continue
         assert "<svg viewBox" not in text, f"{name} still hand-draws an icon"
 
 
@@ -149,6 +159,13 @@ def test_zero_external_asset_references():
     css = _css_text()
     for needle in FORBIDDEN:
         assert needle not in css, f"app.css references an external asset: {needle}"
+    # Sprint 30 (ADR-057): the tour engine is self-hosted JS and is
+    # held to the same zero-external rule.
+    from django.contrib.staticfiles import finders
+
+    tour_js = Path(finders.find("js/tour.js")).read_text(encoding="utf-8")
+    for needle in FORBIDDEN:
+        assert needle not in tour_js, f"tour.js references an external asset: {needle}"
     # Every CSS url() is one of the vendored relative font paths.
     for url in re.findall(r'url\("([^"]+)"\)', css):
         assert url.startswith("../fonts/"), url

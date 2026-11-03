@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% load i18n access_tags %}{% block content %}
 <h1>{% trans "شرکت‌ها" %}</h1><p><a class="btn" href="{% url 'company_create' %}">{% trans "شرکت جدید" %}</a></p>
 <div class="card"><table><tr><th>{% trans "نام" %}</th><th>{% trans "ارز" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
-{% for c in companies %}<tr><td><a href="{% url 'company_detail' c.pk %}">{{ c.name }}</a></td><td>{{ c.default_currency }}</td><td>{{ c.is_active }}</td><td>{% company_can c "GOVERN" as can_govern %}{% if can_govern %}<a href="{% url 'company_members' c.pk %}">{% trans "اعضا" %}</a>{% endif %}</td></tr>
+{% for c in companies %}<tr><td><a href="{% url 'company_detail' c.pk %}">{{ c.name }}</a></td><td>{{ c.default_currency }}</td><td>{% if c.is_active %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</td><td>{% company_can c "GOVERN" as can_govern %}{% if can_govern %}<a href="{% url 'company_members' c.pk %}">{% trans "اعضا" %}</a>{% endif %}</td></tr>
 {% empty %}<tr><td colspan="4" class="empty">{% trans "موردی نیست" %}</td></tr>{% endfor %}</table></div>{% endblock %}

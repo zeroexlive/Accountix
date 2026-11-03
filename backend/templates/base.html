@@ -6,13 +6,13 @@
 <title>{% block title %}{% trans "اکانتیکس" %}{% endblock %}</title>
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/app.css' %}">
-{# Design system v3 "Bento" (Sprint 28, ADR-053): hand-written CSS in
+{% comment %} Design system v3 "Bento" (Sprint 28, ADR-053): hand-written CSS in
    static/css/app.css, fully offline and self-hosted — Inter +
    Vazirmatn webfonts in static/fonts/, Lucide icons via the
    static/icons.svg sprite. Charts are pure CSS. Authenticated pages
    get the sidebar shell; anonymous pages (login) get a bare centered
    shell. The HTML wrapper tags switch on authentication — the content
-   block itself is declared once. #}
+   block itself is declared once. {% endcomment %}
 </head>
 <body>
 {% if user.is_authenticated %}
@@ -72,6 +72,7 @@
     <header class="topbar">
       <h1 class="page-title">{% block page_title %}{% trans "اکانتیکس" %}{% endblock %}</h1>
       <div class="top-actions">
+        <button type="button" class="btn btn-ghost tour-start" data-tour-start hidden><svg class="icon" aria-hidden="true"><use href="{% static 'icons.svg' %}#i-milestone"/></svg>{% trans "راهنمای صفحه" %}</button>
         <a class="user-chip" href="{% url 'profile' %}"><span class="avatar">{{ user.username|first|upper }}</span>{{ user.username }}</a>
       </div>
     </header>
@@ -86,6 +87,8 @@
     </main>
   </div>
 </div>
+{% if tour_payload %}{{ tour_payload|json_script:"tour-data" }}{% endif %}
+<script src="{% static 'js/tour.js' %}" defer></script>
 {% else %}
 </main>
 {% endif %}

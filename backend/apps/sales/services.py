@@ -429,7 +429,7 @@ def post_sales_invoice(invoice, *, user=None, gl_accounts=None):
                 }
                 for r in stock_rows
             ],
-            description=f"Sales invoice {invoice.invoice_number}",
+            description=_("Sales invoice %(number)s") % {"number": invoice.invoice_number},
             source_type="SALES_INVOICE",
             source_id=str(invoice.id),
         )
@@ -467,7 +467,7 @@ def post_sales_invoice(invoice, *, user=None, gl_accounts=None):
             company=invoice.company,
             entry_date=invoice.invoice_date,
             lines=revenue_lines,
-            description=f"Sales invoice {invoice.invoice_number}",
+            description=_("Sales invoice %(number)s") % {"number": invoice.invoice_number},
             user=user,
             source_type="SALES_INVOICE",
             source_id=str(invoice.id),
@@ -481,7 +481,7 @@ def post_sales_invoice(invoice, *, user=None, gl_accounts=None):
                     {"account": accounts["cogs"], "debit": cogs_value},
                     {"account": accounts["inventory"], "credit": cogs_value},
                 ],
-                description=f"Sales invoice {invoice.invoice_number} — cost of goods sold",
+                description=_("Sales invoice %(number)s — cost of goods sold") % {"number": invoice.invoice_number},
                 user=user,
                 source_type="SALES_INVOICE_COGS",
                 source_id=str(invoice.id),
@@ -553,7 +553,7 @@ def reverse_sales_invoice(invoice, *, user=None, reason=""):
         inventory_services.reverse_stock_document(
             invoice.stock_document,
             user=user,
-            reason=reason or f"Sales invoice {invoice.invoice_number} reversed",
+            reason=reason or _("Sales invoice %(number)s reversed") % {"number": invoice.invoice_number},
             reversal_date=invoice.invoice_date,
         )
 
@@ -677,7 +677,7 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
             warehouse=invoice.warehouse,
             doc_date=ret.return_date,
             lines=stock_lines,
-            description=f"Sales return {ret.return_number}",
+            description=_("Sales return %(number)s") % {"number": ret.return_number},
             source_type="SALES_RETURN",
             source_id=str(ret.id),
         )
@@ -716,7 +716,7 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
             company=ret.company,
             entry_date=ret.return_date,
             lines=reversal_lines,
-            description=f"Sales return {ret.return_number}",
+            description=_("Sales return %(number)s") % {"number": ret.return_number},
             user=user,
             source_type="SALES_RETURN",
             source_id=str(ret.id),
@@ -739,7 +739,7 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
                     {"account": inventory_account, "debit": cogs_value},
                     {"account": cogs_account, "credit": cogs_value},
                 ],
-                description=f"Sales return {ret.return_number} — cost restored",
+                description=_("Sales return %(number)s — cost restored") % {"number": ret.return_number},
                 user=user,
                 source_type="SALES_RETURN_COGS",
                 source_id=str(ret.id),
@@ -814,7 +814,7 @@ def reverse_sales_return(sales_return, *, user=None, reason=""):
         inventory_services.reverse_stock_document(
             ret.stock_document,
             user=user,
-            reason=reason or f"Sales return {ret.return_number} reversed",
+            reason=reason or _("Sales return %(number)s reversed") % {"number": ret.return_number},
             reversal_date=ret.return_date,
         )
 

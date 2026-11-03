@@ -11,5 +11,5 @@
 </p>{% endif %}</div>
 {% if result %}<div class="card"><table><tr><th>{% trans "کد" %}</th><th>{% trans "حساب" %}</th><th class="num">{% trans "بدهکار" %}</th><th class="num">{% trans "بستانکار" %}</th><th class="num">{% trans "مانده" %}</th></tr>
 {% for r in result.rows %}<tr><td>{{ r.code }}</td><td>{{ r.name }}</td><td class="num">{{ r.debit }}</td><td class="num">{{ r.credit }}</td><td class="num">{{ r.balance }}</td></tr>{% endfor %}
-<tr><th>{% trans "جمع" %}</th><th></th><th class="num">{{ result.total_debit }}</th><th class="num">{{ result.total_credit }}</th><th>{% trans "متوازن:" %} {{ result.is_balanced }}</th></tr></table></div>
+<tr><th>{% trans "جمع" %}</th><th></th><th class="num">{{ result.total_debit }}</th><th class="num">{{ result.total_credit }}</th><th>{% trans "متوازن:" %} {% if result.is_balanced %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</th></tr></table></div>
 {% else %}<p class="empty">{% trans "یک شرکت انتخاب کنید." %}</p>{% endif %}{% endblock %}

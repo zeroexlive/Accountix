@@ -7,7 +7,7 @@
 <p>{% blocktrans with email=party.email|default:"—" phone=party.phone|default:"—" %}ایمیل: {{ email }} — تلفن: {{ phone }}{% endblocktrans %}</p>
 </div>
 {% if party.contacts.all %}<div class="card"><h2>{% trans "مخاطبان" %}</h2><table><tr><th>{% trans "نام کامل" %}</th><th>{% trans "نقش" %}</th><th>{% trans "تلفن" %}</th><th>{% trans "ایمیل" %}</th><th>{% trans "اصلی" %}</th></tr>
-{% for c in party.contacts.all %}<tr><td>{{ c.full_name }}</td><td>{{ c.role|default:"—" }}</td><td>{{ c.phone|default:"—" }}</td><td>{{ c.email|default:"—" }}</td><td>{{ c.is_primary }}</td></tr>{% endfor %}
+{% for c in party.contacts.all %}<tr><td>{{ c.full_name }}</td><td>{{ c.role|default:"—" }}</td><td>{{ c.phone|default:"—" }}</td><td>{{ c.email|default:"—" }}</td><td>{% if c.is_primary %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</td></tr>{% endfor %}
 </table></div>{% endif %}
 {% if party.addresses.all %}<div class="card"><h2>{% trans "نشانی‌ها" %}</h2><table><tr><th>{% trans "عنوان" %}</th><th>{% trans "نشانی" %}</th><th>{% trans "شهر" %}</th><th>{% trans "استان" %}</th><th>{% trans "کد پستی" %}</th></tr>
 {% for a in party.addresses.all %}<tr><td>{{ a.label|default:"—" }}</td><td>{{ a.line1 }} {{ a.line2 }}</td><td>{{ a.city|default:"—" }}</td><td>{{ a.province|default:"—" }}</td><td>{{ a.postal_code|default:"—" }}</td></tr>{% endfor %}

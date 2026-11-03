@@ -350,7 +350,7 @@ def post_purchase_invoice(invoice, *, user=None, gl_accounts=None):
             warehouse=invoice.warehouse,
             doc_date=invoice.invoice_date,
             lines=stock_lines,
-            description=f"Purchase invoice {invoice.invoice_number}",
+            description=_("Purchase invoice %(number)s") % {"number": invoice.invoice_number},
             source_type="PURCHASE_INVOICE",
             source_id=str(invoice.id),
         )
@@ -389,7 +389,7 @@ def post_purchase_invoice(invoice, *, user=None, gl_accounts=None):
             company=invoice.company,
             entry_date=invoice.invoice_date,
             lines=journal_lines,
-            description=f"Purchase invoice {invoice.invoice_number}",
+            description=_("Purchase invoice %(number)s") % {"number": invoice.invoice_number},
             user=user,
             source_type="PURCHASE_INVOICE",
             source_id=str(invoice.id),
@@ -439,7 +439,7 @@ def reverse_purchase_invoice(invoice, *, user=None, reason=""):
         inventory_services.reverse_stock_document(
             invoice.stock_document,
             user=user,
-            reason=reason or f"Purchase invoice {invoice.invoice_number} reversed",
+            reason=reason or _("Purchase invoice %(number)s reversed") % {"number": invoice.invoice_number},
             reversal_date=invoice.invoice_date,
         )
     if invoice.journal_entry_id is not None:
@@ -520,7 +520,7 @@ def post_purchase_return(purchase_return, *, user=None, gl_accounts=None):
             {"product": line.product, "unit": line.unit, "quantity": line.quantity}
             for line in lines
         ],
-        description=f"Purchase return {ret.return_number}",
+        description=_("Purchase return %(number)s") % {"number": ret.return_number},
         source_type="PURCHASE_RETURN",
         source_id=str(ret.id),
     )
@@ -547,7 +547,7 @@ def post_purchase_return(purchase_return, *, user=None, gl_accounts=None):
                 {"account": payables_account, "debit": total, "party": invoice.supplier},
                 {"account": inventory_account, "credit": total},
             ],
-            description=f"Purchase return {ret.return_number}",
+            description=_("Purchase return %(number)s") % {"number": ret.return_number},
             user=user,
             source_type="PURCHASE_RETURN",
             source_id=str(ret.id),
@@ -598,7 +598,7 @@ def reverse_purchase_return(purchase_return, *, user=None, reason=""):
         inventory_services.reverse_stock_document(
             ret.stock_document,
             user=user,
-            reason=reason or f"Purchase return {ret.return_number} reversed",
+            reason=reason or _("Purchase return %(number)s reversed") % {"number": ret.return_number},
             reversal_date=ret.return_date,
         )
     if ret.journal_entry_id is not None:

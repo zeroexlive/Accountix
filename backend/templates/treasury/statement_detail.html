@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can statement.company "OPERATE" as can_act %}
 <h1>{% blocktrans with name=statement.treasury_account.name %}تطبیق بانکی — {{ name }}{% endblocktrans %}</h1>
-<div class="card">
+<div class="card" data-tour="summary">
 <p>{% blocktrans with start=statement.start_date|jalali end=statement.end_date|jalali %}دوره: {{ start }} تا {{ end }} — وضعیت:{% endblocktrans %} {% if statement.status == 'COMPLETED' %}<span class="pill pill-paid">{% trans "نهایی" %}</span>{% else %}<span class="pill pill-partial">{% trans "باز" %}</span>{% endif %}{% if statement.source_note %} — {{ statement.source_note }}{% endif %}</p>
 <table>
 <tr><th>{% trans "مانده دفاتر (تا پایان دوره)" %}</th><td class="num">{{ summary.book_balance }}</td><th>{% trans "مانده پایان دوره (بانک)" %}</th><td class="num">{{ summary.statement_closing }}</td></tr>
@@ -16,7 +16,7 @@
 {% endif %}
 </div>
 
-<div class="card">
+<div class="card" data-tour="lines">
 <h2>{% trans "ردیف‌های صورت‌حساب" %}</h2>
 {% if lines %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "ارجاع" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "تطبیق" %}</th><th></th></tr></thead>
 <tbody>
@@ -27,14 +27,14 @@
 </div>
 
 {% if statement.status == 'OPEN' and can_act %}
-<div class="card action-card">
+<div class="card action-card" data-tour="add-line">
 <h2>{% trans "افزودن ردیف دستی" %}</h2>
 <form method="post" action="{% url 'bank_statement_add_line' statement.pk %}">{% csrf_token %}
 {{ line_form.non_field_errors }}
 {{ line_form.as_p }}
 <button type="submit">{% trans "افزودن ردیف" %}</button></form>
 </div>
-<div class="card action-card">
+<div class="card action-card" data-tour="import">
 <h2>{% trans "بارگذاری از فایل صورت‌حساب" %}</h2>
 <form method="post" enctype="multipart/form-data" action="{% url 'bank_statement_import' statement.pk %}">{% csrf_token %}
 {{ import_form.as_p }}
@@ -42,7 +42,7 @@
 </div>
 {% endif %}
 
-<div class="card">
+<div class="card" data-tour="candidates">
 <h2>{% trans "حرکات دفتری تطبیق‌نشده (تا پایان دوره)" %}</h2>
 {% if match_forms %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح سند" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "تطبیق با ردیف صورت‌حساب" %}</th></tr></thead>
 <tbody>

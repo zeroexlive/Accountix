@@ -54,7 +54,10 @@ def test_count_list_page_shows_posted_count(client):
     client = _member_client(client, w.company)
     resp = client.get(reverse("inventory_counts"))
     assert resp.status_code == 200
-    assert b"POSTED" in resp.content
+    # Sprint 30 (ADR-055): the list renders the translated status
+    # label («ثبت‌شده»), not the raw POSTED code.
+    assert "ثبت‌شده".encode() in resp.content
+    assert b"POSTED" not in resp.content
     assert b"P-1" in resp.content
 
 

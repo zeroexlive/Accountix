@@ -2,7 +2,7 @@
 <h1>{% blocktrans with number=return.return_number %}برگشت فروش {{ number }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% trans "فاکتور اصلی:" %} <a href="{% url 'sales_invoice_detail' invoice.pk %}">{{ invoice.invoice_number }}</a>{% blocktrans with name=invoice.customer.name date=return.return_date|jalali %} — مشتری: {{ name }} — تاریخ برگشت: {{ date }}{% endblocktrans %}</p>
-<p>{% blocktrans with status=return.status total=return.total_amount cogs=return.cogs_value %}وضعیت: {{ status }} — مبلغ برگشت: {{ total }} — بهای تمام‌شدهٔ برگشتی: {{ cogs }}{% endblocktrans %}</p>
+<p>{% blocktrans with status=return.get_status_display total=return.total_amount cogs=return.cogs_value %}وضعیت: {{ status }} — مبلغ برگشت: {{ total }} — بهای تمام‌شدهٔ برگشتی: {{ cogs }}{% endblocktrans %}</p>
 <table><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th class="num">{% trans "مقدار برگشتی" %}</th></tr>
 {% for line in return.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td class="num">{{ line.quantity }}</td></tr>{% endfor %}
 </table>

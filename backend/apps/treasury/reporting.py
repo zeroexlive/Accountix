@@ -7,6 +7,8 @@ grand totals minus ACTIVE allocations.
 
 from decimal import Decimal
 
+from django.utils.translation import gettext_lazy as _
+
 from apps.accounting import reporting as accounting_reporting
 
 ZERO = Decimal("0")
@@ -89,6 +91,7 @@ def open_items(company, *, party=None):
             items.append(
                 {
                     "kind": "SALES",
+                    "kind_label": _("فروش"),
                     "invoice": invoice,
                     "party": invoice.customer,
                     "total": invoice.grand_total,
@@ -103,6 +106,7 @@ def open_items(company, *, party=None):
             items.append(
                 {
                     "kind": "PURCHASE",
+                    "kind_label": _("خرید"),
                     "invoice": invoice,
                     "party": invoice.supplier,
                     "total": invoice.grand_total,

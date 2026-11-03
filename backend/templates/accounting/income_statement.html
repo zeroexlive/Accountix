@@ -1,15 +1,15 @@
 {% extends "base.html" %}{% load i18n %}{% block content %}
 <h1>{% trans "صورت سود و زیان" %}</h1>
-<div class="card"><form method="get"><label>{% trans "شرکت" %}</label>
+<div class="card" data-tour="filters"><form method="get"><label>{% trans "شرکت" %}</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
 <label>{% trans "دوره مالی" %}</label>
 <select name="period"><option value="">{% trans "بدون دوره (بازه تاریخی)" %}</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
 <label>{% trans "از تاریخ (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
 <label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <label>{% trans "حساب‌های بهای تمام‌شده (COGS)" %}</label>
-<select name="cogs" multiple size="4">{% for a in expense_accounts %}<option value="{{ a.pk }}" {% if a.pk|stringformat:"s" in selected_cogs_ids %}selected{% endif %}>{{ a.code }} — {{ a.name }}</option>{% endfor %}</select>
+<select name="cogs" multiple size="4" data-tour="cogs">{% for a in expense_accounts %}<option value="{{ a.pk }}" {% if a.pk|stringformat:"s" in selected_cogs_ids %}selected{% endif %}>{{ a.code }} — {{ a.name }}</option>{% endfor %}</select>
 <button type="submit">{% trans "نمایش" %}</button></form></div>
-{% if result %}<div class="card"><table>
+{% if result %}<div class="card" data-tour="result"><table>
 <tr><th>{% trans "حساب" %}</th><th class="num">{% trans "مبلغ" %}</th></tr>
 <tr><th colspan="2">{% trans "درآمدها" %}</th></tr>
 {% for r in result.revenue_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td class="num">{{ r.amount }}</td></tr>{% endfor %}

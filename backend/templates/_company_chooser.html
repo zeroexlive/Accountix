@@ -1,6 +1,6 @@
-{% load i18n %}{# Sprint 12: shown on create pages when the user belongs to several
+{% load i18n %}{% comment %} Sprint 12: shown on create pages when the user belongs to several
    companies and none is selected yet — the document pickers are
-   scoped per company, so the company must be chosen first. #}
+   scoped per company, so the company must be chosen first. {% endcomment %}
 <div class="card"><form method="get" class="inline-form">
 <label>{% trans "شرکت" %}</label><select name="company">{% for c in companies %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}</select>
 <button type="submit">{% trans "انتخاب شرکت" %}</button></form>

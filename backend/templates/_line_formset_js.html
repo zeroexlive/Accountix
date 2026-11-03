@@ -1,6 +1,6 @@
-{# Sprint 12: optional add-row enhancement for line formsets. The form
+{% comment %} Sprint 12: optional add-row enhancement for line formsets. The form
    is fully usable without JavaScript — the server renders extra rows
-   and DELETE checkboxes; this only clones the empty-form row. #}
+   and DELETE checkboxes; this only clones the empty-form row. {% endcomment %}
 <template id="empty-line-row"><tr>{% for field in formset.empty_form %}<td>{{ field }}</td>{% endfor %}</tr></template>
 <script>
 (function () {

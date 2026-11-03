@@ -246,7 +246,11 @@ def test_dashboard_render_values_chart_and_performance(client):
     # Chart series: the single period carries the seeded figures.
     assert data["series_revenue_total"] == D("1000")
     assert data["series_expenses_total"] == D("400")  # COGS stays in expenses
-    assert b"bar rev" in resp.content and b"bar exp" in resp.content
+    # Sprint 30 (ADR-056): the CSS bars became a server-rendered SVG
+    # chart fed by the same series; the numeric assertions above are
+    # unchanged from Sprint 11.
+    assert b"chart-svg" in resp.content and b"polyline" in resp.content
+    assert b'class="ring ' in resp.content  # performance rings
 
     perf = {row["key"]: row for row in data["performance"]}
     # 500 of the 1100 sale collected -> 45.5%; nothing of the purchase paid.
