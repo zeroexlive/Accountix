@@ -6,6 +6,13 @@ that document stays as the historical Sprint 10 gate record, and
 this file records where each gate stands now. Statuses below are
 backed by the sprint reports named next to them.
 
+## Release 1.0.0
+
+**Released 2026-11-04** — tagged `v1.0.0`. Release notes:
+`RELEASE_NOTES_1.0.0.md`. Linux artifact
+`accountix-1.0.0-linux.tar.gz`, SHA-256
+`222f5777de59252bbec073c2953e7dfe1f78a4ea9da0c574dd2da692399820e3`.
+
 ## Verdict
 
 **Release-grade on Linux; one platform gate open.** Every gate
