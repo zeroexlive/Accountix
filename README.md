@@ -14,7 +14,7 @@ for international markets without a rewrite.
 > closing, opening balances, a reporting dashboard with CSV/XLSX
 > exports and print templates, a standalone launcher with
 > backup/restore, and a PostgreSQL-verified, type-checked codebase
-> (346 tests on SQLite).
+> (354 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -50,6 +50,14 @@ for international markets without a rewrite.
 > straight from a bank file — header prefilled for review, rows
 > imported on confirm, totals identity enforced. No migration and
 > no new dependency in this sprint.
+> Sprint 19 laid the i18n groundwork (ADR-045): real gettext
+> catalogs with Persian as the source language, an English
+> translation of the application chrome (shell, navigation,
+> login/lockout, dashboard labels), a cookie-based language
+> switcher (no URL prefixes) and language-aware direction and
+> date display. Business pages are not wrapped yet — in English
+> mode they still render Persian; a wrapping sweep is the named
+> follow-up. No migration in this sprint either.
 
 ## Stack
 
@@ -66,12 +74,17 @@ python3 -m venv .venv
 cp .env.example .env   # set DJANGO_SECRET_KEY
 cd backend
 ../.venv/bin/python manage.py migrate
+../.venv/bin/python manage.py compilemessages   # needs the gettext tools; see docs/engineering/DEVELOPMENT.md
 ../.venv/bin/python manage.py createsuperuser
 ../.venv/bin/python manage.py runserver   # development only, never production
 ```
 
-Open http://127.0.0.1:8000/login/ — UI defaults to Persian / RTL
-(`lang="fa" dir="rtl"`), with English localization prepared via Django i18n.
+Open http://127.0.0.1:8000/login/ — the UI defaults to Persian / RTL
+(`lang="fa" dir="rtl"`). An English chrome (shell, navigation,
+login, dashboard labels) can be selected with the language button
+in the sidebar footer or on the login page; the choice is stored
+in a cookie, business pages still render Persian for now
+(ADR-045).
 
 ## Quick start (standalone desktop mode)
 

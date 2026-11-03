@@ -13,6 +13,9 @@ backups/
 *.sqlite3
 db.sqlite3
 backend/staticfiles/
+# Compiled gettext catalogs are build/startup artifacts (Sprint 19,
+# ADR-045); only .po sources are committed.
+*.mo
 *.log
 .idea/
 .vscode/

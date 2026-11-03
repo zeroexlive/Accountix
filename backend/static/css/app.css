@@ -127,7 +127,8 @@ h3{font-size:.98rem;font-weight:700;color:var(--ink)}
 /* user chip in the topbar (compact screens / fallback) */
 .user-chip{
   display:flex;align-items:center;gap:.5rem;background:var(--surface);
-  border:1px solid var(--line);border-radius:999px;padding:.25rem .8rem .25rem .3rem;
+  border:1px solid var(--line);border-radius:999px;
+  padding-block:.25rem;padding-inline-start:.8rem;padding-inline-end:.3rem;
   font-size:.85rem;color:var(--text-2);box-shadow:var(--shadow);
 }
 .user-chip .avatar{width:28px;height:28px;flex-basis:28px;font-size:.8rem}
@@ -206,7 +207,7 @@ form .errorlist{color:var(--down);font-size:.83rem;margin:.2rem 0;padding-inline
 
 /* ---- tables ---- */
 table{width:100%;border-collapse:collapse;font-size:.92rem}
-th,td{padding:.62rem .75rem;text-align:right;vertical-align:middle}
+th,td{padding:.62rem .75rem;text-align:start;vertical-align:middle}
 thead th,tbody th{
   color:var(--muted);font-size:.8rem;font-weight:700;
   background:var(--surface-soft);
@@ -304,8 +305,21 @@ td.num,th.num{text-align:end;font-variant-numeric:tabular-nums}
 }
 .period-note .pill{font-size:.8rem}
 
+/* ---- language switcher (Sprint 19, ADR-045) ---- */
+/* The shell was audited for dir=ltr: layout-critical rules already
+   use logical properties (border-inline-end on the sidebar,
+   margin-inline-start, text-align:start/end); the two physical
+   holdouts (table alignment, user-chip padding) were converted.
+   A pixel-perfect LTR design pass remains future work. */
+.side-lang{margin-top:.1rem}
+.lang-switch{margin:0}
+.lang-switch .lang-btn{width:100%;text-align:center}
+.auth-lang{position:absolute;top:1rem;inset-inline-end:1rem}
+.auth-lang .lang-btn{width:auto}
+
 /* ---- auth (login) ---- */
 .auth-shell{
+  position:relative;
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   padding:1.5rem;
 }

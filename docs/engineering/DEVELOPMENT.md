@@ -5,12 +5,21 @@
   Django 5.2 LTS supports both.
 - This machine has no `uv`: use venv + pip. When uv is available, generate
   `uv.lock` from `pyproject.toml` and prefer `uv sync`.
+- GNU gettext tools (`msgfmt`, `xgettext`) are a dev-machine prerequisite
+  since Sprint 19 (ADR-045): Django's `makemessages`/`compilemessages`
+  shell out to them. Debian/Ubuntu: `apt-get install -y gettext`
+  (a plain `apt-get update` first; on very slow mirrors a scoped update —
+  `main` component only, `Acquire::Languages=none` — is enough). Only the
+  `.po` catalogs are committed; after checkout, compile them once (below)
+  or non-Persian languages silently fall back to the Persian source
+  strings. The standalone launcher compiles best-effort at startup and
+  the bundle builds compile as a hard step, so end users need nothing.
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
 cp .env.example .env
-cd backend && ../.venv/bin/python manage.py migrate && ../.venv/bin/python manage.py runserver
+cd backend && ../.venv/bin/python manage.py migrate && ../.venv/bin/python manage.py compilemessages && ../.venv/bin/python manage.py runserver
 ```
 
 ## Settings

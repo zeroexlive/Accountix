@@ -1,39 +1,39 @@
-{% extends "base.html" %}{% load jalali %}
-{% block title %}داشبورد | اکانتیکس{% endblock %}
-{% block page_title %}داشبورد{% endblock %}
+{% extends "base.html" %}{% load jalali i18n %}
+{% block title %}{% trans "داشبورد | اکانتیکس" %}{% endblock %}
+{% block page_title %}{% trans "داشبورد" %}{% endblock %}
 {% block content %}
-<div class="card"><form method="get" class="inline-form"><span><label>شرکت</label>
+<div class="card"><form method="get" class="inline-form"><span><label>{% trans "شرکت" %}</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></span>
-<button type="submit">نمایش</button></form>
-{% if not companies %}<p class="empty">هنوز شرکتی ندارید. <a href="{% url 'company_create' %}">ایجاد شرکت</a></p>{% endif %}</div>
+<button type="submit">{% trans "نمایش" %}</button></form>
+{% if not companies %}<p class="empty">{% trans "هنوز شرکتی ندارید." %} <a href="{% url 'company_create' %}">{% trans "ایجاد شرکت" %}</a></p>{% endif %}</div>
 {% if dashboard %}
 <div class="period-note">
-  <span>دوره جاری:</span>
-  {% if dashboard.period %}<span class="pill pill-info">{{ dashboard.period.name }}</span><span>{{ dashboard.period.start_date|jalali }} تا {{ dashboard.period.end_date|jalali }}</span>{% else %}<span>دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است.</span>{% endif %}
+  <span>{% trans "دوره جاری:" %}</span>
+  {% if dashboard.period %}<span class="pill pill-info">{{ dashboard.period.name }}</span><span>{{ dashboard.period.start_date|jalali }} {% trans "تا" %} {{ dashboard.period.end_date|jalali }}</span>{% else %}<span>{% trans "دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است." %}</span>{% endif %}
 </div>
 
 <div class="kpi-grid">
-  <div class="card kpi"><p class="kpi-label">درآمد دوره</p>
+  <div class="card kpi"><p class="kpi-label">{% trans "درآمد دوره" %}</p>
     <p class="kpi-value">{{ dashboard.kpis.revenue.current }}{% if dashboard.kpis.revenue.delta_pct != None %}<span class="delta {% if dashboard.kpis.revenue.delta_pct >= 0 %}up{% else %}down{% endif %}">{% if dashboard.kpis.revenue.delta_pct >= 0 %}↑{% else %}↓{% endif %} {{ dashboard.kpis.revenue.delta_pct }}٪</span>{% endif %}</p>
-    <p class="kpi-sub">{% if dashboard.kpis.revenue.previous != None %}دوره قبل: {{ dashboard.kpis.revenue.previous }}{% else %}دوره قبلی برای مقایسه وجود ندارد{% endif %}</p></div>
-  <div class="card kpi"><p class="kpi-label">فروش دوره</p>
+    <p class="kpi-sub">{% if dashboard.kpis.revenue.previous != None %}{% trans "دوره قبل:" %} {{ dashboard.kpis.revenue.previous }}{% else %}{% trans "دوره قبلی برای مقایسه وجود ندارد" %}{% endif %}</p></div>
+  <div class="card kpi"><p class="kpi-label">{% trans "فروش دوره" %}</p>
     <p class="kpi-value">{{ dashboard.kpis.sales.current }}{% if dashboard.kpis.sales.delta_pct != None %}<span class="delta {% if dashboard.kpis.sales.delta_pct >= 0 %}up{% else %}down{% endif %}">{% if dashboard.kpis.sales.delta_pct >= 0 %}↑{% else %}↓{% endif %} {{ dashboard.kpis.sales.delta_pct }}٪</span>{% endif %}</p>
-    <p class="kpi-sub">{% if dashboard.kpis.sales.previous != None %}دوره قبل: {{ dashboard.kpis.sales.previous }}{% else %}دوره قبلی برای مقایسه وجود ندارد{% endif %}</p></div>
-  <div class="card kpi"><p class="kpi-label">خرید دوره</p>
+    <p class="kpi-sub">{% if dashboard.kpis.sales.previous != None %}{% trans "دوره قبل:" %} {{ dashboard.kpis.sales.previous }}{% else %}{% trans "دوره قبلی برای مقایسه وجود ندارد" %}{% endif %}</p></div>
+  <div class="card kpi"><p class="kpi-label">{% trans "خرید دوره" %}</p>
     <p class="kpi-value">{{ dashboard.kpis.purchases.current }}{% if dashboard.kpis.purchases.delta_pct != None %}<span class="delta {% if dashboard.kpis.purchases.delta_pct >= 0 %}up{% else %}down{% endif %}">{% if dashboard.kpis.purchases.delta_pct >= 0 %}↑{% else %}↓{% endif %} {{ dashboard.kpis.purchases.delta_pct }}٪</span>{% endif %}</p>
-    <p class="kpi-sub">{% if dashboard.kpis.purchases.previous != None %}دوره قبل: {{ dashboard.kpis.purchases.previous }}{% else %}دوره قبلی برای مقایسه وجود ندارد{% endif %}</p></div>
-  <div class="card kpi"><p class="kpi-label">موجودی نقد و بانک</p>
+    <p class="kpi-sub">{% if dashboard.kpis.purchases.previous != None %}{% trans "دوره قبل:" %} {{ dashboard.kpis.purchases.previous }}{% else %}{% trans "دوره قبلی برای مقایسه وجود ندارد" %}{% endif %}</p></div>
+  <div class="card kpi"><p class="kpi-label">{% trans "موجودی نقد و بانک" %}</p>
     <p class="kpi-value">{{ dashboard.treasury_total }}</p>
-    <p class="kpi-sub">صندوق: {{ dashboard.cash_total }} — بانک: {{ dashboard.bank_total }}</p></div>
+    <p class="kpi-sub">{% trans "صندوق:" %} {{ dashboard.cash_total }} — {% trans "بانک:" %} {{ dashboard.bank_total }}</p></div>
 </div>
 
 <div class="dash-main">
   <div class="card">
     <div class="card-head">
-      <div><h2>درآمد و هزینه</h2><p class="kpi-sub">به تفکیک دوره‌های سال مالی{% if dashboard.fiscal_year %} {{ dashboard.fiscal_year.name }}{% endif %}</p></div>
+      <div><h2>{% trans "درآمد و هزینه" %}</h2><p class="kpi-sub">{% trans "به تفکیک دوره‌های سال مالی" %}{% if dashboard.fiscal_year %} {{ dashboard.fiscal_year.name }}{% endif %}</p></div>
       <div class="head-side chart-legend">
-        <span><span class="legend-dot rev"></span>درآمد <span class="lg-value">{{ dashboard.series_revenue_total }}</span></span>
-        <span><span class="legend-dot exp"></span>هزینه <span class="lg-value">{{ dashboard.series_expenses_total }}</span></span>
+        <span><span class="legend-dot rev"></span>{% trans "درآمد" %} <span class="lg-value">{{ dashboard.series_revenue_total }}</span></span>
+        <span><span class="legend-dot exp"></span>{% trans "هزینه" %} <span class="lg-value">{{ dashboard.series_expenses_total }}</span></span>
       </div>
     </div>
     {% if dashboard.period_series %}
@@ -41,17 +41,17 @@
       {% for row in dashboard.period_series %}
       <div class="bar-group">
         <div class="bar-pair">
-          <div class="bar rev" style="height:{{ row.revenue_height }}%" title="درآمد {{ row.label }}: {{ row.revenue }}"></div>
-          <div class="bar exp" style="height:{{ row.expenses_height }}%" title="هزینه {{ row.label }}: {{ row.expenses }}"></div>
+          <div class="bar rev" style="height:{{ row.revenue_height }}%" title="{% blocktrans with label=row.label value=row.revenue %}درآمد {{ label }}: {{ value }}{% endblocktrans %}"></div>
+          <div class="bar exp" style="height:{{ row.expenses_height }}%" title="{% blocktrans with label=row.label value=row.expenses %}هزینه {{ label }}: {{ value }}{% endblocktrans %}"></div>
         </div>
         <span class="bar-label">{{ row.label }}</span>
       </div>
       {% endfor %}
     </div>
-    {% else %}<p class="empty-state">دوره‌ای برای نمایش نمودار وجود ندارد.</p>{% endif %}
+    {% else %}<p class="empty-state">{% trans "دوره‌ای برای نمایش نمودار وجود ندارد." %}</p>{% endif %}
   </div>
   <div class="card">
-    <h2>عملکرد</h2>
+    <h2>{% trans "عملکرد" %}</h2>
     {% for row in dashboard.performance %}
     <div class="perf-row">
       <div class="perf-head"><span class="perf-label">{{ row.label }}</span>{% if row.percent != None %}<span class="perf-pct">{{ row.percent }}٪</span>{% endif %}</div>
@@ -64,34 +64,34 @@
   </div>
 </div>
 
-<div class="card"><div class="card-head"><h2>آخرین فاکتورهای فروش</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">همه فاکتورها</a></span></div>
-<table><thead><tr><th>شماره</th><th>تاریخ</th><th>مشتری</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr></thead>
-<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+<div class="card"><div class="card-head"><h2>{% trans "آخرین فاکتورهای فروش" %}</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "همه فاکتورها" %}</a></span></div>
+<table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
+<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
 
 <div class="cards">
-  <div class="card kpi"><h3>مطالبات از مشتریان (معین)</h3><p class="kpi-value">{{ dashboard.ar_total }}</p></div>
-  <div class="card kpi"><h3>بدهی به تأمین‌کنندگان (معین)</h3><p class="kpi-value">{{ dashboard.ap_total }}</p></div>
-  <div class="card kpi"><h3>ارزش موجودی انبار</h3><p class="kpi-value">{{ dashboard.inventory_valuation }}</p></div>
-  <div class="card kpi"><h3>سود خالص دوره</h3><p class="kpi-value">{{ dashboard.net_income }}</p>
-  <p class="kpi-sub">سود ناخالص فقط در صفحه صورت سود و زیان و پس از تعیین حساب‌های بهای تمام‌شده نمایش داده می‌شود.</p></div>
-  <div class="card kpi"><h3>اقلام باز — دریافتنی</h3><p class="kpi-value">{{ dashboard.open_receivable_total }}</p></div>
-  <div class="card kpi"><h3>اقلام باز — پرداختنی</h3><p class="kpi-value">{{ dashboard.open_payable_total }}</p></div>
-  <div class="card kpi"><h3>چک‌های وصول‌نشده</h3><p class="kpi-value">{{ dashboard.outstanding_cheques_count }} فقره</p><p class="kpi-sub">مبلغ: {{ dashboard.outstanding_cheques_amount }}</p></div>
-  <div class="card kpi"><h3>کالاهای کم‌موجودی</h3><p class="kpi-value">{{ dashboard.low_stock_count }}</p></div>
+  <div class="card kpi"><h3>{% trans "مطالبات از مشتریان (معین)" %}</h3><p class="kpi-value">{{ dashboard.ar_total }}</p></div>
+  <div class="card kpi"><h3>{% trans "بدهی به تأمین‌کنندگان (معین)" %}</h3><p class="kpi-value">{{ dashboard.ap_total }}</p></div>
+  <div class="card kpi"><h3>{% trans "ارزش موجودی انبار" %}</h3><p class="kpi-value">{{ dashboard.inventory_valuation }}</p></div>
+  <div class="card kpi"><h3>{% trans "سود خالص دوره" %}</h3><p class="kpi-value">{{ dashboard.net_income }}</p>
+  <p class="kpi-sub">{% trans "سود ناخالص فقط در صفحه صورت سود و زیان و پس از تعیین حساب‌های بهای تمام‌شده نمایش داده می‌شود." %}</p></div>
+  <div class="card kpi"><h3>{% trans "اقلام باز — دریافتنی" %}</h3><p class="kpi-value">{{ dashboard.open_receivable_total }}</p></div>
+  <div class="card kpi"><h3>{% trans "اقلام باز — پرداختنی" %}</h3><p class="kpi-value">{{ dashboard.open_payable_total }}</p></div>
+  <div class="card kpi"><h3>{% trans "چک‌های وصول‌نشده" %}</h3><p class="kpi-value">{% blocktrans with count=dashboard.outstanding_cheques_count %}{{ count }} فقره{% endblocktrans %}</p><p class="kpi-sub">{% trans "مبلغ:" %} {{ dashboard.outstanding_cheques_amount }}</p></div>
+  <div class="card kpi"><h3>{% trans "کالاهای کم‌موجودی" %}</h3><p class="kpi-value">{{ dashboard.low_stock_count }}</p></div>
 </div>
 
 <div class="cols-2">
   <div class="dash-stack">
-    <div class="card"><h2>حساب‌های خزانه</h2><table><thead><tr><th>حساب</th><th>نوع</th><th>مانده</th></tr></thead>
-    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td>{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">حساب خزانه‌ای تعریف نشده است.</td></tr>{% endfor %}</tbody></table></div>
-    {% if dashboard.low_stock_rows %}<div class="card"><h2>هشدار موجودی</h2><table><thead><tr><th>کد</th><th>محصول</th><th>موجودی</th><th>حداقل</th></tr></thead>
+    <div class="card"><h2>{% trans "حساب‌های خزانه" %}</h2><table><thead><tr><th>{% trans "حساب" %}</th><th>{% trans "نوع" %}</th><th>{% trans "مانده" %}</th></tr></thead>
+    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td>{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "حساب خزانه‌ای تعریف نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    {% if dashboard.low_stock_rows %}<div class="card"><h2>{% trans "هشدار موجودی" %}</h2><table><thead><tr><th>{% trans "کد" %}</th><th>{% trans "محصول" %}</th><th>{% trans "موجودی" %}</th><th>{% trans "حداقل" %}</th></tr></thead>
     <tbody>{% for r in dashboard.low_stock_rows %}<tr><td>{{ r.sku }}</td><td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.min_stock_level }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
   </div>
   <div class="dash-stack">
-    <div class="card"><h2>آخرین اسناد دفتر روزنامه</h2><table><thead><tr><th>تاریخ</th><th>شرح</th><th>وضعیت</th></tr></thead>
-    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">سندی ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
-    <div class="card"><h2>آخرین فاکتورهای خرید</h2><table><thead><tr><th>شماره</th><th>تاریخ</th><th>تأمین‌کننده</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr></thead>
-    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+    <div class="card"><h2>{% trans "آخرین اسناد دفتر روزنامه" %}</h2><table><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "وضعیت" %}</th></tr></thead>
+    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "سندی ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    <div class="card"><h2>{% trans "آخرین فاکتورهای خرید" %}</h2><table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "تأمین‌کننده" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
+    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
   </div>
 </div>
 {% endif %}

@@ -11,6 +11,12 @@ PY="${PYTHON:-python3}"
 .venv-build/bin/pip install --upgrade pip
 .venv-build/bin/pip install -e ".[dev]"
 
+# Compile the gettext catalogs so the bundle ships .mo files next to
+# the committed .po sources (Sprint 19, ADR-045). Requires the gettext
+# tools (msgfmt) on the BUILD machine — a hard prerequisite here,
+# unlike end-user machines where compilation is best effort.
+(cd backend && DJANGO_SETTINGS_MODULE=config.settings.local ../.venv-build/bin/python manage.py compilemessages)
+
 .venv-build/bin/pyinstaller launcher/accountix.spec \
     --noconfirm \
     --distpath dist \

@@ -21,7 +21,9 @@ Startup sequence:
 4. If a database already exists, back it up (``backup_db``). If the
    backup fails, abort — the database is left untouched and no server
    starts. Then run migrations, then collectstatic (into the data dir).
-   If migrations fail, abort the same way.
+   If migrations fail, abort the same way. Finally compile the
+   translation catalogs (``compilemessages``) on a best-effort basis:
+   its failure only logs a warning (see prepare_database / ADR-045).
 5. Start the server (Waitress, 127.0.0.1 only), poll ``/health/`` until
    ready (timeout → abort with the log path), open the default browser
    at the login page unless disabled.
@@ -198,11 +200,19 @@ def run_django_command(argv: list[str], data_dir: Path, port: int, log) -> None:
 
 
 def prepare_database(db_path: Path, data_dir: Path, port: int, log) -> None:
-    """Backup (when a DB exists) -> migrate -> collectstatic.
+    """Backup (when a DB exists) -> migrate -> collectstatic -> compilemessages.
 
-    Any failure raises LauncherError *before* the server is started, and
-    a failed backup means migrations never run: the database is left
-    exactly as it was.
+    Any failure in backup/migrate/collectstatic raises LauncherError
+    *before* the server is started, and a failed backup means
+    migrations never run: the database is left exactly as it was.
+
+    compilemessages is deliberately different — best effort, log and
+    continue (Sprint 19, ADR-045): it needs the gettext ``msgfmt``
+    binary, which end-user machines typically do not have, and a
+    missing ``.mo`` only means a language falls back to the Persian
+    source strings. It must never brick startup the way a failed
+    migration must. In a frozen bundle the catalogs are compiled at
+    build time (scripts/build_*), so this step is a no-op refresh.
     """
     if needs_backup(db_path):
         log("Existing database found — creating a pre-migration backup...")
@@ -211,6 +221,13 @@ def prepare_database(db_path: Path, data_dir: Path, port: int, log) -> None:
         log("No existing database — first run, skipping backup.")
     run_django_command(["migrate", "--noinput"], data_dir, port, log)
     run_django_command(["collectstatic", "--noinput"], data_dir, port, log)
+    try:
+        run_django_command(["compilemessages"], data_dir, port, log)
+    except LauncherError as exc:
+        log(
+            f"WARNING: translation catalogs not compiled ({exc}); continuing — "
+            "the UI falls back to Persian where no compiled catalog exists."
+        )
 
 
 # --------------------------------------------------------------------------

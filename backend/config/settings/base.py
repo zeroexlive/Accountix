@@ -154,7 +154,16 @@ LANGUAGE_CODE = "fa"
 TIME_ZONE = "Asia/Tehran"
 USE_I18N = True
 USE_TZ = True
-LANGUAGES = [("fa", "Persian"), ("en", "English")]
+# Bilingual UI (Sprint 19, ADR-045): Persian is the default and the
+# source language — template msgids ARE the Persian literals, so the
+# fa catalog needs no translations (an untranslated msgid renders as
+# itself, i.e. Persian). English lives in locale/en. Language is
+# carried by Django's language cookie via LocaleMiddleware (already
+# above, between Session and Common) and the set_language view wired
+# in config.urls — deliberately NOT by i18n_patterns URL prefixes, so
+# every existing URL stays stable. Catalogs are committed as .po
+# only; .mo files are build/startup artifacts (see ADR-045).
+LANGUAGES = [("fa", "فارسی"), ("en", "English")]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 STATIC_URL = "static/"

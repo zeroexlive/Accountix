@@ -226,6 +226,25 @@ Modular monolith, single Django project under `backend/`:
   lines. OFX carries no opening balance (chaining/user supplies
   it, as with CSV). No migration, no new dependency. Suite: 346
   passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 19): i18n groundwork — see `SPRINT_19_REPORT.md`
+  and ADR-045. The gettext pipeline is real now: template msgids
+  are the Persian literals (fa catalog msgstrs empty by design —
+  fallback renders the msgid, i.e. Persian, so the default UI is
+  byte-identical), `locale/en` carries English translations for
+  the wrapped set (103 strings, 100%), the language rides in
+  Django's cookie via the stock `set_language` view (no URL
+  prefixes), and `base.html` emits `lang`/`dir` from the active
+  language (en → `en`/`ltr`; the CSS needed only two
+  logical-property conversions). Wrapped scope is the **chrome
+  only**: base shell + all nav labels, login, lockout, and the
+  dashboard's static labels. Business pages are deliberately
+  still unwrapped Persian in both modes — a wrapping sweep is
+  the named follow-up. The `jalali` filter branches on language
+  (fa → Jalali; otherwise Gregorian ISO). Catalogs are committed
+  as `.po` only; `.mo` is a gitignored artifact compiled by the
+  launcher (best effort), the bundle build scripts (hard step),
+  or the developer (`compilemessages`; needs the gettext tools).
+  Suite: 354 passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -326,7 +345,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-346 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+354 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -359,7 +378,11 @@ production/standalone settings wiring incl. env override); Sprint 17:
 +1 (PG backup default filename `.dump` pin); Sprint 18:
 +19 (statement-file parsers: CAMT.053/OFX golden rows + metadata,
 per-transaction rejections, garbage refusals, generalized import
-service, create-from-file totals identity + UI) — see the sprint reports for exact
+service, create-from-file totals identity + UI); Sprint 19:
++8 (i18n: default fa/RTL chrome, en switch + LTR rendering,
+cookie persistence across login, switch back, jalali filter
+language branches, untranslated-msgid fallback, production/
+standalone i18n settings wiring) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -391,8 +414,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    gate #20 closed). ~~PG restore drill~~ — done (Sprint 17;
    release gate #15 VERIFIED, and the restore procedure is now
    actually written in PRODUCTION.md). ~~CAMT.053/OFX statement
-   import~~ — done (Sprint 18, ADR-044). Post-v1.0 candidates:
-   Windows verification, .po translations.
+   import~~ — done (Sprint 18, ADR-044). ~~i18n groundwork (.po
+   translations)~~ — done (Sprint 19, ADR-045; chrome scope —
+   business-page wrapping sweep remains). Post-v1.0 candidates:
+   Windows verification, the wrapping sweep, an LTR design pass.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

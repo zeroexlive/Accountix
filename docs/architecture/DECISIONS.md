@@ -788,3 +788,78 @@ one statement); OFX credit-card (`CCSTMTRS`) and investment
 statements are out of scope (bank accounts only, like the rest of
 reconciliation); the first `BANKTRANLIST`/`LEDGERBAL` wins in a
 multi-account OFX file.
+
+## ADR-045 — i18n groundwork: Persian-source gettext, cookie-carried language, chrome-only scope (accepted, Sprint 19)
+Until this sprint the UI was Persian-only in practice: settings had
+carried `USE_I18N = True`, `LANGUAGE_CODE = "fa"` and a
+`LocaleMiddleware` since Sprint 01, but no template string was
+wrapped, no catalog existed and no language could be selected. This
+ADR builds the real gettext pipeline and translates the **chrome**
+end to end; it is explicitly groundwork, not a full translation.
+(1) **The msgid is the Persian literal.** Template source strings
+are Persian, so `{% trans %}`/`{% blocktrans %}` wrap the Persian
+text exactly as it stands and the fa catalog's msgstrs stay empty
+on purpose: an untranslated msgid renders as itself, which *is*
+Persian. Consequences: the fa rendering is byte-identical to the
+pre-i18n UI (the whole suite is the regression net), a wrapped
+string that is missing from en.po degrades to Persian instead of
+blank, and the working rule for new strings is "write Persian in
+the template, wrap it, translate in en.po". English is the only
+real translation today (103 strings, 100% of the wrapped set).
+(2) **No URL prefixes.** `i18n_patterns` was rejected: it would
+change every URL in the product and churn every test and bookmark.
+The language rides in Django's language cookie via
+`LocaleMiddleware` (Session → Locale → Common) and the stock
+`set_language` view at `/i18n/setlang/`; a no-JS POST form (the
+language switcher) sits in the sidebar footer and on the
+login/lockout pages, offering the other language under its own
+name (endonym convention — language names are not translated).
+The choice persists across pages and across login.
+(3) **Chrome scope boundary.** Wrapped and translated: `base.html`
+(sidebar sections, all 22 nav labels, brand, user card, logout),
+`registration/login.html`, `registration/lockout.html`, and the
+dashboard template's static labels (card/panel titles, KPI labels,
+table headers, empty states — never dynamic data: no service or
+model string is wrapped, so journal descriptions, party names and
+status codes render as stored in both languages). Everything else —
+all business pages — is deliberately still unwrapped Persian and
+shows as Persian in English mode too. Completing it is a named
+follow-up: a string-wrapping sweep over the remaining templates
+plus their en.po translations. Print templates stay fa/RTL on
+purpose: they are Persian business documents.
+(4) **Direction follows the language.** `base.html` emits
+`lang`/`dir` from the active language (`fa` → `fa`/`rtl`,
+unchanged; `en` → `en`/`ltr`). The v2 CSS was audited for LTR:
+the load-bearing rules already used logical properties (sidebar
+`border-inline-end`, `margin-inline-start`, `text-align: end`);
+the two physical holdouts that broke table/text alignment —
+`th, td { text-align: right }` and the user-chip's asymmetric
+physical padding — were converted to logical equivalents with
+identical RTL rendering. A pixel-perfect LTR design pass is
+future work, not part of this groundwork.
+(5) **Dates branch in one place.** The `jalali` filter (ADR-040)
+is now language-aware in its single implementation: active
+language fa (or unset) → the Jalali rendering, unchanged; any
+other active language → the stored Gregorian date in ISO
+`YYYY-MM-DD`. The filter keeps its name — renaming it would touch
+every template for cosmetic gain; the naming debt is recorded
+here.
+(6) **Catalogs: `.po` committed, `.mo` built.** Compiled catalogs
+are artifacts, not sources (`*.mo` is gitignored): the GitHub sync
+path is a UTF-8 text snapshot and cannot carry binaries, and a
+stale `.mo` shadowing a newer `.po` is a classic silent failure.
+Compilation is wired where the app is built or started: the
+standalone launcher runs `compilemessages` after
+migrate/collectstatic on a **best-effort** basis (log and
+continue — it needs the gettext `msgfmt` binary, which end-user
+machines typically lack, and a missing catalog only costs a
+language its translation, never the app; this deliberately
+differs from migration failure, which aborts startup); the
+PyInstaller build scripts run it as a hard prerequisite so the
+bundle ships `.mo` files beside the `.po` sources (the spec
+already bundles `backend/locale`); developers run it after
+checkout (DEVELOPMENT.md). The i18n tests compile the catalogs in
+their own setup, so they pass on a fresh clone.
+Toolchain note: `makemessages`/`compilemessages` need the GNU
+gettext tools (`msgfmt`, `xgettext`) on the machine — installed
+here via apt (`gettext` 0.21); see DEVELOPMENT.md.

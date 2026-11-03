@@ -10,6 +10,15 @@ if not defined PYTHON set PYTHON=py -3.12
 .venv-build\Scripts\pip install --upgrade pip
 .venv-build\Scripts\pip install -e ".[dev]"
 
+REM Compile the gettext catalogs so the bundle ships .mo files next to
+REM the committed .po sources (Sprint 19, ADR-045). Requires the
+REM gettext tools (msgfmt) on the BUILD machine.
+pushd backend
+set DJANGO_SETTINGS_MODULE=config.settings.local
+..\.venv-build\Scripts\python manage.py compilemessages
+if errorlevel 1 exit /b 1
+popd
+
 .venv-build\Scripts\pyinstaller launcher\accountix.spec --noconfirm --distpath dist --workpath build\pyinstaller
 
 echo Built: %CD%\dist\accountix\accountix.exe
