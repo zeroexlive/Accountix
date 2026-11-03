@@ -336,6 +336,31 @@ td.num,th.num{text-align:end;font-variant-numeric:tabular-nums}
   body{background:#fff}
 }
 
+/* ---- Sprint 12: data-entry forms (ADR-039) ---- */
+/* Document forms span several cards, so they opt out of the
+   single-card label grid; inside each card the normal rules apply. */
+.doc-form > .card > form:not(.inline-form){display:grid}
+.doc-form .card{margin-bottom:1.1rem}
+.action-card{border-inline-start:3px solid var(--accent)}
+.action-card h2{margin-top:0}
+.btn-danger{background:#c22525;border-color:#c22525}
+.btn-danger:hover{background:#a31d1d;border-color:#a31d1d}
+/* Line-item tables (formsets): compact full-width inputs, errors
+   stay inside their cell, hidden fields take no space. */
+.line-table td{padding:.35rem .4rem}
+.line-table td input,.line-table td select,.line-table td textarea{
+  margin-bottom:0;padding:.4rem .55rem;font-size:.88rem;
+}
+.line-table td input[type="hidden"]{display:none}
+.line-table td .errorlist{margin:.15rem 0 0;font-size:.76rem}
+.line-table td:has(> input[type="hidden"]:only-child){padding:0;width:0}
+.line-table input[type="number"]{min-width:6.5rem}
+/* Non-field (service) errors read as an alert above the form. */
+.card .errorlist.nonfield{
+  background:var(--down-soft);color:var(--down);border-radius:10px;
+  padding:.55rem .9rem;list-style:none;font-weight:600;
+}
+
 /* ---- responsive ---- */
 @media (max-width:1100px){
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
