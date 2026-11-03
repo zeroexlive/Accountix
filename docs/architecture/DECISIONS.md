@@ -1343,3 +1343,92 @@ signed-in user changing their OWN credentials with knowledge of
 the current password — it is not a recovery flow, and a
 forgotten-password flow remains out of scope for the offline
 product (the operator path covers it).
+
+## ADR-053 — Design system v3 "Bento": self-hosted webfonts + Lucide sprite, bento tiles, zero-external as a test (accepted, Sprint 28)
+The owner judged DS v2 (ADR-038) still "too dry and soulless" and
+commissioned a third design system with hard requirements: proper
+Persian AND English fonts, proper SVG icons, a modern bento look —
+and everything self-hosted, zero external dependencies. ADR-038's
+"system fonts + hand-drawn inline SVG" asset policy is superseded
+by this ADR; its honest-widgets rule (5) stands untouched.
+(1) **Webfonts, vendored.** Vazirmatn 33.003 (Persian) and Inter
+4.1 (Latin), woff2 only, weights 400/500/700/800, from the official
+GitHub releases, vendored into `backend/static/fonts/` with their
+OFL texts and a `static/THIRD_PARTY_NOTICES.md` recording versions,
+source URLs and sha256 per file (total font payload 659,264
+bytes). `@font-face` with `font-display: swap`. ONE combined stack
+— `"Inter", "Vazirmatn", Tahoma, …` — so per-character fallback
+renders Latin in Inter and Persian glyphs in Vazirmatn in BOTH
+locales; the Sprint 22 `html[lang="en"]` body stack (ADR-048 (4))
+is retired, because a stack that differs per language is no longer
+needed when the fonts themselves are script-specialized. What
+stays language-scoped: negative letter-spacing, now applied to
+Latin display type only (`html[lang="en"]`), since spacing must
+never touch Arabic-script joining. Tabular figures are unscoped
+now (both fonts carry `tnum`): `.kpi-value`/`.lg-value`/
+`.perf-pct` get `font-variant-numeric: tabular-nums` in both
+scripts, as `td.num` already had.
+(2) **Icons: one Lucide sprite.** Lucide 1.67.0 (ISC) as a
+generated SVG sprite, `backend/static/icons.svg` — 36 `<symbol>`s
+built from the official release's `icons/*.svg` by
+`scripts/build_icon_sprite.py` (the regeneration route is part of
+the deliverable). Templates reference it as
+`<svg class="icon"><use href="{% static 'icons.svg' %}#i-…"/></svg>`;
+symbols carry Lucide's native presentation (stroke 2, round caps)
+so instances size/color via CSS (`currentColor`). Every hand-drawn
+inline SVG is gone (28 in the shell + the auth pages' brand marks).
+The ADR-048 flip audit was repeated over the Lucide set: no icon's
+meaning is a page direction (log-out and the transfer/data-flow
+arrows fall in ADR-048's never-flip categories), so `.flip-rtl`
+still ships with an empty flip list. The sprite is served by
+WhiteNoise like any static file — no inline `<symbol>` payload is
+repeated per page.
+(3) **Bento tokens.** Radius scale — tiles 24px, inner cards
+16px, controls 12px; layered soft shadows; a floating shell
+(sidebar and topbar are rounded tiles on the canvas, sticky
+sidebar); a CSS-only canvas texture (three soft radial brand
+tints — no images, no gradients-as-assets); tinted icon chips
+(magenta/blue/violet/green/amber soft backgrounds) heading tiles;
+the brand identity is unchanged (magenta revenue, blue expenses)
+with violet/amber as restrained tile accents. Tables get a
+pill-shaped soft header row and the existing hover; forms get
+12px controls and a blue focus ring. Logical properties only —
+the Sprint 22 census discipline was re-run on the rewritten
+stylesheet: zero physical direction declarations.
+(4) **The dashboard is a true bento grid** — KPI tile row,
+chart tile (2fr) beside the performance tile (1fr), a
+quick-actions tile (330px) beside recent sales, an 8-tile mini
+stat grid, then the Sprint 11 bottom stacks. Every tile is backed
+by the same `dashboard_data` the Sprint 11 tests pin: the helpers,
+the numbers and the honest empty states are untouched — this is a
+re-skin and a rearrangement, not new data. Quick actions are the
+five create routes (sales/purchase invoice, journal, payment,
+product — their headings reuse the create pages' already-
+catalogued strings), shown only when the user's role reaches
+OPERATE in the dashboard's company (`company_can`, ADR-050
+pattern): a VIEWER gets every read tile and no action tile, and
+the sales tile spans the freed column. One new msgid was needed
+(the tile heading «دسترسی سریع» / "Quick actions"), catalogued
+additively; the catalogues' remaining diff is `#:` location churn
+from the template rewrites.
+(5) **Zero external is a pinned property, not a convention.** A
+test scans every template and `app.css` for `http://`, `https://`,
+protocol-relative and CDN references, asserts every CSS `url()`
+is a relative vendored-font path, asserts every template `<use>`
+target exists in the sprite (and every sprite symbol is used,
+no duplicate ids, no `<svg viewBox` left in templates), and
+asserts the eight font files are the ones `@font-face` declares
+with wOF2 magic. Print templates are untouched (they use no DS
+assets beyond the shared stylesheet, whose print block is
+preserved verbatim).
+(6) **Scope kept.** No models, no migration, no view or service
+changes; other pages inherit the v3 tokens through `app.css`
+without template restructuring (icon swaps + the dashboard are
+the only template edits, plus the auth pages' brand mark).
+Verification without a browser: this environment has no headless
+browser, so the visual claim rests on served-output evidence —
+the standalone launcher and the frozen bundle both served the
+login/setup/dashboard pages (fa/rtl and en/ltr) with all fonts
+and the sprite at 200 with correct content types and zero
+external URLs in the served HTML; a human eye-check remains the
+final pixel check, as with Sprint 22.

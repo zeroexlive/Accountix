@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 21:10+0330\n"
+"POT-Creation-Date: 2026-11-03 21:34+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -65,7 +65,7 @@ msgstr ""
 #: templates/accounting/journal_detail.html:6
 #: templates/accounting/journal_form.html:17
 #: templates/accounting/opening_balance_form.html:33
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:85
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:100
 msgid "حساب"
 msgstr "Account"
 
@@ -91,7 +91,7 @@ msgstr "Credit"
 #: apps/inventory/forms.py:134 apps/treasury/forms.py:230
 #: templates/accounting/journal_detail.html:6
 #: templates/accounting/journal_form.html:17
-#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:91
+#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:106
 #: templates/inventory/count_form.html:14
 #: templates/inventory/document_form.html:15
 #: templates/treasury/statement_detail.html:21
@@ -558,7 +558,7 @@ msgid "نام انبار"
 msgstr "Warehouse name"
 
 #: apps/inventory/forms.py:33 apps/inventory/forms.py:124
-#: apps/purchases/forms.py:30 apps/sales/forms.py:27 templates/base.html:30
+#: apps/purchases/forms.py:30 apps/sales/forms.py:27 templates/base.html:31
 #: templates/inventory/count_form.html:12 templates/inventory/count_list.html:5
 #: templates/inventory/document_form.html:12
 #: templates/inventory/document_list.html:5
@@ -1196,7 +1196,7 @@ msgid "نوع طرف‌حساب"
 msgstr "Party type"
 
 #: apps/parties/forms.py:19 templates/accounting/account_list.html:3
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:87
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:102
 #: templates/parties/party_list.html:4 templates/purchases/ap_summary.html:8
 #: templates/sales/ar_summary.html:8
 msgid "کد"
@@ -1281,7 +1281,7 @@ msgstr "Party %(code)s is not a customer."
 msgid "طرف‌حساب ذخیره شد."
 msgstr "The party was saved."
 
-#: apps/purchases/forms.py:27 templates/core/dashboard.html:93
+#: apps/purchases/forms.py:27 templates/core/dashboard.html:108
 #: templates/purchases/ap_summary.html:8
 #: templates/purchases/invoice_form.html:9
 #: templates/purchases/invoice_list.html:11
@@ -1603,7 +1603,7 @@ msgstr ""
 msgid "هنوز کالای دارای موجودی ثبت نشده است."
 msgstr "No stocked item has been recorded yet."
 
-#: apps/sales/forms.py:24 templates/core/dashboard.html:68
+#: apps/sales/forms.py:24 templates/core/dashboard.html:82
 #: templates/sales/ar_summary.html:8 templates/sales/customer_statement.html:7
 #: templates/sales/invoice_form.html:9 templates/sales/invoice_list.html:11
 msgid "مشتری"
@@ -1911,8 +1911,8 @@ msgid "مبلغ"
 msgstr "Amount"
 
 #: apps/treasury/forms.py:51 templates/accounting/journal_list.html:9
-#: templates/core/dashboard.html:68 templates/core/dashboard.html:91
-#: templates/core/dashboard.html:93 templates/inventory/count_list.html:5
+#: templates/core/dashboard.html:82 templates/core/dashboard.html:106
+#: templates/core/dashboard.html:108 templates/inventory/count_list.html:5
 #: templates/inventory/document_list.html:5
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:31
@@ -2678,8 +2678,8 @@ msgstr "Your password has been changed."
 msgid "دسترسی مجاز نیست"
 msgstr "Access denied"
 
-#: templates/403.html:2 templates/base.html:6 templates/base.html:22
-#: templates/base.html:72 templates/registration/lockout.html:5
+#: templates/403.html:2 templates/base.html:6 templates/base.html:23
+#: templates/base.html:73 templates/registration/lockout.html:5
 #: templates/registration/login.html:5 templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr "Accountix"
@@ -2737,7 +2737,7 @@ msgstr "Save"
 msgid "سرفصل حساب‌ها"
 msgstr "Chart of accounts"
 
-#: templates/accounting/account_list.html:3 templates/core/dashboard.html:85
+#: templates/accounting/account_list.html:3 templates/core/dashboard.html:100
 #: templates/inventory/document_list.html:5 templates/parties/party_list.html:4
 #: templates/treasury/account_list.html:4 templates/treasury/open_items.html:3
 msgid "نوع"
@@ -2757,7 +2757,7 @@ msgstr "Postable"
 msgid "موردی نیست"
 msgstr "No items"
 
-#: templates/accounting/balance_sheet.html:2 templates/base.html:53
+#: templates/accounting/balance_sheet.html:2 templates/base.html:54
 msgid "ترازنامه"
 msgstr "Balance sheet"
 
@@ -2824,7 +2824,7 @@ msgstr "Balanced"
 msgid "یک شرکت انتخاب کنید."
 msgstr "Select a company."
 
-#: templates/accounting/income_statement.html:2 templates/base.html:52
+#: templates/accounting/income_statement.html:2 templates/base.html:53
 msgid "صورت سود و زیان"
 msgstr "Income statement"
 
@@ -2935,7 +2935,7 @@ msgid "بازگشت به دفتر روزنامه"
 msgstr "Back to the journal"
 
 #: templates/accounting/journal_form.html:2
-#: templates/accounting/journal_list.html:3
+#: templates/accounting/journal_list.html:3 templates/core/dashboard.html:75
 msgid "سند دستی جدید"
 msgstr "New manual entry"
 
@@ -3000,12 +3000,12 @@ msgstr "Create draft document"
 msgid "بازگشت"
 msgstr "Back"
 
-#: templates/accounting/journal_list.html:2 templates/base.html:28
+#: templates/accounting/journal_list.html:2 templates/base.html:29
 msgid "دفتر روزنامه"
 msgstr "Journal"
 
 #: templates/accounting/journal_list.html:5
-#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:91
+#: templates/accounting/journal_list.html:9 templates/core/dashboard.html:106
 #: templates/inventory/count_list.html:5
 #: templates/inventory/document_list.html:5
 #: templates/organizations/company_list.html:3
@@ -3054,7 +3054,7 @@ msgstr "Document"
 msgid "سندی یافت نشد"
 msgstr "No entry found"
 
-#: templates/accounting/opening_balance_form.html:2 templates/base.html:29
+#: templates/accounting/opening_balance_form.html:2 templates/base.html:30
 msgid "تراز افتتاحیه"
 msgstr "Opening balance"
 
@@ -3087,7 +3087,7 @@ msgstr ""
 msgid "استفاده کنید؛ مانده‌های فعلی انبار را در"
 msgstr "page; you can see current stock balances in the"
 
-#: templates/accounting/opening_balance_form.html:6 templates/base.html:32
+#: templates/accounting/opening_balance_form.html:6 templates/base.html:33
 #: templates/inventory/stock_balances.html:2
 msgid "موجودی انبار"
 msgstr "Stock balances"
@@ -3135,7 +3135,7 @@ msgstr ""
 "This company has no fiscal year yet. First create a fiscal year in the "
 "Organization section."
 
-#: templates/accounting/trial_balance.html:2 templates/base.html:51
+#: templates/accounting/trial_balance.html:2 templates/base.html:52
 msgid "تراز آزمایشی"
 msgstr "Trial balance"
 
@@ -3151,7 +3151,7 @@ msgstr "CSV export"
 msgid "خروجی Excel"
 msgstr "Excel export"
 
-#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:85
+#: templates/accounting/trial_balance.html:12 templates/core/dashboard.html:100
 #: templates/treasury/account_list.html:4
 #: templates/treasury/payment_detail.html:32
 msgid "مانده"
@@ -3161,131 +3161,131 @@ msgstr "Balance"
 msgid "متوازن:"
 msgstr "Balanced:"
 
-#: templates/base.html:22
+#: templates/base.html:23
 msgid "نرم‌افزار حسابداری و انبار"
 msgstr "Accounting & inventory software"
 
-#: templates/base.html:25 templates/core/dashboard.html:3
+#: templates/base.html:26 templates/core/dashboard.html:3
 msgid "داشبورد"
 msgstr "Dashboard"
 
-#: templates/base.html:26
+#: templates/base.html:27
 msgid "حسابداری"
 msgstr "Accounting"
 
-#: templates/base.html:27
+#: templates/base.html:28
 msgid "حساب‌ها"
 msgstr "Accounts"
 
-#: templates/base.html:31 templates/inventory/product_list.html:2
+#: templates/base.html:32 templates/inventory/product_list.html:2
 msgid "محصولات"
 msgstr "Products"
 
-#: templates/base.html:33 templates/inventory/movement_list.html:2
+#: templates/base.html:34 templates/inventory/movement_list.html:2
 msgid "حرکات انبار"
 msgstr "Stock movements"
 
-#: templates/base.html:34 templates/inventory/count_list.html:2
+#: templates/base.html:35 templates/inventory/count_list.html:2
 msgid "انبارگردانی‌ها"
 msgstr "Inventory counts"
 
-#: templates/base.html:35 templates/inventory/document_list.html:2
+#: templates/base.html:36 templates/inventory/document_list.html:2
 msgid "اسناد انبار"
 msgstr "Stock documents"
 
-#: templates/base.html:36
+#: templates/base.html:37
 msgid "خرید و فروش"
 msgstr "Purchases & sales"
 
-#: templates/base.html:37 templates/parties/party_list.html:2
+#: templates/base.html:38 templates/parties/party_list.html:2
 msgid "طرف‌حساب‌ها"
 msgstr "Parties"
 
-#: templates/base.html:38 templates/purchases/invoice_list.html:2
+#: templates/base.html:39 templates/purchases/invoice_list.html:2
 msgid "فاکتورهای خرید"
 msgstr "Purchase invoices"
 
-#: templates/base.html:39
+#: templates/base.html:40
 msgid "بدهی به تأمین‌کنندگان"
 msgstr "Accounts payable"
 
-#: templates/base.html:40 templates/sales/invoice_list.html:2
+#: templates/base.html:41 templates/sales/invoice_list.html:2
 msgid "فاکتورهای فروش"
 msgstr "Sales invoices"
 
-#: templates/base.html:41
+#: templates/base.html:42
 msgid "مطالبات از مشتریان"
 msgstr "Accounts receivable"
 
-#: templates/base.html:42 templates/sales/customer_statement.html:2
+#: templates/base.html:43 templates/sales/customer_statement.html:2
 msgid "صورت‌حساب مشتری"
 msgstr "Customer statement"
 
-#: templates/base.html:43
+#: templates/base.html:44
 msgid "خزانه‌داری"
 msgstr "Treasury"
 
-#: templates/base.html:44 templates/core/dashboard.html:85
+#: templates/base.html:45 templates/core/dashboard.html:100
 #: templates/treasury/account_list.html:2
 msgid "حساب‌های خزانه"
 msgstr "Treasury accounts"
 
-#: templates/base.html:45
+#: templates/base.html:46
 msgid "دریافت و پرداخت"
 msgstr "Receipts & payments"
 
-#: templates/base.html:46 templates/treasury/cheque_list.html:2
+#: templates/base.html:47 templates/treasury/cheque_list.html:2
 msgid "چک‌ها"
 msgstr "Cheques"
 
-#: templates/base.html:47 templates/treasury/open_items.html:2
+#: templates/base.html:48 templates/treasury/open_items.html:2
 msgid "اقلام باز"
 msgstr "Open items"
 
-#: templates/base.html:48 templates/treasury/statement_list.html:2
+#: templates/base.html:49 templates/treasury/statement_list.html:2
 msgid "تطبیق بانکی"
 msgstr "Bank reconciliation"
 
-#: templates/base.html:49 templates/treasury/cheque_book_list.html:2
+#: templates/base.html:50 templates/treasury/cheque_book_list.html:2
 msgid "دفترچه‌های چک"
 msgstr "Cheque books"
 
-#: templates/base.html:50
+#: templates/base.html:51
 msgid "گزارش‌ها"
 msgstr "Reports"
 
-#: templates/base.html:54
+#: templates/base.html:55
 msgid "سازمان"
 msgstr "Organization"
 
-#: templates/base.html:55 templates/organizations/company_list.html:2
+#: templates/base.html:56 templates/organizations/company_list.html:2
 msgid "شرکت‌ها"
 msgstr "Companies"
 
-#: templates/base.html:56 templates/organizations/fiscal_year_list.html:2
+#: templates/base.html:57 templates/organizations/fiscal_year_list.html:2
 msgid "سال‌های مالی"
 msgstr "Fiscal years"
 
-#: templates/base.html:60
+#: templates/base.html:61
 msgid "کاربر سیستم"
 msgstr "System user"
 
-#: templates/base.html:61
+#: templates/base.html:62
 msgid "خروج"
 msgstr "Log out"
 
-#: templates/base.html:64 templates/users/profile.html:3
+#: templates/base.html:65 templates/users/profile.html:3
 #: templates/users/profile.html:5
 msgid "پروفایل من"
 msgstr "My profile"
 
-#: templates/base.html:65 templates/users/password_change.html:3
+#: templates/base.html:66 templates/users/password_change.html:3
 #: templates/users/password_change.html:5
 #: templates/users/password_change.html:7 templates/users/profile.html:14
 msgid "تغییر گذرواژه"
 msgstr "Change password"
 
-#: templates/base.html:68 templates/registration/login.html:9
+#: templates/base.html:69 templates/registration/login.html:9
 msgid "نسخه"
 msgstr "Version"
 
@@ -3301,97 +3301,121 @@ msgstr "You have no company yet."
 msgid "ایجاد شرکت"
 msgstr "Create company"
 
-#: templates/core/dashboard.html:11
+#: templates/core/dashboard.html:12
 msgid "دوره جاری:"
 msgstr "Current period:"
 
-#: templates/core/dashboard.html:12
+#: templates/core/dashboard.html:13
 msgid "تا"
 msgstr "to"
 
-#: templates/core/dashboard.html:12
+#: templates/core/dashboard.html:13
 msgid "دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است."
 msgstr ""
 "There is no open period — periodic figures are zero and the income statement "
 "is cumulative."
 
-#: templates/core/dashboard.html:16
+#: templates/core/dashboard.html:17
 msgid "درآمد دوره"
 msgstr "Period revenue"
 
-#: templates/core/dashboard.html:18 templates/core/dashboard.html:21
-#: templates/core/dashboard.html:24
+#: templates/core/dashboard.html:19 templates/core/dashboard.html:22
+#: templates/core/dashboard.html:25
 msgid "دوره قبل:"
 msgstr "Previous period:"
 
-#: templates/core/dashboard.html:18 templates/core/dashboard.html:21
-#: templates/core/dashboard.html:24
+#: templates/core/dashboard.html:19 templates/core/dashboard.html:22
+#: templates/core/dashboard.html:25
 msgid "دوره قبلی برای مقایسه وجود ندارد"
 msgstr "No previous period to compare"
 
-#: templates/core/dashboard.html:19
+#: templates/core/dashboard.html:20
 msgid "فروش دوره"
 msgstr "Period sales"
 
-#: templates/core/dashboard.html:22
+#: templates/core/dashboard.html:23
 msgid "خرید دوره"
 msgstr "Period purchases"
 
-#: templates/core/dashboard.html:25
+#: templates/core/dashboard.html:26
 msgid "موجودی نقد و بانک"
 msgstr "Cash & bank balance"
 
-#: templates/core/dashboard.html:27
+#: templates/core/dashboard.html:28
 msgid "صندوق:"
 msgstr "Cash:"
 
-#: templates/core/dashboard.html:27
+#: templates/core/dashboard.html:28
 msgid "بانک:"
 msgstr "Bank:"
 
-#: templates/core/dashboard.html:33
+#: templates/core/dashboard.html:34
 msgid "درآمد و هزینه"
 msgstr "Revenue & expenses"
 
-#: templates/core/dashboard.html:33
+#: templates/core/dashboard.html:34
 msgid "به تفکیک دوره‌های سال مالی"
 msgstr "By fiscal-year period"
 
-#: templates/core/dashboard.html:35
+#: templates/core/dashboard.html:36
 msgid "درآمد"
 msgstr "Revenue"
 
-#: templates/core/dashboard.html:36
+#: templates/core/dashboard.html:37
 msgid "هزینه"
 msgstr "Expenses"
 
-#: templates/core/dashboard.html:44
+#: templates/core/dashboard.html:45
 #, python-format
 msgid "درآمد %(label)s: %(value)s"
 msgstr "Revenue %(label)s: %(value)s"
 
-#: templates/core/dashboard.html:45
+#: templates/core/dashboard.html:46
 #, python-format
 msgid "هزینه %(label)s: %(value)s"
 msgstr "Expenses %(label)s: %(value)s"
 
-#: templates/core/dashboard.html:51
+#: templates/core/dashboard.html:52
 msgid "دوره‌ای برای نمایش نمودار وجود ندارد."
 msgstr "No period to chart."
 
-#: templates/core/dashboard.html:54
+#: templates/core/dashboard.html:55
 msgid "عملکرد"
 msgstr "Performance"
 
-#: templates/core/dashboard.html:67
+#: templates/core/dashboard.html:71
+msgid "دسترسی سریع"
+msgstr "Quick actions"
+
+#: templates/core/dashboard.html:73 templates/sales/invoice_form.html:2
+#: templates/sales/invoice_list.html:3
+msgid "فاکتور فروش جدید"
+msgstr "New sales invoice"
+
+#: templates/core/dashboard.html:74 templates/purchases/invoice_form.html:2
+#: templates/purchases/invoice_list.html:3
+msgid "فاکتور خرید جدید"
+msgstr "New purchase invoice"
+
+#: templates/core/dashboard.html:76 templates/treasury/payment_form.html:2
+#: templates/treasury/payment_list.html:3
+msgid "دریافت / پرداخت جدید"
+msgstr "New receipt / payment"
+
+#: templates/core/dashboard.html:77 templates/inventory/product_form.html:2
+#: templates/inventory/product_list.html:3
+msgid "کالای جدید"
+msgstr "New product"
+
+#: templates/core/dashboard.html:81
 msgid "آخرین فاکتورهای فروش"
 msgstr "Latest sales invoices"
 
-#: templates/core/dashboard.html:67
+#: templates/core/dashboard.html:81
 msgid "همه فاکتورها"
 msgstr "All invoices"
 
-#: templates/core/dashboard.html:68 templates/core/dashboard.html:93
+#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
 #: templates/purchases/invoice_detail.html:31
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:15
@@ -3400,7 +3424,7 @@ msgstr "All invoices"
 msgid "شماره"
 msgstr "Number"
 
-#: templates/core/dashboard.html:68 templates/core/dashboard.html:93
+#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:13
 #: templates/sales/invoice_list.html:11 templates/treasury/open_items.html:3
@@ -3408,7 +3432,7 @@ msgstr "Number"
 msgid "مبلغ کل"
 msgstr "Total"
 
-#: templates/core/dashboard.html:68 templates/core/dashboard.html:93
+#: templates/core/dashboard.html:82 templates/core/dashboard.html:108
 #: templates/purchases/invoice_list.html:6
 #: templates/purchases/invoice_list.html:11
 #: templates/sales/customer_statement.html:13
@@ -3416,27 +3440,27 @@ msgstr "Total"
 msgid "وضعیت پرداخت"
 msgstr "Payment status"
 
-#: templates/core/dashboard.html:69 templates/core/dashboard.html:94
+#: templates/core/dashboard.html:83 templates/core/dashboard.html:109
 msgid "فاکتوری ثبت نشده است."
 msgstr "No invoice recorded."
 
-#: templates/core/dashboard.html:72
+#: templates/core/dashboard.html:87
 msgid "مطالبات از مشتریان (معین)"
 msgstr "Accounts receivable (subsidiary)"
 
-#: templates/core/dashboard.html:73
+#: templates/core/dashboard.html:88
 msgid "بدهی به تأمین‌کنندگان (معین)"
 msgstr "Accounts payable (subsidiary)"
 
-#: templates/core/dashboard.html:74
+#: templates/core/dashboard.html:89
 msgid "ارزش موجودی انبار"
 msgstr "Inventory value"
 
-#: templates/core/dashboard.html:75
+#: templates/core/dashboard.html:90
 msgid "سود خالص دوره"
 msgstr "Period net income"
 
-#: templates/core/dashboard.html:76
+#: templates/core/dashboard.html:91
 msgid ""
 "سود ناخالص فقط در صفحه صورت سود و زیان و پس از تعیین حساب‌های بهای تمام‌شده "
 "نمایش داده می‌شود."
@@ -3444,60 +3468,60 @@ msgstr ""
 "Gross profit is shown only on the income statement page, after the cost-of-"
 "goods-sold accounts are designated."
 
-#: templates/core/dashboard.html:77
+#: templates/core/dashboard.html:92
 msgid "اقلام باز — دریافتنی"
 msgstr "Open items — receivable"
 
-#: templates/core/dashboard.html:78
+#: templates/core/dashboard.html:93
 msgid "اقلام باز — پرداختنی"
 msgstr "Open items — payable"
 
-#: templates/core/dashboard.html:79
+#: templates/core/dashboard.html:94
 msgid "چک‌های وصول‌نشده"
 msgstr "Outstanding cheques"
 
-#: templates/core/dashboard.html:79
+#: templates/core/dashboard.html:94
 #, python-format
 msgid "%(count)s فقره"
 msgstr "%(count)s cheques"
 
-#: templates/core/dashboard.html:79
+#: templates/core/dashboard.html:94
 msgid "مبلغ:"
 msgstr "Amount:"
 
-#: templates/core/dashboard.html:80
+#: templates/core/dashboard.html:95
 msgid "کالاهای کم‌موجودی"
 msgstr "Low-stock items"
 
-#: templates/core/dashboard.html:86
+#: templates/core/dashboard.html:101
 msgid "حساب خزانه‌ای تعریف نشده است."
 msgstr "No treasury account defined."
 
-#: templates/core/dashboard.html:87
+#: templates/core/dashboard.html:102
 msgid "هشدار موجودی"
 msgstr "Stock alerts"
 
-#: templates/core/dashboard.html:87 templates/inventory/stock_balances.html:13
+#: templates/core/dashboard.html:102 templates/inventory/stock_balances.html:13
 msgid "محصول"
 msgstr "Product"
 
-#: templates/core/dashboard.html:87
+#: templates/core/dashboard.html:102
 msgid "موجودی"
 msgstr "Stock"
 
-#: templates/core/dashboard.html:87
+#: templates/core/dashboard.html:102
 msgid "حداقل"
 msgstr "Minimum"
 
-#: templates/core/dashboard.html:91
+#: templates/core/dashboard.html:106
 msgid "آخرین اسناد دفتر روزنامه"
 msgstr "Latest journal entries"
 
-#: templates/core/dashboard.html:92
+#: templates/core/dashboard.html:107
 msgid "سندی ثبت نشده است."
 msgstr "No entry recorded."
 
-#: templates/core/dashboard.html:93
+#: templates/core/dashboard.html:108
 msgid "آخرین فاکتورهای خرید"
 msgstr "Latest purchase invoices"
 
@@ -3756,11 +3780,6 @@ msgstr "No movement found."
 #, python-format
 msgid "ویرایش کالا %(sku)s"
 msgstr "Edit product %(sku)s"
-
-#: templates/inventory/product_form.html:2
-#: templates/inventory/product_list.html:3
-msgid "کالای جدید"
-msgstr "New product"
 
 #: templates/inventory/product_form.html:8
 msgid "ذخیره کالا"
@@ -4288,11 +4307,6 @@ msgstr "Reverse invoice"
 msgid "برگشت‌ها"
 msgstr "Returns"
 
-#: templates/purchases/invoice_form.html:2
-#: templates/purchases/invoice_list.html:3
-msgid "فاکتور خرید جدید"
-msgstr "New purchase invoice"
-
 #: templates/purchases/invoice_form.html:6 templates/sales/invoice_form.html:6
 #, python-format
 msgid "شرکت: <strong>%(name)s</strong>"
@@ -4534,10 +4548,6 @@ msgstr ""
 "On posting, the stock issue and the revenue and cost-of-goods-sold journal "
 "entries are created together. Choose the general ledger accounts for this "
 "document."
-
-#: templates/sales/invoice_form.html:2 templates/sales/invoice_list.html:3
-msgid "فاکتور فروش جدید"
-msgstr "New sales invoice"
 
 #: templates/sales/invoice_list.html:7
 msgid "جستجوی مشتری"
@@ -4994,11 +5004,6 @@ msgstr ""
 #: templates/treasury/payment_detail.html:44
 msgid "برگشت‌زدن دریافت/پرداخت"
 msgstr "Reverse receipt/payment"
-
-#: templates/treasury/payment_form.html:2
-#: templates/treasury/payment_list.html:3
-msgid "دریافت / پرداخت جدید"
-msgstr "New receipt / payment"
 
 #: templates/treasury/payment_form.html:19
 msgid "مشخصات چک (فقط برای روش «چک»)"

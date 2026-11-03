@@ -4,9 +4,12 @@ Sprint 19 made ``dir="ltr"`` *unbroken* (the stylesheet was already
 logical-property based; two physical holdouts were converted). This
 module pins the Sprint 22 design layer on top of it:
 
-- the served stylesheet carries the English-mode rules: a Latin-first
-  font stack scoped to ``html[lang="en"]``, tabular numerals for the
-  English display figures, and the ``[dir="ltr"] .flip-rtl``
+- the served stylesheet carries the direction rules: since Sprint 28
+  (ADR-053) both locales share ONE self-hosted webfont stack
+  (``"Inter", "Vazirmatn", …`` — per-character fallback replaced the
+  Sprint 22 ``html[lang="en"]`` system stack, which is why those pins
+  moved to ``test_design_v3.py``), tabular numerals for display
+  figures in both scripts, and the ``[dir="ltr"] .flip-rtl``
   directional-icon mirroring rule (ADR-048's icon policy);
 - the numeric-column rule — figure columns carry the ``num`` hook and
   align to the inline-start in BOTH directions (``td.num`` is
@@ -70,13 +73,14 @@ def _css_text():
 
 def test_stylesheet_ships_ltr_design_rules():
     css = _css_text()
-    # Latin-first English font stack, Tahoma kept as a late fallback,
-    # scoped so Persian rendering is untouched.
-    assert 'html[lang="en"] body' in css
-    assert "system-ui" in css
-    assert '"Segoe UI",Roboto' in css
-    # Tabular numerals for English display figures.
-    assert 'html[lang="en"] .kpi-value' in css
+    # Sprint 28 (ADR-053): one combined self-hosted stack for both
+    # locales — Latin falls to Inter, Persian to Vazirmatn per glyph.
+    # The Sprint 22 html[lang="en"] system stack is superseded; the
+    # webfont pins themselves live in test_design_v3.py.
+    assert '"Inter","Vazirmatn"' in css
+    assert 'html[lang="en"] body' not in css
+    # Tabular numerals for display figures (both scripts now).
+    assert ".kpi-value,.lg-value,.perf-pct" in css
     assert "font-variant-numeric:tabular-nums" in css
     # Directional-icon mirroring rule (ADR-048 policy mechanism).
     assert '[dir="ltr"] .flip-rtl' in css

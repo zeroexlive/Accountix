@@ -26,6 +26,33 @@ cp .env.example .env
 cd backend && ../.venv/bin/python manage.py migrate && ../.venv/bin/python manage.py compilemessages && ../.venv/bin/python manage.py runserver
 ```
 
+## Vendored font binaries (Sprint 28, ADR-053)
+
+The eight woff2 files under `backend/static/fonts/` (Inter +
+Vazirmatn, 400/500/700/800) are binary artifacts: they are tracked
+in the local repository but cannot travel through the connector's
+UTF-8 `push-files` sync route, so the GitHub copy of the tree does
+not contain them. A clone missing them still runs — `@font-face`
+simply falls back to the system stack — but to restore the DS v3
+typography, re-vendor them from the official releases and verify
+each file against the sha256 table in
+`backend/static/THIRD_PARTY_NOTICES.md`:
+
+```bash
+# Vazirmatn v33.003 (fonts/webfonts/) and Inter v4.1 (web/)
+cp Vazirmatn-Regular.woff2   backend/static/fonts/vazirmatn-400.woff2
+cp Vazirmatn-Medium.woff2    backend/static/fonts/vazirmatn-500.woff2
+cp Vazirmatn-Bold.woff2      backend/static/fonts/vazirmatn-700.woff2
+cp Vazirmatn-ExtraBold.woff2 backend/static/fonts/vazirmatn-800.woff2
+cp Inter-Regular.woff2       backend/static/fonts/inter-400.woff2
+cp Inter-Medium.woff2        backend/static/fonts/inter-500.woff2
+cp Inter-Bold.woff2          backend/static/fonts/inter-700.woff2
+cp Inter-ExtraBold.woff2     backend/static/fonts/inter-800.woff2
+```
+
+The PyInstaller bundle built from a tree that has the fonts ships
+them normally (the spec bundles `backend/static` wholesale).
+
 ## Settings
 `config.settings.local` (default via manage.py), `.test` (in-memory SQLite,
 fast hashers — pytest uses it automatically), `.production` (requires
