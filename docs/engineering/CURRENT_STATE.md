@@ -93,11 +93,29 @@ Modular monolith, single Django project under `backend/`:
   derived helpers in the reporting app (`period_series`, KPI deltas)
   are pinned equal to `income_statement` by tests; no business logic
   changed. Print output is untouched.
+- Update (Sprint 12): the data-entry UI is done — see
+  `SPRINT_12_REPORT.md` and ADR-039. The web UI is no longer
+  read-only: parties, catalog (products/units/categories/warehouses),
+  purchase and sales invoices and returns, treasury accounts,
+  payments, allocations, cheque actions (deposit/clear/bounce/
+  return) and manual journal entries are all created, posted and
+  reversed from the UI, exclusively through the existing services
+  (per-document GL account pickers, ADR-011; `payment_status` still
+  only via the treasury recompute, ADR-024). Two thin accounting
+  service functions (`create_journal_draft` / `post_journal_draft`)
+  were the only service additions. Suite: 258 passed + 3 skipped on
+  SQLite, mypy clean, no model changes. This closes limitation #1 of
+  `RELEASE_READINESS.md`; that Sprint 10 document keeps its verdict
+  as written — the limitation it records is now historical (the
+  remaining readiness items are unchanged: PG restore drill and
+  Windows bundle still NOT VERIFIED, no login rate limiting).
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
   CDN would break the offline-first claim). Interactivity is server-rendered.
-  The web UI is still read-only for business documents.
+  Since Sprint 12 the web UI is fully writable for business documents
+  (data entry through the service layer only — see ADR-039); statement
+  and stock-count pages remain read-only views.
 
 ## 3. Existing functionality (implemented + tested in Sprint 01)
 
