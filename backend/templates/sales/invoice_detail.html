@@ -10,6 +10,24 @@
 <p>جمع جزء: {{ invoice.subtotal }} — تخفیف: {{ invoice.discount_total }} — مالیات: {{ invoice.tax_total }} — <strong>مبلغ کل: {{ invoice.grand_total }}</strong></p>
 <p>سند انبار: {{ invoice.stock_document|default:"—" }} — سند درآمد: {{ invoice.journal_entry|default:"—" }} — سند بهای تمام‌شده: {{ invoice.cogs_journal_entry|default:"—" }}</p>
 </div>
-{% if invoice.returns.all %}<div class="card"><h2>برگشت‌ها</h2><table><tr><th>شماره</th><th>تاریخ</th><th>وضعیت</th><th>مبلغ</th></tr>
-{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date }}</td><td>{{ r.status }}</td><td>{{ r.total_amount }}</td></tr>{% endfor %}</table></div>{% endif %}
+{% if invoice.status == 'DRAFT' and post_form %}
+<div class="card action-card">
+<h2>ثبت نهایی فاکتور</h2>
+<p class="empty">با ثبت نهایی، حواله خروج انبار و اسناد حسابداری درآمد و بهای تمام‌شده به‌صورت یکجا ایجاد می‌شود. حساب‌های دفتر کل را برای همین سند انتخاب کنید.</p>
+<form method="post" action="{% url 'sales_invoice_post' invoice.pk %}">{% csrf_token %}
+{{ post_form.non_field_errors }}
+{{ post_form.as_p }}
+<button type="submit">ثبت نهایی فاکتور</button></form>
+</div>
+{% elif invoice.status == 'POSTED' %}
+<div class="card action-card">
+<h2>عملیات</h2>
+<p><a class="btn" href="{% url 'sales_return_create' invoice.pk %}">ثبت برگشت از این فاکتور</a></p>
+<form method="post" action="{% url 'sales_invoice_reverse' invoice.pk %}" onsubmit="return confirm('این فاکتور به‌طور کامل برگشت می‌خورد. ادامه می‌دهید؟')">{% csrf_token %}
+<p><label>دلیل برگشت (اختیاری)</label><input type="text" name="reason" maxlength="500"></p>
+<button type="submit" class="btn-danger">برگشت‌زدن فاکتور</button></form>
+</div>
+{% endif %}
+{% if invoice.returns.all %}<div class="card"><h2>برگشت‌ها</h2><table><tr><th>شماره</th><th>تاریخ</th><th>وضعیت</th><th>مبلغ</th><th></th></tr>
+{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date }}</td><td>{{ r.status }}</td><td>{{ r.total_amount }}</td><td><a href="{% url 'sales_return_detail' r.pk %}">جزئیات</a></td></tr>{% endfor %}</table></div>{% endif %}
 {% endblock %}
