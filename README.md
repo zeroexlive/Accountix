@@ -17,9 +17,11 @@ for international markets without a rewrite.
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
-> the same reporting services. Headline limitation: the web UI is
-> read-only for business documents (posting happens through the
-> service layer / admin) — see `docs/engineering/CURRENT_STATE.md`.
+> the same reporting services. Sprint 12 (ADR-039) closed the old
+> headline limitation: the web UI now does full data entry — parties,
+> catalog, purchase/sales invoices and returns, treasury, cheque
+> actions and manual journals — always through the service layer,
+> never around it — see `docs/engineering/CURRENT_STATE.md`.
 
 ## Stack
 
