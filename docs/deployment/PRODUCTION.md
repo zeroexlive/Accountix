@@ -15,8 +15,15 @@ cookies/HSTS.
   not a production-sized deployment.
 - `backup_db`'s PostgreSQL path (`pg_dump`, custom format) **has now
   been executed** and produced a verified-readable archive. Restore
-  remains an operational `pg_restore` procedure that has **never been
-  executed** — run a restore drill in staging before trusting it.
+  was **executed and verified in the Sprint 17 staging drill**
+  (2026-11-03): a seeded PostgreSQL 16.2 database was dumped,
+  restored into a fresh empty database with the procedure below, and
+  the restored database matched the source fingerprint exactly
+  (all 58 table row counts, trial balance, stock, payment statuses),
+  passed `manage.py check`, accepted a real login, and took new
+  postings — see `docs/engineering/SPRINT_17_REPORT.md`. Release
+  gate #15 is therefore VERIFIED; `RELEASE_READINESS.md` itself is a
+  Sprint 10 artifact and keeps its historical table.
 - Deploy check (`check --deploy`, production settings, real secret):
   the only warning is `security.W021` (HSTS preload). Preload
   submission is an operator decision; enable `SECURE_HSTS_PRELOAD`
@@ -31,7 +38,9 @@ cookies/HSTS.
 
 Backup/restore (§19) status: SQLite backup/restore is implemented
 and tested (see LOCAL.md). PostgreSQL backup is implemented and
-verified once (above); PostgreSQL restore is documented-but-unrun.
+verified (Sprint 10), and PostgreSQL restore is implemented as the
+operational procedure below and verified end-to-end in the
+Sprint 17 drill.
 
 ## Login throttling (django-axes, Sprint 16)
 
@@ -67,3 +76,66 @@ behind your own proxy, opt in explicitly: install
 sure the proxy overwrites/strips the headers from clients,
 otherwise clients can spoof addresses and defeat the lockout.
 Never copy someone else's header settings without that check.
+
+## PostgreSQL backup & restore (procedure verified in the Sprint 17 drill)
+
+PostgreSQL restore is an **operational procedure** (ADR-035), not an
+app command: `restore_db` is SQLite-only by design and, pointed at a
+PostgreSQL configuration, refuses with a pointer here. The backup is
+a **custom-format** `pg_dump` archive — a binary file for
+`pg_restore`. Never feed it to `psql`.
+
+1. **Back up** (production settings, `DATABASE_URL` set,
+   `pg_dump`/`pg_restore` on `PATH`):
+
+   ```bash
+   python backend/manage.py backup_db --output /safe/path/accountix-YYYYMMDD.dump
+   pg_restore --list /safe/path/accountix-YYYYMMDD.dump   # sanity: the archive reads back
+   ```
+
+   Without `--output`, `backup_db` writes
+   `backups/accountix-<timestamp>.dump` next to the working
+   directory. `backup_db` shells out to
+   `pg_dump --format=custom --file <dest> "$DATABASE_URL"`.
+
+2. **Create the target database empty**, owned by the role the
+   application connects as:
+
+   ```bash
+   createdb -h <host> -U postgres -O <app-role> accountix_restored
+   # or: CREATE DATABASE accountix_restored OWNER <app-role>;
+   ```
+
+   Restore into a *fresh* database whenever possible; do not restore
+   over the live production database.
+
+3. **Restore** into it:
+
+   ```bash
+   pg_restore --clean --if-exists \
+       -d "postgresql://<app-role>@<host>:5432/accountix_restored" \
+       /safe/path/accountix-YYYYMMDD.dump
+   ```
+
+   Drill result on an empty target: **exit code 0 and no output on
+   stderr at all** — `--if-exists` suppresses the "object does not
+   exist" drop errors a bare `--clean` would emit there. The same
+   flags make the command safe to re-run over a populated target
+   (objects are dropped and recreated); in that case treat any
+   stderr output line by line: `pg_restore` exits non-zero only when
+   an object actually failed to restore.
+
+4. **Verify before pointing traffic at it:**
+
+   ```bash
+   DATABASE_URL=postgresql://<app-role>@<host>:5432/accountix_restored \
+       python backend/manage.py check
+   ```
+
+   Then start the app against the restored database, sign in, and
+   open the dashboard. Restored sequences are sane (the drill posted
+   a new journal entry and wrote new login-attempt rows in the
+   restored database with no key collisions), so no manual sequence
+   repair is needed. If the backup predates a schema change, run
+   `manage.py migrate` after the restore — the restore itself never
+   migrates.

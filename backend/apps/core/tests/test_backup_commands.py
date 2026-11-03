@@ -129,3 +129,48 @@ def test_backup_restore_command_roundtrip(tmp_path):
         "print(list(Company.objects.values_list('name', flat=True)))",
     )
     assert "BackupCo" in names and "JunkCo" not in names
+
+
+# ---------------------------------------------------------------------------
+# PostgreSQL default destination (Sprint 17): the pg_dump archive is
+# custom-format binary, so the default file name must say .dump, not
+# .sql — a .sql name invites operators to feed it to psql. pg_dump
+# itself is mocked; the live path was exercised in the Sprint 17
+# restore drill (SPRINT_17_REPORT.md).
+# ---------------------------------------------------------------------------
+
+
+def test_postgres_default_backup_name_is_dump_not_sql(tmp_path, monkeypatch):
+    from django.core.management import call_command
+    from django.test import override_settings
+
+    captured = {}
+
+    def fake_run(cmd, **kwargs):
+        captured["cmd"] = cmd
+        dest = Path(cmd[cmd.index("--file") + 1])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(b"PGDMP-fake")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr("apps.core.management.commands.backup_db.subprocess.run", fake_run)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.chdir(tmp_path)
+    pg_db = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "accountix",
+            "USER": "u",
+            "PASSWORD": "p",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
+        }
+    }
+    with override_settings(DATABASES=pg_db):
+        call_command("backup_db")
+
+    created = list((tmp_path / "backups").glob("accountix-*"))
+    assert len(created) == 1
+    assert created[0].suffix == ".dump"
+    assert captured["cmd"][0] == "pg_dump"
+    assert "--format=custom" in captured["cmd"]

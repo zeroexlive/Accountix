@@ -78,7 +78,10 @@ class Command(BaseCommand):
             dest = Path(options["output"])
         else:
             base = Path(str(db["NAME"])).parent if db["NAME"] else Path.cwd()
-            dest = base / "backups" / f"accountix-{timestamp_label()}.sql"
+            # Custom-format pg_dump output is a binary archive for
+            # pg_restore, NOT a SQL script — name it .dump so nobody
+            # feeds it to psql (Sprint 17 drill finding).
+            dest = base / "backups" / f"accountix-{timestamp_label()}.dump"
         dest.parent.mkdir(parents=True, exist_ok=True)
         url = os.environ.get("DATABASE_URL", "")
         if not url.startswith(("postgres://", "postgresql://")):

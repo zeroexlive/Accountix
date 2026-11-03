@@ -181,6 +181,32 @@ Modular monolith, single Django project under `backend/`:
   Windows bundle still NOT VERIFIED). Axes ships its own migrations
   (package tables only; no project model changes). Suite: 326
   passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 17): the PostgreSQL restore drill — see
+  `SPRINT_17_REPORT.md`. On an embedded PostgreSQL 16.2 staging
+  instance (the Sprint 10 `pgserver` route), a database seeded
+  through the app's own services (posted purchase + sales invoices,
+  an allocated receipt settling the sale, an issued cheque consuming
+  cheque-book leaf 1001, a posted manual journal, one failed login
+  so the axes tables carry rows) was backed up with `backup_db`
+  (258,443-byte custom-format archive, 546 TOC entries) and restored
+  with the ADR-035 operational procedure into a fresh empty
+  database: `pg_restore --clean --if-exists` exited 0 with empty
+  stderr. The restored database's fingerprint was **identical** to
+  the source (all 58 table row counts — 420 rows — trial balance
+  4275.00/4275.00 balanced, stock 6 units / 600.00 at MWAC 100,
+  sale PAID, purchase PARTIALLY_PAID, leaf 1001 USED), `check`
+  passed, a real login succeeded, dashboard + invoice pages
+  returned 200, and new postings/axes rows wrote cleanly (sequences
+  sane). Release gate #15 moves from NOT VERIFIED to **VERIFIED**
+  (recorded here; `RELEASE_READINESS.md` keeps its Sprint 10
+  table). The drill also exposed that the restore procedure had
+  never actually been written down — PRODUCTION.md claimed
+  "documented-but-unrun" but contained no procedure; it now carries
+  the drill-verified steps. One code fix: `backup_db`'s default
+  PostgreSQL filename ended in `.sql` although the content is a
+  binary custom-format archive — now `.dump`, pinned by a test.
+  Suite: 327 passed + 3 skipped on SQLite, mypy clean. Remaining
+  NOT VERIFIED release item: the Windows bundle only.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -264,7 +290,11 @@ Jalali date display, toman/rial display conversion.
   concurrency tests were **run for the first time in Sprint 10** against
   PostgreSQL 16.2 (embedded `pgserver` instance — this machine has no
   system PostgreSQL): two races failed pre-fix and were fixed (ADR-037).
-  PostgreSQL restore (`pg_restore`) has still never been executed.
+  PostgreSQL restore (`pg_restore --clean --if-exists` into a fresh
+  empty database, ADR-035) was executed and verified in the
+  Sprint 17 staging drill: restored fingerprint identical to the
+  source, app-level verification passed — release gate #15 is
+  VERIFIED (see `SPRINT_17_REPORT.md`).
 - All business models use UUID primary keys, explicit FKs, unique
   constraints per company (branch code, membership, account code).
 
@@ -277,7 +307,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-326 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+327 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -335,8 +365,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    treasury feature is closed). ~~Cheque books~~ — done (Sprint 15,
    ADR-042; with this, ALL Sprint 06 follow-ups are closed).
    ~~Login rate limiting~~ — done (Sprint 16, ADR-043; release
-   gate #20 closed). Post-v1.0 candidates: Windows verification,
-   PG restore drill, .po translations.
+   gate #20 closed). ~~PG restore drill~~ — done (Sprint 17;
+   release gate #15 VERIFIED, and the restore procedure is now
+   actually written in PRODUCTION.md). Post-v1.0 candidates:
+   Windows verification, .po translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
