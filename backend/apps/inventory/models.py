@@ -9,6 +9,7 @@ exactly as accounting balances are derived from journal lines.
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog.models import Product, Unit
 from apps.core.models import TimeStampedUUIDModel
@@ -59,15 +60,15 @@ class StockDocument(TimeStampedUUIDModel):
     TRANSFER it is the source and ``destination_warehouse`` the target."""
 
     class DocType(models.TextChoices):
-        RECEIPT = "RECEIPT", "Receipt"
-        ISSUE = "ISSUE", "Issue"
-        TRANSFER = "TRANSFER", "Transfer"
-        ADJUSTMENT = "ADJUSTMENT", "Adjustment"
+        RECEIPT = "RECEIPT", _("Receipt")
+        ISSUE = "ISSUE", _("Issue")
+        TRANSFER = "TRANSFER", _("Transfer")
+        ADJUSTMENT = "ADJUSTMENT", _("Adjustment")
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="stock_documents")
     warehouse = models.ForeignKey(
@@ -132,13 +133,13 @@ class StockDocument(TimeStampedUUIDModel):
                 )
                 if not allowed:
                     raise ValidationError(
-                        "Posted stock documents are immutable; reverse the document instead."
+                        _("Posted stock documents are immutable; reverse the document instead.")
                     )
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_DOC_STATUSES:
-            raise ValidationError("Posted stock documents cannot be deleted.")
+            raise ValidationError(_("Posted stock documents cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -180,7 +181,7 @@ class StockDocumentLine(TimeStampedUUIDModel):
                 .first()
             )
             if status in _IMMUTABLE_DOC_STATUSES:
-                raise ValidationError("Lines of a posted stock document are immutable.")
+                raise ValidationError(_("Lines of a posted stock document are immutable."))
 
     def save(self, *args, **kwargs):
         self._guard_mutable()
@@ -235,11 +236,11 @@ class StockMovement(TimeStampedUUIDModel):
 
     def save(self, *args, **kwargs):
         if self.pk and StockMovement.objects.filter(pk=self.pk).exists():
-            raise ValidationError("Stock movements are append-only and cannot be modified.")
+            raise ValidationError(_("Stock movements are append-only and cannot be modified."))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        raise ValidationError("Stock movements are append-only and cannot be deleted.")
+        raise ValidationError(_("Stock movements are append-only and cannot be deleted."))
 
     def __str__(self):
         return f"{self.product.sku} {self.quantity_delta} @ {self.warehouse.code}"
@@ -273,9 +274,9 @@ class InventoryCount(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="inventory_counts")
     warehouse = models.ForeignKey(
@@ -335,13 +336,13 @@ class InventoryCount(TimeStampedUUIDModel):
                 )
                 if not allowed:
                     raise ValidationError(
-                        "Posted inventory counts are immutable; reverse the count instead."
+                        _("Posted inventory counts are immutable; reverse the count instead.")
                     )
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_DOC_STATUSES:
-            raise ValidationError("Posted inventory counts cannot be deleted.")
+            raise ValidationError(_("Posted inventory counts cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -387,7 +388,7 @@ class InventoryCountLine(TimeStampedUUIDModel):
                 .first()
             )
             if status in _IMMUTABLE_DOC_STATUSES:
-                raise ValidationError("Lines of a posted inventory count are immutable.")
+                raise ValidationError(_("Lines of a posted inventory count are immutable."))
 
     def save(self, *args, **kwargs):
         self._guard_mutable()

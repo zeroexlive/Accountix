@@ -39,6 +39,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting import reporting as accounting_reporting
 from apps.accounting.models import JournalEntry, JournalLine
@@ -106,7 +107,7 @@ def _require_open(statement):
     from apps.treasury.models import BankStatement
 
     if statement.status != BankStatement.Status.OPEN:
-        raise ValidationError("The statement is completed; reopen it before changing matches.")
+        raise ValidationError(_("The statement is completed; reopen it before changing matches."))
 
 
 @transaction.atomic
@@ -125,13 +126,13 @@ def create_statement(
     from apps.treasury.models import BankStatement, TreasuryAccount
 
     if treasury_account is None or treasury_account.company_id != company.id:
-        raise ValidationError("Treasury account belongs to a different company (or is missing).")
+        raise ValidationError(_("Treasury account belongs to a different company (or is missing)."))
     if treasury_account.kind != TreasuryAccount.Kind.BANK:
-        raise ValidationError("Bank reconciliation needs a BANK treasury account.")
+        raise ValidationError(_("Bank reconciliation needs a BANK treasury account."))
     if not treasury_account.is_active:
-        raise ValidationError("Treasury account is inactive.")
+        raise ValidationError(_("Treasury account is inactive."))
     if end_date < start_date:
-        raise ValidationError("Statement end date is before its start date.")
+        raise ValidationError(_("Statement end date is before its start date."))
     statement = BankStatement.objects.create(
         company=company,
         treasury_account=treasury_account,
@@ -158,14 +159,18 @@ def _assert_not_duplicate(statement, *, line_date, amount, reference, seen=None)
     triple = (line_date, amount, reference)
     if seen is not None and triple in seen:
         raise ValidationError(
-            f"Duplicate statement line ({line_date}, {amount}, {reference!r}) in the import."
+            _("Duplicate statement line (%(line_date)s, %(amount)s, %(reference)r) in the import.")
+            % {"line_date": line_date, "amount": amount, "reference": reference}
         )
     if BankStatementLine.objects.filter(
         statement=statement, line_date=line_date, amount=amount, reference=reference
     ).exists():
         raise ValidationError(
-            f"A statement line with this date, amount and reference already exists "
-            f"({line_date}, {amount}, {reference!r})."
+            _(
+                "A statement line with this date, amount and reference already exists "
+                "(%(line_date)s, %(amount)s, %(reference)r)."
+            )
+            % {"line_date": line_date, "amount": amount, "reference": reference}
         )
 
 
@@ -179,9 +184,9 @@ def add_statement_line(statement, *, line_date, amount, description="", referenc
     _require_open(statement)
     amount = Decimal(str(amount))
     if amount == ZERO:
-        raise ValidationError("A statement line cannot be zero.")
+        raise ValidationError(_("A statement line cannot be zero."))
     if not (statement.start_date <= line_date <= statement.end_date):
-        raise ValidationError("The line date is outside the statement period.")
+        raise ValidationError(_("The line date is outside the statement period."))
     _assert_not_duplicate(statement, line_date=line_date, amount=amount, reference=reference)
     line = BankStatementLine.objects.create(
         company=statement.company,
@@ -209,13 +214,13 @@ def _validate_import_values(values, *, statement, seen):
     (date, amount, reference) duplicate triple. Returns
     (values, error_reason)."""
     if values["amount"] == ZERO:
-        return None, "Amount is zero."
+        return None, _("Amount is zero.")
     if not (statement.start_date <= values["line_date"] <= statement.end_date):
-        return None, "Line date is outside the statement period."
+        return None, _("Line date is outside the statement period.")
     if len(values["reference"]) > 64:
-        return None, "Reference is longer than 64 characters."
+        return None, _("Reference is longer than 64 characters.")
     if len(values["description"]) > 500:
-        return None, "Description is longer than 500 characters."
+        return None, _("Description is longer than 500 characters.")
     try:
         _assert_not_duplicate(
             statement,
@@ -237,12 +242,12 @@ def _parse_import_row(row, *, statement, seen):
     try:
         line_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
     except ValueError:
-        return None, f"Unparseable date {raw_date!r} (expected YYYY-MM-DD)."
+        return None, _("Unparseable date %(date)r (expected YYYY-MM-DD).") % {"date": raw_date}
     if "amount" in row and (row.get("amount") or "").strip() != "":
         try:
             amount = Decimal((row.get("amount") or "").strip())
         except InvalidOperation:
-            return None, f"Unparseable amount {row.get('amount')!r}."
+            return None, _("Unparseable amount %(amount)r.") % {"amount": row.get("amount")}
     else:
         # Debit/credit pair: bank credit is money in (+), bank debit out (-).
         def _col(name):
@@ -252,7 +257,9 @@ def _parse_import_row(row, *, statement, seen):
             try:
                 return Decimal(raw)
             except InvalidOperation:
-                raise ValueError(f"Unparseable {name} {raw!r}.") from None
+                raise ValueError(
+                    _("Unparseable %(name)s %(value)r.") % {"name": name, "value": raw}
+                ) from None
 
         try:
             amount = _col("credit") - _col("debit")
@@ -382,17 +389,21 @@ def create_statement_from_upload(
     opening = Decimal(str(opening_balance))
     closing = Decimal(str(closing_balance))
     if opening + lines_total != closing:
-        message = (
-            f"Statement totals do not agree: opening {opening} + imported lines "
-            f"{lines_total} = {opening + lines_total}, not the stated closing "
-            f"{closing}. No statement was created; correct the closing balance "
+        message = _(
+            "Statement totals do not agree: opening %(opening)s + imported lines "
+            "%(lines_total)s = %(computed)s, not the stated closing "
+            "%(closing)s. No statement was created; correct the closing balance "
             "and try again."
-        )
+        ) % {
+            "opening": opening,
+            "lines_total": lines_total,
+            "computed": opening + lines_total,
+            "closing": closing,
+        }
         if result["rejected"]:
-            message += (
-                f" ({len(result['rejected'])} file row(s) were also rejected — "
-                "see the file preview.)"
-            )
+            message += _(" (%(count)s file row(s) were also rejected — see the file preview.)") % {
+                "count": len(result["rejected"])
+            }
         raise ValidationError(message)
     return statement, result
 
@@ -443,19 +454,19 @@ def match_line(statement_line, journal_line, *, user=None):
     statement = statement_line.statement
     _require_open(statement)
     if statement_line.matched_journal_line_id is not None:
-        raise ValidationError("This statement line is already matched; unmatch it first.")
+        raise ValidationError(_("This statement line is already matched; unmatch it first."))
     if journal_line is None or journal_line.account_id != statement.treasury_account.gl_account_id:
-        raise ValidationError("The book movement is not on this statement's bank GL account.")
+        raise ValidationError(_("The book movement is not on this statement's bank GL account."))
     if journal_line.entry.company_id != statement.company_id:
-        raise ValidationError("The book movement belongs to a different company.")
+        raise ValidationError(_("The book movement belongs to a different company."))
     if journal_line.entry.status not in LEDGER_STATUSES:
-        raise ValidationError("Only posted journal lines can be matched.")
+        raise ValidationError(_("Only posted journal lines can be matched."))
     if BankStatementLine.objects.filter(matched_journal_line=journal_line).exists():
-        raise ValidationError("This book movement is already matched to another statement line.")
+        raise ValidationError(_("This book movement is already matched to another statement line."))
     if signed_amount(journal_line) != statement_line.amount:
         raise ValidationError(
-            f"Amounts do not agree: statement {statement_line.amount} vs "
-            f"book {signed_amount(journal_line)}."
+            _("Amounts do not agree: statement %(statement)s vs book %(book)s.")
+            % {"statement": statement_line.amount, "book": signed_amount(journal_line)}
         )
     _apply_match(statement_line, journal_line, user=user)
     record_event(
@@ -478,7 +489,7 @@ def unmatch_line(statement_line, *, user=None):
     statement_line = BankStatementLine.objects.select_for_update().get(pk=statement_line.pk)
     _require_open(statement_line.statement)
     if statement_line.matched_journal_line_id is None:
-        raise ValidationError("This statement line is not matched.")
+        raise ValidationError(_("This statement line is not matched."))
     statement_line.matched_journal_line = None
     statement_line.matched_at = None
     statement_line.matched_by = None
@@ -602,16 +613,19 @@ def complete_statement(statement, *, user=None):
 
     statement = BankStatement.objects.select_for_update().get(pk=statement.pk)
     if statement.status == BankStatement.Status.COMPLETED:
-        raise ValidationError("This statement is already completed.")
+        raise ValidationError(_("This statement is already completed."))
     summary = reconciliation_summary(statement)
     if summary["unmatched_statement_lines"]:
         raise ValidationError(
-            "The statement still has unmatched lines; book and match them before completing."
+            _("The statement still has unmatched lines; book and match them before completing.")
         )
     if summary["difference"] != ZERO:
         raise ValidationError(
-            f"Reconciliation difference is {summary['difference']}, not zero; "
-            "match the outstanding book movements before completing."
+            _(
+                "Reconciliation difference is %(difference)s, not zero; "
+                "match the outstanding book movements before completing."
+            )
+            % {"difference": summary["difference"]}
         )
     statement.status = BankStatement.Status.COMPLETED
     statement.save(update_fields=["status", "updated_at"])
@@ -632,7 +646,7 @@ def reopen_statement(statement, *, user=None):
 
     statement = BankStatement.objects.select_for_update().get(pk=statement.pk)
     if statement.status != BankStatement.Status.COMPLETED:
-        raise ValidationError("Only a completed statement can be reopened.")
+        raise ValidationError(_("Only a completed statement can be reopened."))
     statement.status = BankStatement.Status.OPEN
     statement.save(update_fields=["status", "updated_at"])
     record_event(

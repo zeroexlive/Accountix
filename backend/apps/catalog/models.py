@@ -8,6 +8,7 @@ movements — never in these fields.
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog import services
 from apps.core.models import TimeStampedUUIDModel
@@ -92,9 +93,9 @@ class Product(TimeStampedUUIDModel):
     def clean(self):
         super().clean()
         if self.category_id and self.category.company_id != self.company_id:
-            raise ValidationError("Product category belongs to a different company.")
+            raise ValidationError(_("Product category belongs to a different company."))
         if self.base_unit_id and self.base_unit.company_id != self.company_id:
-            raise ValidationError("Base unit belongs to a different company.")
+            raise ValidationError(_("Base unit belongs to a different company."))
 
     def __str__(self):
         return f"{self.sku} — {self.name}"

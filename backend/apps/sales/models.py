@@ -27,6 +27,7 @@ from typing import ClassVar
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog.models import Product, Unit
 from apps.core.models import TimeStampedUUIDModel
@@ -65,7 +66,9 @@ def _guard_immutable(instance, model, mutable_fields, label):
                 )
             )
             if not (flip or payment_status_only):
-                raise ValidationError(f"Posted {label} are immutable; reverse instead.")
+                raise ValidationError(
+                    _("Posted %(label)s are immutable; reverse instead.") % {"label": label}
+                )
 
 
 class _LineGuardMixin:
@@ -89,7 +92,9 @@ class _LineGuardMixin:
                 .first()
             )
             if status in self._guard_statuses:
-                raise ValidationError(f"Lines of a posted {self._label} are immutable.")
+                raise ValidationError(
+                    _("Lines of a posted %(label)s are immutable.") % {"label": self._label}
+                )
 
     def save(self, *args, **kwargs):
         self._guard_mutable()
@@ -107,10 +112,10 @@ class _LineGuardMixin:
 
 class SalesQuotation(TimeStampedUUIDModel):
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        SENT = "SENT", "Sent"
-        CONVERTED = "CONVERTED", "Converted"
-        CANCELLED = "CANCELLED", "Cancelled"
+        DRAFT = "DRAFT", _("Draft")
+        SENT = "SENT", _("Sent")
+        CONVERTED = "CONVERTED", _("Converted")
+        CANCELLED = "CANCELLED", _("Cancelled")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales_quotations")
     customer = models.ForeignKey(Party, on_delete=models.PROTECT, related_name="sales_quotations")
@@ -200,14 +205,14 @@ _INVOICE_MUTABLE_FIELDS = {
 
 class SalesInvoice(TimeStampedUUIDModel):
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     class PaymentStatus(models.TextChoices):
-        UNPAID = "UNPAID", "Unpaid"
-        PARTIALLY_PAID = "PARTIALLY_PAID", "Partially paid"
-        PAID = "PAID", "Paid"
+        UNPAID = "UNPAID", _("Unpaid")
+        PARTIALLY_PAID = "PARTIALLY_PAID", _("Partially paid")
+        PAID = "PAID", _("Paid")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales_invoices")
     customer = models.ForeignKey(Party, on_delete=models.PROTECT, related_name="sales_invoices")
@@ -279,7 +284,7 @@ class SalesInvoice(TimeStampedUUIDModel):
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Posted sales invoices cannot be deleted.")
+            raise ValidationError(_("Posted sales invoices cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -376,9 +381,9 @@ class SalesReturn(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"  # via reverse_*_return services (Sprint 07)
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")  # via reverse_*_return services (Sprint 07)
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales_returns")
     original_invoice = models.ForeignKey(
@@ -440,7 +445,7 @@ class SalesReturn(TimeStampedUUIDModel):
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Posted sales returns cannot be deleted.")
+            raise ValidationError(_("Posted sales returns cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):

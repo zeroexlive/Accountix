@@ -1,24 +1,24 @@
-{% extends "base.html" %}{% block content %}
-<h1>ترازنامه</h1>
-<div class="card"><form method="get"><label>شرکت</label>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "ترازنامه" %}</h1>
+<div class="card"><form method="get"><label>{% trans "شرکت" %}</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
-<label>دوره مالی (مانده تا پایان دوره)</label>
-<select name="period"><option value="">بدون دوره</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
-<label>تا تاریخ (میلادی)</label><input type="date" name="as_of" value="{{ request.GET.as_of }}">
-<button type="submit">نمایش</button></form></div>
+<label>{% trans "دوره مالی (مانده تا پایان دوره)" %}</label>
+<select name="period"><option value="">{% trans "بدون دوره" %}</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
+<label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="as_of" value="{{ request.GET.as_of }}">
+<button type="submit">{% trans "نمایش" %}</button></form></div>
 {% if result %}<div class="card"><table>
-<tr><th>حساب</th><th>مبلغ</th></tr>
-<tr><th colspan="2">دارایی‌ها</th></tr>
+<tr><th>{% trans "حساب" %}</th><th>{% trans "مبلغ" %}</th></tr>
+<tr><th colspan="2">{% trans "دارایی‌ها" %}</th></tr>
 {% for r in result.asset_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
-<tr><th>جمع دارایی‌ها</th><th>{{ result.total_assets }}</th></tr>
-<tr><th colspan="2">بدهی‌ها</th></tr>
+<tr><th>{% trans "جمع دارایی‌ها" %}</th><th>{{ result.total_assets }}</th></tr>
+<tr><th colspan="2">{% trans "بدهی‌ها" %}</th></tr>
 {% for r in result.liability_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
-<tr><th>جمع بدهی‌ها</th><th>{{ result.total_liabilities }}</th></tr>
-<tr><th colspan="2">حقوق صاحبان سرمایه</th></tr>
+<tr><th>{% trans "جمع بدهی‌ها" %}</th><th>{{ result.total_liabilities }}</th></tr>
+<tr><th colspan="2">{% trans "حقوق صاحبان سرمایه" %}</th></tr>
 {% for r in result.equity_rows %}<tr><td>{{ r.code }} — {{ r.name }}</td><td>{{ r.amount }}</td></tr>{% endfor %}
-<tr><td>نتیجه دوره جاری (بسته‌نشده)</td><td>{{ result.current_period_result }}</td></tr>
-<tr><th>جمع حقوق صاحبان سرمایه</th><th>{{ result.equity_with_result }}</th></tr>
-<tr><th>جمع بدهی و سرمایه</th><th>{{ result.total_liabilities_and_equity }}</th></tr>
-<tr><th>متوازن</th><th>{{ result.is_balanced }}</th></tr>
+<tr><td>{% trans "نتیجه دوره جاری (بسته‌نشده)" %}</td><td>{{ result.current_period_result }}</td></tr>
+<tr><th>{% trans "جمع حقوق صاحبان سرمایه" %}</th><th>{{ result.equity_with_result }}</th></tr>
+<tr><th>{% trans "جمع بدهی و سرمایه" %}</th><th>{{ result.total_liabilities_and_equity }}</th></tr>
+<tr><th>{% trans "متوازن" %}</th><th>{{ result.is_balanced }}</th></tr>
 </table></div>
-{% else %}<p class="empty">یک شرکت انتخاب کنید.</p>{% endif %}{% endblock %}
+{% else %}<p class="empty">{% trans "یک شرکت انتخاب کنید." %}</p>{% endif %}{% endblock %}

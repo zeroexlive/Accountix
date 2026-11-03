@@ -9,6 +9,7 @@ party (see accounting ADR-015).
 """
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TimeStampedUUIDModel
 from apps.organizations.models import Company
@@ -17,9 +18,9 @@ from apps.parties import services
 
 class Party(TimeStampedUUIDModel):
     class Kind(models.TextChoices):
-        SUPPLIER = "SUPPLIER", "Supplier"
-        CUSTOMER = "CUSTOMER", "Customer"
-        BOTH = "BOTH", "Supplier and customer"
+        SUPPLIER = "SUPPLIER", _("Supplier")
+        CUSTOMER = "CUSTOMER", _("Customer")
+        BOTH = "BOTH", _("Supplier and customer")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="parties")
     kind = models.CharField(max_length=10, choices=Kind.choices, default=Kind.SUPPLIER)

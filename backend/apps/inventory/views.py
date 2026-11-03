@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.catalog.forms import ProductCategoryForm, ProductForm, UnitForm
@@ -58,7 +59,7 @@ def product_create(request):
     form.fields["company"].widget = django_forms.HiddenInput()
     if request.method == "POST" and company is not None and form.is_valid():
         form.save()
-        messages.success(request, "کالا ایجاد شد.")
+        messages.success(request, _("کالا ایجاد شد."))
         return redirect("product_list")
     return render(
         request,
@@ -75,7 +76,7 @@ def product_edit(request, pk):
     form.fields["company"].disabled = True
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "کالا ذخیره شد.")
+        messages.success(request, _("کالا ذخیره شد."))
         return redirect("product_list")
     return render(
         request,
@@ -92,7 +93,7 @@ def unit_create(request):
     form.fields["company"].queryset = member_companies(request.user)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "واحد ایجاد شد.")
+        messages.success(request, _("واحد ایجاد شد."))
         return redirect("product_list")
     return render(request, "inventory/unit_form.html", {"form": form})
 
@@ -109,7 +110,7 @@ def category_create(request):
     ).order_by("code")
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "دسته‌بندی ایجاد شد.")
+        messages.success(request, _("دسته‌بندی ایجاد شد."))
         return redirect("product_list")
     return render(request, "inventory/category_form.html", {"form": form})
 
@@ -122,7 +123,7 @@ def warehouse_create(request):
     form.fields["company"].queryset = member_companies(request.user)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "انبار ایجاد شد.")
+        messages.success(request, _("انبار ایجاد شد."))
         return redirect("product_list")
     return render(request, "inventory/warehouse_form.html", {"form": form})
 
@@ -175,7 +176,7 @@ def inventory_count_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "انبارگردانی ایجاد شد؛ مقادیر شمارش‌شده را وارد کنید.")
+            messages.success(request, _("انبارگردانی ایجاد شد؛ مقادیر شمارش‌شده را وارد کنید."))
             return redirect("inventory_count_detail", pk=count.pk)
     return render(
         request,
@@ -243,7 +244,7 @@ def stock_document_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "سند انبار به‌صورت پیش‌نویس ایجاد شد.")
+            messages.success(request, _("سند انبار به‌صورت پیش‌نویس ایجاد شد."))
             return redirect("stock_document_detail", pk=document.pk)
     return render(
         request,
@@ -253,7 +254,7 @@ def stock_document_create(request):
             "line_formset": formset,
             "companies": companies,
             "company": company,
-            "form_title": "سند انبار جدید",
+            "form_title": _("سند انبار جدید"),
         },
     )
 
@@ -290,7 +291,7 @@ def stock_document_post(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "سند انبار ثبت شد.")
+        messages.success(request, _("سند انبار ثبت شد."))
     return redirect("stock_document_detail", pk=document.pk)
 
 
@@ -303,7 +304,7 @@ def stock_document_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "سند انبار برگشت خورد.")
+        messages.success(request, _("سند انبار برگشت خورد."))
     return redirect("stock_document_detail", pk=document.pk)
 
 
@@ -362,9 +363,9 @@ def inventory_count_save(request, pk):
         except ValidationError as exc:
             messages.error(request, " ".join(exc.messages))
         else:
-            messages.success(request, "مقادیر شمارش ذخیره شد.")
+            messages.success(request, _("مقادیر شمارش ذخیره شد."))
     else:
-        messages.error(request, "مقادیر شمارش معتبر نیست؛ بررسی کنید.")
+        messages.error(request, _("مقادیر شمارش معتبر نیست؛ بررسی کنید."))
     return redirect("inventory_count_detail", pk=count.pk)
 
 
@@ -392,7 +393,7 @@ def inventory_count_post(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "انبارگردانی ثبت نهایی شد.")
+        messages.success(request, _("انبارگردانی ثبت نهایی شد."))
     return redirect("inventory_count_detail", pk=count.pk)
 
 
@@ -407,7 +408,7 @@ def inventory_count_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "انبارگردانی برگشت خورد.")
+        messages.success(request, _("انبارگردانی برگشت خورد."))
     return redirect("inventory_count_detail", pk=count.pk)
 
 

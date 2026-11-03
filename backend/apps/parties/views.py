@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 
 from apps.core.access import member_companies, require_posted_company_member, user_company_ids
 from apps.parties.forms import AddressFormSet, ContactFormSet, PartyForm
@@ -54,7 +55,7 @@ def _party_form_page(request, party=None):
         contacts.save()
         addresses.instance = party
         addresses.save()
-        messages.success(request, "طرف‌حساب ذخیره شد.")
+        messages.success(request, _("طرف‌حساب ذخیره شد."))
         return redirect("party_detail", pk=party.pk)
     return render(
         request,

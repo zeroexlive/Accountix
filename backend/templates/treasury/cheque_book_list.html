@@ -1,14 +1,14 @@
-{% extends "base.html" %}{% block content %}
-<h1>دفترچه‌های چک</h1>
-<p class="empty">دفترچه چک، موجودی برگ‌های چکِ <strong>صادره</strong> از یک حساب بانکی است؛ چک‌های دریافتی کاغذِ طرف‌حساب‌اند و دفترچه ندارند.</p>
-<p><a class="btn" href="{% url 'cheque_book_create' %}">دفترچه چک جدید</a></p>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "دفترچه‌های چک" %}</h1>
+<p class="empty">{% trans "دفترچه چک، موجودی برگ‌های چکِ <strong>صادره</strong> از یک حساب بانکی است؛ چک‌های دریافتی کاغذِ طرف‌حساب‌اند و دفترچه ندارند." %}</p>
+<p><a class="btn" href="{% url 'cheque_book_create' %}">{% trans "دفترچه چک جدید" %}</a></p>
 {% if accounts %}<div class="card"><form method="get" class="inline-form">
-<span><label>حساب بانکی</label>
-<select name="account"><option value="">همه</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>
-<button type="submit">نمایش</button></form></div>{% endif %}
+<span><label>{% trans "حساب بانکی" %}</label>
+<select name="account"><option value="">{% trans "همه" %}</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>
+<button type="submit">{% trans "نمایش" %}</button></form></div>{% endif %}
 <div class="card"><table>
-<tr><th>حساب بانکی</th><th>عنوان</th><th>از شماره</th><th>کل برگ</th><th>باقی‌مانده</th><th>مصرف‌شده</th><th>باطل‌شده</th><th></th></tr>
-{% for b in books %}<tr><td>{{ b.treasury_account.name }}</td><td>{{ b.label|default:"—" }}</td><td>{{ b.first_number }}</td><td>{{ b.total_count }}</td><td><strong>{{ b.unused_count }}</strong></td><td>{{ b.used_count }}</td><td>{{ b.void_count }}</td><td><a href="{% url 'cheque_book_detail' b.pk %}">برگ‌ها</a></td></tr>
-{% empty %}<tr><td colspan="8" class="empty">دفترچه چکی ثبت نشده است.</td></tr>{% endfor %}
+<tr><th>{% trans "حساب بانکی" %}</th><th>{% trans "عنوان" %}</th><th>{% trans "از شماره" %}</th><th>{% trans "کل برگ" %}</th><th>{% trans "باقی‌مانده" %}</th><th>{% trans "مصرف‌شده" %}</th><th>{% trans "باطل‌شده" %}</th><th></th></tr>
+{% for b in books %}<tr><td>{{ b.treasury_account.name }}</td><td>{{ b.label|default:"—" }}</td><td>{{ b.first_number }}</td><td>{{ b.total_count }}</td><td><strong>{{ b.unused_count }}</strong></td><td>{{ b.used_count }}</td><td>{{ b.void_count }}</td><td><a href="{% url 'cheque_book_detail' b.pk %}">{% trans "برگ‌ها" %}</a></td></tr>
+{% empty %}<tr><td colspan="8" class="empty">{% trans "دفترچه چکی ثبت نشده است." %}</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

@@ -22,6 +22,7 @@ Design choices made here (documented as ADRs in DECISIONS.md):
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog.models import Product, Unit
 from apps.core.models import TimeStampedUUIDModel
@@ -33,10 +34,10 @@ from apps.purchases import services
 
 class PurchaseOrder(TimeStampedUUIDModel):
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        APPROVED = "APPROVED", "Approved"
-        CLOSED = "CLOSED", "Closed"
-        CANCELLED = "CANCELLED", "Cancelled"
+        DRAFT = "DRAFT", _("Draft")
+        APPROVED = "APPROVED", _("Approved")
+        CLOSED = "CLOSED", _("Closed")
+        CANCELLED = "CANCELLED", _("Cancelled")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="purchase_orders")
     supplier = models.ForeignKey(Party, on_delete=models.PROTECT, related_name="purchase_orders")
@@ -138,19 +139,21 @@ def _guard_immutable(instance, model, mutable_fields, label):
                 )
             )
             if not (flip or payment_status_only):
-                raise ValidationError(f"Posted {label} are immutable; reverse instead.")
+                raise ValidationError(
+                    _("Posted %(label)s are immutable; reverse instead.") % {"label": label}
+                )
 
 
 class PurchaseInvoice(TimeStampedUUIDModel):
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     class PaymentStatus(models.TextChoices):
-        UNPAID = "UNPAID", "Unpaid"
-        PARTIALLY_PAID = "PARTIALLY_PAID", "Partially paid"
-        PAID = "PAID", "Paid"
+        UNPAID = "UNPAID", _("Unpaid")
+        PARTIALLY_PAID = "PARTIALLY_PAID", _("Partially paid")
+        PAID = "PAID", _("Paid")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="purchase_invoices")
     supplier = models.ForeignKey(Party, on_delete=models.PROTECT, related_name="purchase_invoices")
@@ -213,7 +216,7 @@ class PurchaseInvoice(TimeStampedUUIDModel):
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Posted purchase invoices cannot be deleted.")
+            raise ValidationError(_("Posted purchase invoices cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -272,7 +275,7 @@ class PurchaseInvoiceLine(TimeStampedUUIDModel):
                 .first()
             )
             if status in _IMMUTABLE_STATUSES:
-                raise ValidationError("Lines of a posted purchase invoice are immutable.")
+                raise ValidationError(_("Lines of a posted purchase invoice are immutable."))
 
     def save(self, *args, **kwargs):
         self._guard_mutable()
@@ -313,9 +316,9 @@ class PurchaseReturn(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"  # via reverse_*_return services (Sprint 07)
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")  # via reverse_*_return services (Sprint 07)
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="purchase_returns")
     original_invoice = models.ForeignKey(
@@ -367,7 +370,7 @@ class PurchaseReturn(TimeStampedUUIDModel):
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Posted purchase returns cannot be deleted.")
+            raise ValidationError(_("Posted purchase returns cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -409,7 +412,7 @@ class PurchaseReturnLine(TimeStampedUUIDModel):
                 .first()
             )
             if status in _IMMUTABLE_STATUSES:
-                raise ValidationError("Lines of a posted purchase return are immutable.")
+                raise ValidationError(_("Lines of a posted purchase return are immutable."))
 
     def save(self, *args, **kwargs):
         self._guard_mutable()

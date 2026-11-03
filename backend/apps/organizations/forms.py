@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.organizations.models import Company, FiscalPeriod, FiscalYear
 
@@ -13,7 +14,7 @@ class FiscalCloseForm(forms.Form):
     """
 
     retained_earnings: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, label="حساب سود (زیان) انباشته", required=True
+        queryset=None, label=_("حساب سود (زیان) انباشته"), required=True
     )
 
     def __init__(self, *args, company=None, **kwargs):

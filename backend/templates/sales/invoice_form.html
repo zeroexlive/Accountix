@@ -1,28 +1,28 @@
-{% extends "base.html" %}{% block content %}
-<h1>فاکتور فروش جدید</h1>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "فاکتور فروش جدید" %}</h1>
 {% if not company %}{% include "_company_chooser.html" %}{% else %}
 <form method="post" class="doc-form">{% csrf_token %}
 <div class="card">
-<p>شرکت: <strong>{{ company.name }}</strong></p>
+<p>{% blocktrans with name=company.name %}شرکت: <strong>{{ name }}</strong>{% endblocktrans %}</p>
 {{ form.company }}
 {{ form.non_field_errors }}
-<p><label for="{{ form.customer.id_for_label }}">مشتری</label>{{ form.customer }}{{ form.customer.errors }}</p>
-<p><label for="{{ form.invoice_number.id_for_label }}">شماره فاکتور</label>{{ form.invoice_number }}{{ form.invoice_number.errors }}</p>
-<p><label for="{{ form.invoice_date.id_for_label }}">تاریخ فاکتور</label>{{ form.invoice_date }}{{ form.invoice_date.errors }}</p>
-<p><label for="{{ form.warehouse.id_for_label }}">انبار</label>{{ form.warehouse }}{{ form.warehouse.errors }}</p>
-<p><label for="{{ form.description.id_for_label }}">توضیحات</label>{{ form.description }}{{ form.description.errors }}</p>
+<p><label for="{{ form.customer.id_for_label }}">{% trans "مشتری" %}</label>{{ form.customer }}{{ form.customer.errors }}</p>
+<p><label for="{{ form.invoice_number.id_for_label }}">{% trans "شماره فاکتور" %}</label>{{ form.invoice_number }}{{ form.invoice_number.errors }}</p>
+<p><label for="{{ form.invoice_date.id_for_label }}">{% trans "تاریخ فاکتور" %}</label>{{ form.invoice_date }}{{ form.invoice_date.errors }}</p>
+<p><label for="{{ form.warehouse.id_for_label }}">{% trans "انبار" %}</label>{{ form.warehouse }}{{ form.warehouse.errors }}</p>
+<p><label for="{{ form.description.id_for_label }}">{% trans "توضیحات" %}</label>{{ form.description }}{{ form.description.errors }}</p>
 </div>
 <div class="card">
-<h2>ردیف‌های فاکتور</h2>
+<h2>{% trans "ردیف‌های فاکتور" %}</h2>
 {{ lines.management_form }}
 {{ lines.non_form_errors }}
-<table class="line-table"><thead><tr><th>کالا</th><th>واحد</th><th>مقدار</th><th>قیمت واحد</th><th>تخفیف</th><th>نرخ مالیات</th><th>حذف</th></tr></thead>
+<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th>{% trans "مقدار" %}</th><th>{% trans "قیمت واحد" %}</th><th>{% trans "تخفیف" %}</th><th>{% trans "نرخ مالیات" %}</th><th>{% trans "حذف" %}</th></tr></thead>
 <tbody id="line-rows">
 {% for f in lines %}<tr>{% for field in f %}<td>{{ field }}{{ field.errors }}</td>{% endfor %}</tr>{% endfor %}
 </tbody></table>
-<p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">+ ردیف جدید</button></p>
+<p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">{% trans "+ ردیف جدید" %}</button></p>
 </div>
-<p><button type="submit">ایجاد پیش‌نویس فاکتور</button> <a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">بازگشت</a></p>
+<p><button type="submit">{% trans "ایجاد پیش‌نویس فاکتور" %}</button> <a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "بازگشت" %}</a></p>
 </form>
 {% include "_line_formset_js.html" with formset=lines %}
 {% endif %}

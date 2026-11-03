@@ -1,26 +1,26 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>سند {{ entry.entry_date|jalali }} — {{ entry.status }}</h1>
+{% extends "base.html" %}{% load jalali i18n %}{% block content %}
+<h1>{% blocktrans with date=entry.entry_date|jalali status=entry.status %}سند {{ date }} — {{ status }}{% endblocktrans %}</h1>
 <div class="card">
-<p>شرکت: {{ entry.company.name }} — دوره مالی: {{ entry.fiscal_period }} — نوع منبع: {{ entry.source_type }}{% if entry.reversal_of %} — برگشتِ سند <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
+<p>{% blocktrans with company=entry.company.name period=entry.fiscal_period source=entry.source_type %}شرکت: {{ company }} — دوره مالی: {{ period }} — نوع منبع: {{ source }}{% endblocktrans %}{% if entry.reversal_of %} — {% trans "برگشتِ سند" %} <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
 {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}
-<table><tr><th>حساب</th><th>شرح</th><th>طرف‌حساب</th><th>بدهکار</th><th>بستانکار</th></tr>
+<table><tr><th>{% trans "حساب" %}</th><th>{% trans "شرح" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "بدهکار" %}</th><th>{% trans "بستانکار" %}</th></tr>
 {% for line in lines %}<tr><td>{{ line.account.code }} — {{ line.account.name }}</td><td>{{ line.description }}</td><td>{{ line.party|default:"—" }}</td><td>{{ line.debit }}</td><td>{{ line.credit }}</td></tr>{% endfor %}
-<tr><th>جمع</th><th></th><th></th><th>{{ entry.total_debit }}</th><th>{{ entry.total_credit }}</th></tr></table>
+<tr><th>{% trans "جمع" %}</th><th></th><th></th><th>{{ entry.total_debit }}</th><th>{{ entry.total_credit }}</th></tr></table>
 </div>
 {% if entry.status == 'DRAFT' or entry.status == 'VALIDATED' %}
 <div class="card action-card">
-<h2>ثبت نهایی سند</h2>
-<p class="empty">با ثبت نهایی، مانده حساب‌ها تغییر می‌کند. دوره مالی سند باید باز باشد.</p>
-<form method="post" action="{% url 'journal_post' entry.pk %}" onsubmit="return confirm('سند ثبت نهایی شود؟')">{% csrf_token %}
-<button type="submit">ثبت نهایی</button></form>
+<h2>{% trans "ثبت نهایی سند" %}</h2>
+<p class="empty">{% trans "با ثبت نهایی، مانده حساب‌ها تغییر می‌کند. دوره مالی سند باید باز باشد." %}</p>
+<form method="post" action="{% url 'journal_post' entry.pk %}" onsubmit="return confirm('{% trans "سند ثبت نهایی شود؟" %}')">{% csrf_token %}
+<button type="submit">{% trans "ثبت نهایی" %}</button></form>
 </div>
 {% elif entry.status == 'POSTED' %}
 <div class="card action-card">
-<h2>برگشت‌زدن سند</h2>
-<form method="post" action="{% url 'journal_reverse' entry.pk %}" onsubmit="return confirm('سند برگشتی معکوس ایجاد می‌شود. ادامه می‌دهید؟')">{% csrf_token %}
-<p><label>دلیل (اختیاری)</label><input type="text" name="reason" maxlength="500"></p>
-<button type="submit" class="btn-danger">برگشت‌زدن سند</button></form>
+<h2>{% trans "برگشت‌زدن سند" %}</h2>
+<form method="post" action="{% url 'journal_reverse' entry.pk %}" onsubmit="return confirm('{% trans "سند برگشتی معکوس ایجاد می‌شود. ادامه می‌دهید؟" %}')">{% csrf_token %}
+<p><label>{% trans "دلیل (اختیاری)" %}</label><input type="text" name="reason" maxlength="500"></p>
+<button type="submit" class="btn-danger">{% trans "برگشت‌زدن سند" %}</button></form>
 </div>
 {% endif %}
-<p><a class="btn btn-ghost" href="{% url 'journal_list' %}">بازگشت به دفتر روزنامه</a></p>
+<p><a class="btn btn-ghost" href="{% url 'journal_list' %}">{% trans "بازگشت به دفتر روزنامه" %}</a></p>
 {% endblock %}

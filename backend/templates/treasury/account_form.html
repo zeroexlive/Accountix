@@ -1,12 +1,12 @@
-{% extends "base.html" %}{% block content %}
-<h1>حساب خزانه جدید</h1>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "حساب خزانه جدید" %}</h1>
 {% if not company %}{% include "_company_chooser.html" %}{% else %}
 <div class="card"><form method="post">{% csrf_token %}
-<p>شرکت: <strong>{{ company.name }}</strong></p>
+<p>{% trans "شرکت:" %} <strong>{{ company.name }}</strong></p>
 {{ form.company }}
 {{ form.non_field_errors }}
 {{ form.as_p }}
-<button type="submit">ایجاد حساب خزانه</button></form></div>
-<p class="empty">برای حساب بانکی، نام بانک الزامی است.</p>
+<button type="submit">{% trans "ایجاد حساب خزانه" %}</button></form></div>
+<p class="empty">{% trans "برای حساب بانکی، نام بانک الزامی است." %}</p>
 {% endif %}
 {% endblock %}

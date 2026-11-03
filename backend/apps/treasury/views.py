@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.accounting.models import JournalLine
@@ -120,7 +121,7 @@ def treasury_account_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "حساب خزانه ایجاد شد.")
+            messages.success(request, _("حساب خزانه ایجاد شد."))
             return redirect("treasury_account_list")
     return render(
         request,
@@ -152,7 +153,7 @@ def payment_create(request):
         if data.get("leaf"):
             leaf = ChequeLeaf.objects.filter(pk=data["leaf"], company=company).first()
             if leaf is None:
-                form.add_error("leaf", "برگ دفترچه انتخاب‌شده یافت نشد.")
+                form.add_error("leaf", _("برگ دفترچه انتخاب‌شده یافت نشد."))
                 leaf_resolved = False
         if leaf_resolved:
             try:
@@ -172,7 +173,7 @@ def payment_create(request):
             except ValidationError as exc:
                 add_service_errors(form, exc)
             else:
-                messages.success(request, "دریافت/پرداخت به‌صورت پیش‌نویس ایجاد شد.")
+                messages.success(request, _("دریافت/پرداخت به‌صورت پیش‌نویس ایجاد شد."))
                 return redirect("payment_detail", pk=payment.pk)
     return render(
         request,
@@ -234,7 +235,7 @@ def payment_post(request, pk):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "دریافت/پرداخت ثبت نهایی شد.")
+            messages.success(request, _("دریافت/پرداخت ثبت نهایی شد."))
             return redirect("payment_detail", pk=payment.pk)
     payment.refresh_from_db()
     return render(
@@ -263,9 +264,13 @@ def payment_allocate(request, pk):
             allocated_any = True
         except ValidationError as exc:
             for message in exc.messages:
-                messages.error(request, f"{item['invoice'].invoice_number}: {message}")
+                messages.error(
+                    request,
+                    _("%(invoice_number)s: %(message)s")
+                    % {"invoice_number": item["invoice"].invoice_number, "message": message},
+                )
     if allocated_any:
-        messages.success(request, "تخصیص‌ها ثبت شد و وضعیت پرداخت فاکتورها به‌روز شد.")
+        messages.success(request, _("تخصیص‌ها ثبت شد و وضعیت پرداخت فاکتورها به‌روز شد."))
     return redirect("payment_detail", pk=payment.pk)
 
 
@@ -281,7 +286,7 @@ def allocation_void(request, pk, alloc_pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "تخصیص باطل شد.")
+        messages.success(request, _("تخصیص باطل شد."))
     return redirect("payment_detail", pk=payment.pk)
 
 
@@ -294,7 +299,7 @@ def payment_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "دریافت/پرداخت برگشت خورد.")
+        messages.success(request, _("دریافت/پرداخت برگشت خورد."))
     return redirect("payment_detail", pk=payment.pk)
 
 
@@ -333,7 +338,7 @@ def cheque_deposit(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "چک به بانک واگذار شد.")
+        messages.success(request, _("چک به بانک واگذار شد."))
     return redirect("cheque_detail", pk=cheque.pk)
 
 
@@ -343,7 +348,7 @@ def cheque_clear(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
     clearing_date = _action_date(request, "clearing_date")
     if clearing_date == "INVALID":
-        messages.error(request, "تاریخ وصول معتبر نیست.")
+        messages.error(request, _("تاریخ وصول معتبر نیست."))
         return redirect("cheque_detail", pk=cheque.pk)
     bank_account = None
     if cheque.direction == Cheque.Direction.RECEIVED:
@@ -365,7 +370,7 @@ def cheque_clear(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "چک وصول شد.")
+        messages.success(request, _("چک وصول شد."))
     return redirect("cheque_detail", pk=cheque.pk)
 
 
@@ -375,14 +380,14 @@ def cheque_bounce(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
     bounce_date = _action_date(request, "bounce_date")
     if bounce_date == "INVALID":
-        messages.error(request, "تاریخ برگشت معتبر نیست.")
+        messages.error(request, _("تاریخ برگشت معتبر نیست."))
         return redirect("cheque_detail", pk=cheque.pk)
     try:
         services.bounce_cheque(cheque, user=request.user, bounce_date=bounce_date)
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "چک برگشتی ثبت شد.")
+        messages.success(request, _("چک برگشتی ثبت شد."))
     return redirect("cheque_detail", pk=cheque.pk)
 
 
@@ -392,14 +397,14 @@ def cheque_return(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
     return_date = _action_date(request, "return_date")
     if return_date == "INVALID":
-        messages.error(request, "تاریخ عودت معتبر نیست.")
+        messages.error(request, _("تاریخ عودت معتبر نیست."))
         return redirect("cheque_detail", pk=cheque.pk)
     try:
         services.return_cheque(cheque, user=request.user, return_date=return_date)
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "چک به صادرکننده عودت داده شد.")
+        messages.success(request, _("چک به صادرکننده عودت داده شد."))
     return redirect("cheque_detail", pk=cheque.pk)
 
 
@@ -441,7 +446,7 @@ STATEMENT_FILE_STASH_KEY = "statement_file_import"
 def _row_noun(file_format):
     """Rejected rows are reported by physical line for CSV and by
     transaction index for the XML formats (Sprint 18)."""
-    return "ردیف" if file_format == "csv" else "تراکنش"
+    return _("ردیف") if file_format == "csv" else _("تراکنش")
 
 
 def _file_preview_context(parsed, filename):
@@ -504,7 +509,7 @@ def bank_statement_create(request):
             try:
                 parsed = reconciliation.parse_statement_upload(upload.read())
             except statement_files.UndecodableStatementFile:
-                messages.error(request, "فایل باید با کدگذاری UTF-8 باشد.")
+                messages.error(request, _("فایل باید با کدگذاری UTF-8 باشد."))
             except ValidationError as exc:
                 messages.error(request, " ".join(exc.messages))
             else:
@@ -563,13 +568,21 @@ def bank_statement_create(request):
                     )
             else:
                 request.session.pop(STATEMENT_FILE_STASH_KEY, None)
-                messages.success(request, "صورت‌حساب بانکی ایجاد شد.")
+                messages.success(request, _("صورت‌حساب بانکی ایجاد شد."))
                 if use_stash:
-                    messages.success(request, f"{report['imported']} ردیف از فایل وارد شد.")
+                    messages.success(
+                        request,
+                        _("%(count)s ردیف از فایل وارد شد.") % {"count": report["imported"]},
+                    )
                     for rejected in report["rejected"]:
                         messages.error(
                             request,
-                            f"{_row_noun(parsed.format)} {rejected['row']}: {rejected['reason']}",
+                            _("%(noun)s %(row)s: %(reason)s")
+                            % {
+                                "noun": _row_noun(parsed.format),
+                                "row": rejected["row"],
+                                "reason": rejected["reason"],
+                            },
                         )
                 return redirect("bank_statement_detail", pk=statement.pk)
     else:  # GET
@@ -649,7 +662,7 @@ def cheque_book_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "دفترچه چک ایجاد شد.")
+            messages.success(request, _("دفترچه چک ایجاد شد."))
             return redirect("cheque_book_detail", pk=book.pk)
     return render(
         request,
@@ -690,7 +703,7 @@ def cheque_leaf_void(request, leaf_pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, f"برگ {leaf.number} باطل شد.")
+        messages.success(request, _("برگ %(number)s باطل شد.") % {"number": leaf.number})
     return redirect("cheque_book_detail", pk=leaf.book_id)
 
 
@@ -742,7 +755,7 @@ def bank_statement_add_line(request, pk):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "ردیف صورت‌حساب افزوده شد.")
+            messages.success(request, _("ردیف صورت‌حساب افزوده شد."))
             return redirect("bank_statement_detail", pk=statement.pk)
     return render(
         request,
@@ -767,15 +780,21 @@ def bank_statement_import(request, pk):
             statement, content=upload.read(), user=request.user
         )
     except statement_files.UndecodableStatementFile:
-        messages.error(request, "فایل باید با کدگذاری UTF-8 باشد.")
+        messages.error(request, _("فایل باید با کدگذاری UTF-8 باشد."))
         return redirect("bank_statement_detail", pk=statement.pk)
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
         return redirect("bank_statement_detail", pk=statement.pk)
-    messages.success(request, f"{report['imported']} ردیف از فایل وارد شد.")
+    messages.success(request, _("%(count)s ردیف از فایل وارد شد.") % {"count": report["imported"]})
     for rejected in report["rejected"]:
         messages.error(
-            request, f"{_row_noun(report['format'])} {rejected['row']}: {rejected['reason']}"
+            request,
+            _("%(noun)s %(row)s: %(reason)s")
+            % {
+                "noun": _row_noun(report["format"]),
+                "row": rejected["row"],
+                "reason": rejected["reason"],
+            },
         )
     return redirect("bank_statement_detail", pk=statement.pk)
 
@@ -791,7 +810,8 @@ def bank_statement_auto_match(request, pk):
     else:
         messages.success(
             request,
-            f"{result['matched']} ردیف به‌صورت خودکار تطبیق شد؛ {result['remaining']} ردیف باقی ماند.",
+            _("%(matched)s ردیف به‌صورت خودکار تطبیق شد؛ %(remaining)s ردیف باقی ماند.")
+            % {"matched": result["matched"], "remaining": result["remaining"]},
         )
     return redirect("bank_statement_detail", pk=statement.pk)
 
@@ -816,7 +836,7 @@ def bank_statement_match(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "تطبیق ثبت شد.")
+        messages.success(request, _("تطبیق ثبت شد."))
     return redirect("bank_statement_detail", pk=statement.pk)
 
 
@@ -830,7 +850,7 @@ def bank_statement_unmatch(request, pk, line_pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "تطبیق لغو شد.")
+        messages.success(request, _("تطبیق لغو شد."))
     return redirect("bank_statement_detail", pk=statement.pk)
 
 
@@ -843,7 +863,7 @@ def bank_statement_complete(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "صورت‌حساب نهایی و قفل شد.")
+        messages.success(request, _("صورت‌حساب نهایی و قفل شد."))
     return redirect("bank_statement_detail", pk=statement.pk)
 
 
@@ -856,7 +876,7 @@ def bank_statement_reopen(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "صورت‌حساب بازگشایی شد.")
+        messages.success(request, _("صورت‌حساب بازگشایی شد."))
     return redirect("bank_statement_detail", pk=statement.pk)
 
 

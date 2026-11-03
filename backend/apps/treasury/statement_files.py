@@ -44,6 +44,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 EMPTY_METADATA: dict[str, Any] = {
     "opening_balance": None,
@@ -119,7 +120,7 @@ def parse_statement_file(content: bytes) -> ParsedStatementFile:
     try:
         text = content.decode("utf-8-sig")
     except UnicodeDecodeError:
-        raise UndecodableStatementFile("The statement file is not valid UTF-8 text.") from None
+        raise UndecodableStatementFile(_("The statement file is not valid UTF-8 text.")) from None
     return parse_csv_text(text)
 
 
@@ -131,13 +132,13 @@ def parse_statement_file(content: bytes) -> ParsedStatementFile:
 def parse_csv_text(text: str) -> ParsedStatementFile:
     reader = csv.DictReader(io.StringIO(text))
     if reader.fieldnames is None:
-        raise StatementFileError("The CSV file is empty or has no header row.")
+        raise StatementFileError(_("The CSV file is empty or has no header row."))
     reader.fieldnames = [name.strip().lower() for name in reader.fieldnames]
     fields = set(reader.fieldnames)
     if "date" not in fields:
-        raise StatementFileError("The CSV needs a 'date' column.")
+        raise StatementFileError(_("The CSV needs a 'date' column."))
     if "amount" not in fields and not {"debit", "credit"} <= fields:
-        raise StatementFileError("The CSV needs an 'amount' column (or 'debit' + 'credit').")
+        raise StatementFileError(_("The CSV needs an 'amount' column (or 'debit' + 'credit')."))
     rows = []
     for row in reader:
         rows.append(
@@ -202,7 +203,9 @@ def _camt_balance_amount(balance_el):
     try:
         amount = Decimal(raw)
     except InvalidOperation:
-        raise StatementFileError(f"Unparseable balance amount {raw!r} in the CAMT file.") from None
+        raise StatementFileError(
+            _("Unparseable balance amount %(amount)r in the CAMT file.") % {"amount": raw}
+        ) from None
     if _text(_first(balance_el, "CdtDbtInd")) == "DBIT":
         amount = -abs(amount)
     else:
@@ -260,15 +263,16 @@ def parse_camt053(content: bytes) -> ParsedStatementFile:
     try:
         root = ET.fromstring(content)
     except ET.ParseError:
-        raise StatementFileError("The CAMT file is not well-formed XML.") from None
+        raise StatementFileError(_("The CAMT file is not well-formed XML.")) from None
     statements = []
     for container in _descendants(root, "BkToCstmrStmt"):
         statements.extend(_children(container, "Stmt"))
     if not statements:
-        raise StatementFileError("No bank statement (BkToCstmrStmt) found in the CAMT file.")
+        raise StatementFileError(_("No bank statement (BkToCstmrStmt) found in the CAMT file."))
     if len(statements) > 1:
         raise StatementFileError(
-            f"The file contains {len(statements)} statements; import one statement per file."
+            _("The file contains %(count)s statements; import one statement per file.")
+            % {"count": len(statements)}
         )
     stmt = statements[0]
 
@@ -295,20 +299,26 @@ def parse_camt053(content: bytes) -> ParsedStatementFile:
             rejected.append(
                 {
                     "row": index,
-                    "reason": f"Unparseable date {raw_date!r} (expected YYYY-MM-DD).",
+                    "reason": _("Unparseable date %(date)r (expected YYYY-MM-DD).")
+                    % {"date": raw_date},
                 }
             )
             continue
         entry_dates.append(line_date)
         amount_el = _first(entry, "Amt")
         if amount_el is None:
-            rejected.append({"row": index, "reason": "Missing amount."})
+            rejected.append({"row": index, "reason": _("Missing amount.")})
             continue
         raw_amount = _text(amount_el)
         try:
             amount = Decimal(raw_amount)
         except InvalidOperation:
-            rejected.append({"row": index, "reason": f"Unparseable amount {raw_amount!r}."})
+            rejected.append(
+                {
+                    "row": index,
+                    "reason": _("Unparseable amount %(amount)r.") % {"amount": raw_amount},
+                }
+            )
             continue
         if _text(_first(entry, "CdtDbtInd")) == "DBIT":
             amount = -abs(amount)
@@ -376,7 +386,9 @@ def parse_ofx(content: bytes) -> ParsedStatementFile:
         text = content.decode("latin-1")
     tran_list = _ofx_block(text, "BANKTRANLIST")
     if tran_list is None:
-        raise StatementFileError("No bank transaction list (BANKTRANLIST) found in the OFX file.")
+        raise StatementFileError(
+            _("No bank transaction list (BANKTRANLIST) found in the OFX file.")
+        )
 
     metadata = dict(EMPTY_METADATA)
     header = tran_list.split("<STMTTRN>", 1)[0]
@@ -390,7 +402,8 @@ def parse_ofx(content: bytes) -> ParsedStatementFile:
                 metadata["closing_balance"] = Decimal(raw_balance)
             except InvalidOperation:
                 raise StatementFileError(
-                    f"Unparseable closing balance (LEDGERBAL) {raw_balance!r} in the OFX file."
+                    _("Unparseable closing balance (LEDGERBAL) %(balance)r in the OFX file.")
+                    % {"balance": raw_balance}
                 ) from None
         if metadata["period_end"] is None:
             metadata["period_end"] = _ofx_date(_ofx_leaf(ledger, "DTASOF"))
@@ -407,18 +420,24 @@ def parse_ofx(content: bytes) -> ParsedStatementFile:
             rejected.append(
                 {
                     "row": index,
-                    "reason": f"Unparseable date {raw_date!r} (expected YYYY-MM-DD).",
+                    "reason": _("Unparseable date %(date)r (expected YYYY-MM-DD).")
+                    % {"date": raw_date},
                 }
             )
             continue
         raw_amount = _ofx_leaf(block, "TRNAMT")
         if not raw_amount:
-            rejected.append({"row": index, "reason": "Missing amount."})
+            rejected.append({"row": index, "reason": _("Missing amount.")})
             continue
         try:
             amount = Decimal(raw_amount)
         except InvalidOperation:
-            rejected.append({"row": index, "reason": f"Unparseable amount {raw_amount!r}."})
+            rejected.append(
+                {
+                    "row": index,
+                    "reason": _("Unparseable amount %(amount)r.") % {"amount": raw_amount},
+                }
+            )
             continue
         name = _ofx_leaf(block, "NAME")
         memo = _ofx_leaf(block, "MEMO")

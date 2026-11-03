@@ -1,16 +1,16 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>بستن دوره {{ period.name }} — {{ period.company.name }}</h1>
+{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+<h1>{% blocktrans with name=period.name company=period.company.name %}بستن دوره {{ name }} — {{ company }}{% endblocktrans %}</h1>
 <div class="card">
-<p>بازه دوره: {{ period.start_date|jalali }} تا {{ period.end_date|jalali }} — سند اختتامیه با تاریخ {{ period.end_date|jalali }} (آخرین روز دوره) ثبت می‌شود و نتیجه دوره به حساب سود (زیان) انباشته منتقل می‌شود. پس از بستن، ثبت سند در این دوره ممکن نیست؛ بازگشایی فقط با برگشت‌زدن سند اختتامیه انجام می‌شود.</p>
-<table><tr><th>جمع درآمد دوره</th><th>جمع هزینه دوره</th><th>نتیجه خالص (قابل انتقال)</th></tr>
+<p>{% blocktrans with start=period.start_date|jalali end=period.end_date|jalali %}بازه دوره: {{ start }} تا {{ end }} — سند اختتامیه با تاریخ {{ end }} (آخرین روز دوره) ثبت می‌شود و نتیجه دوره به حساب سود (زیان) انباشته منتقل می‌شود. پس از بستن، ثبت سند در این دوره ممکن نیست؛ بازگشایی فقط با برگشت‌زدن سند اختتامیه انجام می‌شود.{% endblocktrans %}</p>
+<table><tr><th>{% trans "جمع درآمد دوره" %}</th><th>{% trans "جمع هزینه دوره" %}</th><th>{% trans "نتیجه خالص (قابل انتقال)" %}</th></tr>
 <tr><td>{{ result.revenue_total }}</td><td>{{ result.expenses_total }}</td><td>{{ result.net_income }}</td></tr></table>
-{% if result.revenue_total == 0 and result.expenses_total == 0 %}<p class="empty">این دوره فعالیت سود و زیانی ندارد؛ بستن آن بدون ثبت سند اختتامیه انجام می‌شود.</p>{% endif %}
+{% if result.revenue_total == 0 and result.expenses_total == 0 %}<p class="empty">{% trans "این دوره فعالیت سود و زیانی ندارد؛ بستن آن بدون ثبت سند اختتامیه انجام می‌شود." %}</p>{% endif %}
 </div>
-<div class="card"><h2>تأیید بستن دوره</h2>
+<div class="card"><h2>{% trans "تأیید بستن دوره" %}</h2>
 <form method="post" class="stack">{% csrf_token %}
 {{ form.non_field_errors }}
 <p><label for="{{ form.retained_earnings.id_for_label }}">{{ form.retained_earnings.label }}</label>{{ form.retained_earnings }}{{ form.retained_earnings.errors }}</p>
-<button type="submit">بستن دوره</button></form>
+<button type="submit">{% trans "بستن دوره" %}</button></form>
 </div>
-<p><a class="btn btn-ghost" href="{% url 'fiscal_year_detail' period.fiscal_year.pk %}">بازگشت به سال مالی</a></p>
+<p><a class="btn btn-ghost" href="{% url 'fiscal_year_detail' period.fiscal_year.pk %}">{% trans "بازگشت به سال مالی" %}</a></p>
 {% endblock %}

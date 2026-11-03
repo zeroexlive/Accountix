@@ -27,6 +27,7 @@ Design choices (ADRs in DECISIONS.md):
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.models import Account, JournalEntry
 from apps.core.models import TimeStampedUUIDModel
@@ -38,8 +39,8 @@ from apps.sales.models import SalesInvoice
 
 class TreasuryAccount(TimeStampedUUIDModel):
     class Kind(models.TextChoices):
-        CASH = "CASH", "Cash"
-        BANK = "BANK", "Bank"
+        CASH = "CASH", _("Cash")
+        BANK = "BANK", _("Bank")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="treasury_accounts")
     kind = models.CharField(max_length=4, choices=Kind.choices)
@@ -87,18 +88,18 @@ _PAYMENT_MUTABLE_FIELDS = {
 
 class Payment(TimeStampedUUIDModel):
     class Direction(models.TextChoices):
-        RECEIPT = "RECEIPT", "Receipt"
-        PAYMENT = "PAYMENT", "Payment"
+        RECEIPT = "RECEIPT", _("Receipt")
+        PAYMENT = "PAYMENT", _("Payment")
 
     class Method(models.TextChoices):
-        CASH = "CASH", "Cash"
-        BANK_TRANSFER = "BANK_TRANSFER", "Bank transfer"
-        CHEQUE = "CHEQUE", "Cheque"
+        CASH = "CASH", _("Cash")
+        BANK_TRANSFER = "BANK_TRANSFER", _("Bank transfer")
+        CHEQUE = "CHEQUE", _("Cheque")
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="payments")
     direction = models.CharField(max_length=7, choices=Direction.choices)
@@ -157,14 +158,14 @@ class Payment(TimeStampedUUIDModel):
                     )
                 )
                 if not allowed:
-                    raise ValidationError("Posted payments are immutable; reverse instead.")
+                    raise ValidationError(_("Posted payments are immutable; reverse instead."))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.pk:
             old = Payment.objects.filter(pk=self.pk).first()
             if old is not None and old.status in ("POSTED", "REVERSED"):
-                raise ValidationError("Posted payments cannot be deleted; reverse instead.")
+                raise ValidationError(_("Posted payments cannot be deleted; reverse instead."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -180,8 +181,8 @@ class PaymentAllocation(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        ACTIVE = "ACTIVE", "Active"
-        VOID = "VOID", "Void"
+        ACTIVE = "ACTIVE", _("Active")
+        VOID = "VOID", _("Void")
 
     company = models.ForeignKey(
         Company, on_delete=models.CASCADE, related_name="payment_allocations"
@@ -239,17 +240,17 @@ class Cheque(TimeStampedUUIDModel):
     """
 
     class Direction(models.TextChoices):
-        RECEIVED = "RECEIVED", "Received"
-        ISSUED = "ISSUED", "Issued"
+        RECEIVED = "RECEIVED", _("Received")
+        ISSUED = "ISSUED", _("Issued")
 
     class Status(models.TextChoices):
-        RECEIVED = "RECEIVED", "Received"
-        DEPOSITED = "DEPOSITED", "Deposited"
-        DELIVERED = "DELIVERED", "Delivered"
-        CLEARED = "CLEARED", "Cleared"
-        BOUNCED = "BOUNCED", "Bounced"
-        RETURNED = "RETURNED", "Returned"
-        REVERSED = "REVERSED", "Reversed"
+        RECEIVED = "RECEIVED", _("Received")
+        DEPOSITED = "DEPOSITED", _("Deposited")
+        DELIVERED = "DELIVERED", _("Delivered")
+        CLEARED = "CLEARED", _("Cleared")
+        BOUNCED = "BOUNCED", _("Bounced")
+        RETURNED = "RETURNED", _("Returned")
+        REVERSED = "REVERSED", _("Reversed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cheques")
     direction = models.CharField(max_length=8, choices=Direction.choices)
@@ -315,8 +316,8 @@ class BankStatement(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        OPEN = "OPEN", "Open"
-        COMPLETED = "COMPLETED", "Completed"
+        OPEN = "OPEN", _("Open")
+        COMPLETED = "COMPLETED", _("Completed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bank_statements")
     treasury_account = models.ForeignKey(
@@ -431,9 +432,9 @@ class ChequeLeaf(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        UNUSED = "UNUSED", "Unused"
-        USED = "USED", "Used"
-        VOID = "VOID", "Void"
+        UNUSED = "UNUSED", _("Unused")
+        USED = "USED", _("Used")
+        VOID = "VOID", _("Void")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cheque_leaves")
     treasury_account = models.ForeignKey(

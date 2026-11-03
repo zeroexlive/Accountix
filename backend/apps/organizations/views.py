@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.core.access import user_company_ids
@@ -110,7 +111,7 @@ def fiscal_period_close(request, pk):
         company_id__in=user_company_ids(request.user),
     )
     if period.status == FiscalPeriod.Status.CLOSED:
-        messages.info(request, "این دوره قبلاً بسته شده است.")
+        messages.info(request, _("این دوره قبلاً بسته شده است."))
         return redirect("fiscal_year_detail", pk=period.fiscal_year_id)
     result = reporting.income_statement(period.company, fiscal_period=period)
     form = FiscalCloseForm(request.POST or None, company=period.company)
@@ -126,9 +127,9 @@ def fiscal_period_close(request, pk):
             add_service_errors(form, exc)
         else:
             if entry is not None:
-                messages.success(request, "دوره بسته شد و سند اختتامیه ثبت شد.")
+                messages.success(request, _("دوره بسته شد و سند اختتامیه ثبت شد."))
             else:
-                messages.success(request, "دوره بسته شد؛ فعالیتی نداشت و سندی ثبت نشد.")
+                messages.success(request, _("دوره بسته شد؛ فعالیتی نداشت و سندی ثبت نشد."))
             return redirect("fiscal_year_detail", pk=period.fiscal_year_id)
     return render(
         request,
@@ -154,7 +155,7 @@ def fiscal_period_reopen(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "دوره بازگشایی شد و سند اختتامیه برگشت خورد.")
+        messages.success(request, _("دوره بازگشایی شد و سند اختتامیه برگشت خورد."))
     return redirect("fiscal_year_detail", pk=period.fiscal_year_id)
 
 
@@ -170,7 +171,7 @@ def fiscal_year_close(request, pk):
         company_id__in=user_company_ids(request.user),
     )
     if year.status == FiscalYear.Status.CLOSED:
-        messages.info(request, "این سال مالی قبلاً بسته شده است.")
+        messages.info(request, _("این سال مالی قبلاً بسته شده است."))
         return redirect("fiscal_year_detail", pk=year.pk)
     open_periods = [p for p in year.periods.all() if p.status == FiscalPeriod.Status.OPEN]
     form = FiscalCloseForm(request.POST or None, company=year.company)
@@ -187,7 +188,7 @@ def fiscal_year_close(request, pk):
         else:
             messages.success(
                 request,
-                f"سال مالی بسته شد؛ {len(entries)} سند اختتامیه ثبت شد.",
+                _("سال مالی بسته شد؛ %(count)s سند اختتامیه ثبت شد.") % {"count": len(entries)},
             )
             return redirect("fiscal_year_detail", pk=year.pk)
     return render(

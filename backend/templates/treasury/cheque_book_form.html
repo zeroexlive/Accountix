@@ -1,13 +1,13 @@
-{% extends "base.html" %}{% block content %}
-<h1>دفترچه چک جدید</h1>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "دفترچه چک جدید" %}</h1>
 {% if not company %}{% include "_company_chooser.html" %}{% else %}
 <div class="card">
-<p>دفترچه برای چک‌های <strong>صادره</strong> از یک حساب بانکی است. شماره‌ها از شماره اولین برگ به‌ترتیب ساخته می‌شوند و نباید با برگ‌های قبلی همین حساب تداخل داشته باشند؛ بازه کامل (اولین تا آخرین برگ) بعد از ایجاد، در صفحه دفترچه نمایش داده می‌شود.</p>
+<p>{% trans "دفترچه برای چک‌های <strong>صادره</strong> از یک حساب بانکی است. شماره‌ها از شماره اولین برگ به‌ترتیب ساخته می‌شوند و نباید با برگ‌های قبلی همین حساب تداخل داشته باشند؛ بازه کامل (اولین تا آخرین برگ) بعد از ایجاد، در صفحه دفترچه نمایش داده می‌شود." %}</p>
 <form method="post">{% csrf_token %}
 {{ form.company }}
 {{ form.non_field_errors }}
 {{ form.as_p }}
-<p><button type="submit">ایجاد دفترچه</button> <a class="btn btn-ghost" href="{% url 'cheque_book_list' %}">بازگشت</a></p>
+<p><button type="submit">{% trans "ایجاد دفترچه" %}</button> <a class="btn btn-ghost" href="{% url 'cheque_book_list' %}">{% trans "بازگشت" %}</a></p>
 </form>
 </div>
 {% endif %}

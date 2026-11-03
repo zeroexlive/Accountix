@@ -1,19 +1,19 @@
-{% extends "base.html" %}{% block content %}
-<h1>برگشت از خرید — فاکتور {{ invoice.invoice_number }}</h1>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% blocktrans with number=invoice.invoice_number %}برگشت از خرید — فاکتور {{ number }}{% endblocktrans %}</h1>
 <form method="post" class="doc-form">{% csrf_token %}
 <div class="card">
 {{ form.non_field_errors }}
 {{ form.as_p }}
 </div>
 <div class="card">
-<h2>مقادیر برگشتی</h2>
+<h2>{% trans "مقادیر برگشتی" %}</h2>
 {{ lines.management_form }}
 {{ lines.non_form_errors }}
-<table class="line-table"><thead><tr><th>کالا</th><th>واحد</th><th>خریداری‌شده</th><th>قبلاً برگشت‌خورده</th><th>قابل برگشت</th><th>مقدار برگشتی</th></tr></thead>
+<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th>{% trans "خریداری‌شده" %}</th><th>{% trans "قبلاً برگشت‌خورده" %}</th><th>{% trans "قابل برگشت" %}</th><th>{% trans "مقدار برگشتی" %}</th></tr></thead>
 <tbody>
 {% for row in line_rows %}<tr><td>{{ row.invoice_line.product.sku }} — {{ row.invoice_line.product.name }}{{ row.form.invoice_line }}</td><td>{% if row.invoice_line.unit %}{{ row.invoice_line.unit.code }}{% else %}—{% endif %}</td><td>{{ row.invoice_line.quantity }}</td><td>{{ row.returned }}</td><td>{{ row.remaining }}</td><td>{{ row.form.quantity }}{{ row.form.quantity.errors }}</td></tr>{% endfor %}
 </tbody></table>
 </div>
-<p><button type="submit">ایجاد پیش‌نویس برگشت</button> <a class="btn btn-ghost" href="{% url 'purchase_invoice_detail' invoice.pk %}">بازگشت به فاکتور</a></p>
+<p><button type="submit">{% trans "ایجاد پیش‌نویس برگشت" %}</button> <a class="btn btn-ghost" href="{% url 'purchase_invoice_detail' invoice.pk %}">{% trans "بازگشت به فاکتور" %}</a></p>
 </form>
 {% endblock %}

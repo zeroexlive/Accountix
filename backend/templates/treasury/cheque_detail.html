@@ -1,44 +1,44 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>چک {{ cheque.cheque_number }}</h1>
+{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+<h1>{% blocktrans with number=cheque.cheque_number %}چک {{ number }}{% endblocktrans %}</h1>
 <div class="card">
-<p>جهت: {{ cheque.direction }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date|jalali }} — تاریخ صدور: {{ cheque.issue_date|jalali|default:"—" }} — شناسه صیاد: {{ cheque.sayad_id|default:"—" }}</p>
-<p>وضعیت: <strong>{{ cheque.status }}</strong> — حساب نگهدارنده: {{ cheque.holding_account|default:"—" }}</p>
-<p>دریافت/پرداخت مرتبط: {% if cheque.payment %}<a href="{% url 'payment_detail' cheque.payment.pk %}">{{ cheque.payment.amount }} — {{ cheque.payment.party.name }}</a>{% else %}—{% endif %}</p>
-{% if leaf %}<p>برگ دفترچه: <a href="{% url 'cheque_book_detail' leaf.book.pk %}">برگ {{ leaf.number }} از دفترچه {{ leaf.book.label|default:leaf.book.first_number }} ({{ leaf.treasury_account.name }})</a></p>{% endif %}
-<p>سند وصول: {{ cheque.clearing_journal_entry|default:"—" }} — سند برگشت/عودت: {{ cheque.bounce_journal_entry|default:"—" }}</p>
+<p>{% blocktrans with direction=cheque.direction bank=cheque.bank_name|default:"—" amount=cheque.amount due=cheque.due_date|jalali issue=cheque.issue_date|jalali|default:"—" sayad=cheque.sayad_id|default:"—" %}جهت: {{ direction }} — بانک: {{ bank }} — مبلغ: {{ amount }} — سررسید: {{ due }} — تاریخ صدور: {{ issue }} — شناسه صیاد: {{ sayad }}{% endblocktrans %}</p>
+<p>{% blocktrans with status=cheque.status holding=cheque.holding_account|default:"—" %}وضعیت: <strong>{{ status }}</strong> — حساب نگهدارنده: {{ holding }}{% endblocktrans %}</p>
+<p>{% trans "دریافت/پرداخت مرتبط:" %} {% if cheque.payment %}<a href="{% url 'payment_detail' cheque.payment.pk %}">{{ cheque.payment.amount }} — {{ cheque.payment.party.name }}</a>{% else %}—{% endif %}</p>
+{% if leaf %}<p>{% trans "برگ دفترچه:" %} <a href="{% url 'cheque_book_detail' leaf.book.pk %}">{% blocktrans with number=leaf.number label=leaf.book.label|default:leaf.book.first_number account=leaf.treasury_account.name %}برگ {{ number }} از دفترچه {{ label }} ({{ account }}){% endblocktrans %}</a></p>{% endif %}
+<p>{% blocktrans with clearing=cheque.clearing_journal_entry|default:"—" bounce=cheque.bounce_journal_entry|default:"—" %}سند وصول: {{ clearing }} — سند برگشت/عودت: {{ bounce }}{% endblocktrans %}</p>
 </div>
 <div class="card action-card">
-<h2>عملیات چک</h2>
+<h2>{% trans "عملیات چک" %}</h2>
 {% if cheque.direction == 'RECEIVED' and cheque.status == 'RECEIVED' %}
-<form method="post" action="{% url 'cheque_deposit' cheque.pk %}" class="inline-form">{% csrf_token %}<button type="submit">واگذاری به بانک</button></form>
+<form method="post" action="{% url 'cheque_deposit' cheque.pk %}" class="inline-form">{% csrf_token %}<button type="submit">{% trans "واگذاری به بانک" %}</button></form>
 {% endif %}
 {% if cheque.direction == 'RECEIVED' and cheque.status == 'RECEIVED' or cheque.direction == 'RECEIVED' and cheque.status == 'DEPOSITED' %}
 <form method="post" action="{% url 'cheque_clear' cheque.pk %}">{% csrf_token %}
-<h3>وصول چک</h3>
+<h3>{% trans "وصول چک" %}</h3>
 {{ clear_form.as_p }}
-<button type="submit">ثبت وصول</button></form>
-<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('چک برگشتی ثبت می‌شود و تخصیص‌های پرداخت مرتبط باطل می‌شوند. ادامه می‌دهید؟')">{% csrf_token %}
-<h3>برگشت چک</h3>
-<p><label>تاریخ برگشت (اختیاری)</label><input type="date" name="bounce_date"></p>
-<button type="submit" class="btn-danger">ثبت برگشتی</button></form>
-<form method="post" action="{% url 'cheque_return' cheque.pk %}" onsubmit="return confirm('چک به صادرکننده عودت داده می‌شود. ادامه می‌دهید؟')">{% csrf_token %}
-<h3>عودت به صادرکننده</h3>
-<p><label>تاریخ عودت (اختیاری)</label><input type="date" name="return_date"></p>
-<button type="submit" class="btn-danger">عودت چک</button></form>
+<button type="submit">{% trans "ثبت وصول" %}</button></form>
+<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('{% trans "چک برگشتی ثبت می‌شود و تخصیص‌های پرداخت مرتبط باطل می‌شوند. ادامه می‌دهید؟" %}')">{% csrf_token %}
+<h3>{% trans "برگشت چک" %}</h3>
+<p><label>{% trans "تاریخ برگشت (اختیاری)" %}</label><input type="date" name="bounce_date"></p>
+<button type="submit" class="btn-danger">{% trans "ثبت برگشتی" %}</button></form>
+<form method="post" action="{% url 'cheque_return' cheque.pk %}" onsubmit="return confirm('{% trans "چک به صادرکننده عودت داده می‌شود. ادامه می‌دهید؟" %}')">{% csrf_token %}
+<h3>{% trans "عودت به صادرکننده" %}</h3>
+<p><label>{% trans "تاریخ عودت (اختیاری)" %}</label><input type="date" name="return_date"></p>
+<button type="submit" class="btn-danger">{% trans "عودت چک" %}</button></form>
 {% endif %}
 {% if cheque.direction == 'ISSUED' and cheque.status == 'DELIVERED' %}
 <form method="post" action="{% url 'cheque_clear' cheque.pk %}">{% csrf_token %}
-<h3>وصول توسط ذی‌نفع (کسر از بانک)</h3>
-<p><label>تاریخ وصول (اختیاری)</label><input type="date" name="clearing_date"></p>
-<button type="submit">ثبت وصول چک پرداختی</button></form>
-<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('برگشت چک پرداختی ثبت می‌شود و بدهی به طرف‌حساب برمی‌گردد. ادامه می‌دهید؟')">{% csrf_token %}
-<h3>برگشت چک پرداختی</h3>
-<p><label>تاریخ برگشت (اختیاری)</label><input type="date" name="bounce_date"></p>
-<button type="submit" class="btn-danger">ثبت برگشتی</button></form>
+<h3>{% trans "وصول توسط ذی‌نفع (کسر از بانک)" %}</h3>
+<p><label>{% trans "تاریخ وصول (اختیاری)" %}</label><input type="date" name="clearing_date"></p>
+<button type="submit">{% trans "ثبت وصول چک پرداختی" %}</button></form>
+<form method="post" action="{% url 'cheque_bounce' cheque.pk %}" onsubmit="return confirm('{% trans "برگشت چک پرداختی ثبت می‌شود و بدهی به طرف‌حساب برمی‌گردد. ادامه می‌دهید؟" %}')">{% csrf_token %}
+<h3>{% trans "برگشت چک پرداختی" %}</h3>
+<p><label>{% trans "تاریخ برگشت (اختیاری)" %}</label><input type="date" name="bounce_date"></p>
+<button type="submit" class="btn-danger">{% trans "ثبت برگشتی" %}</button></form>
 {% endif %}
 {% if cheque.status == 'CLEARED' or cheque.status == 'BOUNCED' or cheque.status == 'RETURNED' or cheque.status == 'REVERSED' %}
-<p class="empty">این چک در وضعیت نهایی «{{ cheque.status }}» است و عملیات دیگری ندارد.</p>
+<p class="empty">{% blocktrans with status=cheque.status %}این چک در وضعیت نهایی «{{ status }}» است و عملیات دیگری ندارد.{% endblocktrans %}</p>
 {% endif %}
 </div>
-<p><a class="btn btn-ghost" href="{% url 'cheque_list' %}">بازگشت به فهرست چک‌ها</a></p>
+<p><a class="btn btn-ghost" href="{% url 'cheque_list' %}">{% trans "بازگشت به فهرست چک‌ها" %}</a></p>
 {% endblock %}

@@ -25,6 +25,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q
+from django.utils.translation import gettext_lazy as _
 
 MAX_LEAF_COUNT = 1000
 
@@ -37,14 +38,17 @@ def generate_leaf_numbers(first_number, leaf_count):
     the sequential counter (prefix preserved, width preserved)."""
     first_number = (first_number or "").strip()
     if not first_number:
-        raise ValidationError("A cheque book needs a first leaf number.")
+        raise ValidationError(_("A cheque book needs a first leaf number."))
     match = _TRAILING_DIGITS.match(first_number)
     if match is None:
         if leaf_count == 1:
             return [first_number]
         raise ValidationError(
-            "The first leaf number must end with digits so the following "
-            f"leaves can be numbered (got {first_number!r})."
+            _(
+                "The first leaf number must end with digits so the following "
+                "leaves can be numbered (got %(number)r)."
+            )
+            % {"number": first_number}
         )
     prefix, digits = match.groups()
     width = len(digits)
@@ -56,11 +60,11 @@ def _validate_book_account(company, treasury_account):
     from apps.treasury.models import TreasuryAccount
 
     if treasury_account is None or treasury_account.company_id != company.id:
-        raise ValidationError("Treasury account belongs to a different company (or is missing).")
+        raise ValidationError(_("Treasury account belongs to a different company (or is missing)."))
     if treasury_account.kind != TreasuryAccount.Kind.BANK:
-        raise ValidationError("Cheque books belong to BANK treasury accounts only.")
+        raise ValidationError(_("Cheque books belong to BANK treasury accounts only."))
     if not treasury_account.is_active:
-        raise ValidationError("Treasury account is inactive.")
+        raise ValidationError(_("Treasury account is inactive."))
     return treasury_account
 
 
@@ -77,11 +81,13 @@ def create_cheque_book(*, company, treasury_account, first_number, leaf_count, l
     try:
         leaf_count = int(leaf_count)
     except (TypeError, ValueError):
-        raise ValidationError("Leaf count must be a whole number.") from None
+        raise ValidationError(_("Leaf count must be a whole number.")) from None
     if leaf_count <= 0:
-        raise ValidationError("A cheque book needs at least one leaf.")
+        raise ValidationError(_("A cheque book needs at least one leaf."))
     if leaf_count > MAX_LEAF_COUNT:
-        raise ValidationError(f"A cheque book cannot have more than {MAX_LEAF_COUNT} leaves.")
+        raise ValidationError(
+            _("A cheque book cannot have more than %(max)s leaves.") % {"max": MAX_LEAF_COUNT}
+        )
     numbers = generate_leaf_numbers(first_number, leaf_count)
     existing = (
         ChequeLeaf.objects.filter(treasury_account=treasury_account, number__in=numbers)
@@ -90,8 +96,11 @@ def create_cheque_book(*, company, treasury_account, first_number, leaf_count, l
     )
     if existing is not None:
         raise ValidationError(
-            f"Leaf number {existing.number} already exists for this bank account "
-            f"(book {existing.book}); cheque book ranges cannot overlap."
+            _(
+                "Leaf number %(number)s already exists for this bank account "
+                "(book %(book)s); cheque book ranges cannot overlap."
+            )
+            % {"number": existing.number, "book": existing.book}
         )
     book = ChequeBook.objects.create(
         company=company,
@@ -133,7 +142,10 @@ def void_leaf(leaf, *, user=None):
 
     leaf = ChequeLeaf.objects.select_for_update().get(pk=leaf.pk)
     if leaf.status != ChequeLeaf.Status.UNUSED:
-        raise ValidationError(f"Only an UNUSED leaf can be voided (this leaf is {leaf.status}).")
+        raise ValidationError(
+            _("Only an UNUSED leaf can be voided (this leaf is %(status)s).")
+            % {"status": leaf.status}
+        )
     leaf.status = ChequeLeaf.Status.VOID
     leaf.save(update_fields=["status", "updated_at"])
     record_event(
@@ -156,13 +168,16 @@ def consume_leaf(leaf, *, company, treasury_account):
 
     leaf = ChequeLeaf.objects.select_for_update().get(pk=leaf.pk)
     if leaf.company_id != company.id:
-        raise ValidationError("The cheque leaf belongs to a different company.")
+        raise ValidationError(_("The cheque leaf belongs to a different company."))
     if leaf.treasury_account_id != treasury_account.id:
         raise ValidationError(
-            "The cheque leaf belongs to a different bank account than the payment's."
+            _("The cheque leaf belongs to a different bank account than the payment's.")
         )
     if leaf.status != ChequeLeaf.Status.UNUSED:
-        raise ValidationError(f"Cheque leaf {leaf.number} is {leaf.status}, not UNUSED.")
+        raise ValidationError(
+            _("Cheque leaf %(number)s is %(status)s, not UNUSED.")
+            % {"number": leaf.number, "status": leaf.status}
+        )
     return leaf
 
 

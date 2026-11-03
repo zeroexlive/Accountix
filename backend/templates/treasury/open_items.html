@@ -1,5 +1,5 @@
-{% extends "base.html" %}{% block content %}
-<h1>اقلام باز</h1>
-{% if items %}<div class="card"><table><tr><th>نوع</th><th>شماره فاکتور</th><th>طرف‌حساب</th><th>مبلغ کل</th><th>تخصیص‌یافته</th><th>مانده باز</th></tr>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "اقلام باز" %}</h1>
+{% if items %}<div class="card"><table><tr><th>{% trans "نوع" %}</th><th>{% trans "شماره فاکتور" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "تخصیص‌یافته" %}</th><th>{% trans "مانده باز" %}</th></tr>
 {% for row in items %}<tr><td>{{ row.kind }}</td><td>{{ row.invoice.invoice_number }}</td><td>{{ row.party.name }}</td><td>{{ row.total }}</td><td>{{ row.allocated }}</td><td>{{ row.outstanding }}</td></tr>{% endfor %}
-</table></div>{% else %}<p class="empty">قلم بازی وجود ندارد.</p>{% endif %}{% endblock %}
+</table></div>{% else %}<p class="empty">{% trans "قلم بازی وجود ندارد." %}</p>{% endif %}{% endblock %}

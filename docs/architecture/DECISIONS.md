@@ -863,3 +863,59 @@ their own setup, so they pass on a fresh clone.
 Toolchain note: `makemessages`/`compilemessages` need the GNU
 gettext tools (`msgfmt`, `xgettext`) on the machine — installed
 here via apt (`gettext` 0.21); see DEVELOPMENT.md.
+
+## ADR-046 — i18n sweep: full UI coverage, English-source services/choices catalogued, zero-migration choice labels (accepted, Sprint 20)
+Sprint 19 (ADR-045) built the pipeline and translated the chrome;
+this ADR records the sweep that completes English mode for the
+whole web UI, plus two source-language facts the sweep established.
+(1) **Coverage.** Every remaining in-scope template (all business
+pages; the print templates stay Persian per ADR-045), form labels
+and help texts, view flash messages, and the dashboard performance
+labels built in `reporting` services are wrapped and translated:
+1032 msgids in each catalog, en at 1032/1032, fa msgstrs empty by
+design (ADR-045's fallback rule). Extraction is a fixpoint — a
+repeated `makemessages` run produces no diff — and a scripted
+census finds zero unwrapped static UI literals in scope (the only
+residual hits are the endonym language switcher, the `٪` numeric
+glyph, one stored void-reason data value in a hidden field, and
+multi-line-call false positives). English mode is verified by a
+crawl test module: list/detail/form pages of every app render
+English UI labels with the Persian originals absent.
+(2) **Service messages are English-source.** The codebase has
+always written service-layer `ValidationError` texts in English
+and rendered them verbatim into the Persian UI. The sweep wraps
+them with `gettext_lazy` and named placeholders (no f-strings
+inside `_()`), so their rendered text is byte-identical in both
+languages today — the whole suite, which asserts many of these
+messages exactly, is the proof — and they are now catalogued
+(273 msgids referenced from service modules) should a future
+sprint choose to translate them into Persian.
+(3) **Choice labels: wrapped, zero migrations.** Model
+`TextChoices` labels are likewise English source literals. Before
+applying anything, wrapping one app's labels in `gettext_lazy`
+was tested against `makemigrations --check`: **no changes
+detected**, because Django's migration serializer evaluates lazy
+proxies to their string values. The wrap was then applied to all
+89 choice labels in seven `models.py` files and the full check
+still reports no changes — no label migrations exist. Choice
+labels therefore enter the catalogs with English msgids; fa
+renders the English label exactly as before (the Persian UI has
+always shown status vocabulary as English labels or raw codes),
+en renders English. As with (2), the gain is cataloguing, not a
+rendering change.
+Convention refined from ADR-045: **the msgid is the source
+literal in the language the source is written in** — Persian for
+templates, forms and view messages; English for services and
+choice labels. Fa falls back to the msgid in both cases, which is
+what makes every step of this programme byte-identical in the
+default UI. One terminology adjudication: where two apps proposed
+different English for one Persian msgid, the globally consistent
+term won (the سند family is "Document", matching the glossary's
+"Stock documents"; context-bearing compounds keep their own
+msgids, e.g. journal-specific "entry" compounds are distinct
+strings and unaffected).
+Test-hygiene note: a test module that POSTs to `set_language`
+must reset the thread's active language afterwards (the view
+activates it in-process); the Sprint 20 crawl module carries an
+autouse `translation.deactivate_all()` teardown fixture, without
+which the default-language jalali tests fail in full-suite order.

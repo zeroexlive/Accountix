@@ -245,6 +245,21 @@ Modular monolith, single Django project under `backend/`:
   launcher (best effort), the bundle build scripts (hard step),
   or the developer (`compilemessages`; needs the gettext tools).
   Suite: 354 passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 20): the wrapping sweep is done — see
+  `SPRINT_20_REPORT.md` and ADR-046. Every in-scope template
+  (all business pages; print templates stay Persian per
+  ADR-045), form label, view flash message and the dashboard
+  performance labels are wrapped and translated: 1032 msgids,
+  en 1032/1032, fa msgstrs empty by design. Two source-language
+  facts now recorded: service `ValidationError` texts and model
+  choice labels are English-source in this codebase — both are
+  wrapped (`gettext_lazy`, named placeholders) with byte-identical
+  rendering in both modes, and the choice labels produce **no
+  migrations** (the serializer evaluates lazy proxies by value;
+  verified with `makemigrations --check`). English mode is
+  crawl-tested per app (labels present, Persian originals
+  absent) plus English form-error and flash rendering.
+  Suite: 363 passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -382,7 +397,10 @@ service, create-from-file totals identity + UI); Sprint 19:
 +8 (i18n: default fa/RTL chrome, en switch + LTR rendering,
 cookie persistence across login, switch back, jalali filter
 language branches, untranslated-msgid fallback, production/
-standalone i18n settings wiring) — see the sprint reports for exact
+standalone i18n settings wiring); Sprint 20:
++9 (i18n sweep: English-mode crawl of list/detail/form pages for
+every app, English service form error, English success/info
+flashes) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -415,9 +433,12 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    release gate #15 VERIFIED, and the restore procedure is now
    actually written in PRODUCTION.md). ~~CAMT.053/OFX statement
    import~~ — done (Sprint 18, ADR-044). ~~i18n groundwork (.po
-   translations)~~ — done (Sprint 19, ADR-045; chrome scope —
-   business-page wrapping sweep remains). Post-v1.0 candidates:
-   Windows verification, the wrapping sweep, an LTR design pass.
+   translations)~~ — done (Sprint 19, ADR-045). ~~i18n wrapping
+   sweep (English mode complete)~~ — done (Sprint 20, ADR-046).
+   Post-v1.0 candidates: Windows verification, an LTR design
+   pass, optionally translating service/choice strings into
+   Persian in fa.po (a product decision — it would change the
+   default UI's status/error vocabulary).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

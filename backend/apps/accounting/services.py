@@ -11,6 +11,7 @@ from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 
 def validate_account_hierarchy(account) -> None:
@@ -18,17 +19,17 @@ def validate_account_hierarchy(account) -> None:
     if parent is None:
         return
     if account.pk and parent.pk == account.pk:
-        raise ValidationError("An account cannot be its own parent.")
+        raise ValidationError(_("An account cannot be its own parent."))
     if parent.company_id != account.company_id:
-        raise ValidationError("Parent account belongs to a different company.")
+        raise ValidationError(_("Parent account belongs to a different company."))
     # Cycle detection: walk ancestors of the proposed parent.
     seen: set = set()
     node = parent
     while node is not None:
         if account.pk and node.pk == account.pk:
-            raise ValidationError("Account hierarchy would contain a cycle.")
+            raise ValidationError(_("Account hierarchy would contain a cycle."))
         if node.pk in seen:  # pre-existing corrupt cycle guard
-            raise ValidationError("Existing account hierarchy contains a cycle.")
+            raise ValidationError(_("Existing account hierarchy contains a cycle."))
         seen.add(node.pk)
         node = node.parent
 
@@ -44,9 +45,11 @@ def _to_decimal(value, field: str) -> Decimal:
     try:
         amount = Decimal(str(value))
     except (InvalidOperation, ValueError):
-        raise ValidationError(f"{field} is not a valid decimal amount.") from None
+        raise ValidationError(
+            _("%(field)s is not a valid decimal amount.") % {"field": field}
+        ) from None
     if amount.is_nan() or amount.is_infinite():
-        raise ValidationError(f"{field} is not a finite amount.")
+        raise ValidationError(_("%(field)s is not a finite amount.") % {"field": field})
     return amount
 
 
@@ -65,7 +68,10 @@ def resolve_fiscal_period(company, entry_date):
         .first()
     )
     if period is None:
-        raise ValidationError(f"No fiscal period of this company contains {entry_date}.")
+        raise ValidationError(
+            _("No fiscal period of this company contains %(entry_date)s.")
+            % {"entry_date": entry_date}
+        )
     return period
 
 
@@ -79,9 +85,11 @@ def _resolve_party(company, raw_party, idx):
         raw_party if isinstance(raw_party, Party) else Party.objects.filter(pk=raw_party).first()
     )
     if party is None:
-        raise ValidationError(f"Line {idx + 1}: party not found.")
+        raise ValidationError(_("Line %(line)s: party not found.") % {"line": idx + 1})
     if party.company_id != company.id:
-        raise ValidationError(f"Line {idx + 1}: party belongs to a different company.")
+        raise ValidationError(
+            _("Line %(line)s: party belongs to a different company.") % {"line": idx + 1}
+        )
     return party
 
 
@@ -90,7 +98,7 @@ def _validate_lines(company, raw_lines):
     from apps.accounting.models import Account
 
     if raw_lines is None or len(raw_lines) < 2:
-        raise ValidationError("A journal entry needs at least two lines.")
+        raise ValidationError(_("A journal entry needs at least two lines."))
     validated = []
     total_debit = ZERO
     total_credit = ZERO
@@ -100,31 +108,46 @@ def _validate_lines(company, raw_lines):
             account_id = raw.get("account_id", account)
             account = Account.objects.filter(pk=account_id).first()
             if account is None:
-                raise ValidationError(f"Line {idx + 1}: account not found.")
+                raise ValidationError(_("Line %(line)s: account not found.") % {"line": idx + 1})
         if account.company_id != company.id:
-            raise ValidationError(f"Line {idx + 1}: account belongs to a different company.")
+            raise ValidationError(
+                _("Line %(line)s: account belongs to a different company.") % {"line": idx + 1}
+            )
         if not account.is_postable:
-            raise ValidationError(f"Line {idx + 1}: account {account.code} is not postable.")
+            raise ValidationError(
+                _("Line %(line)s: account %(code)s is not postable.")
+                % {"line": idx + 1, "code": account.code}
+            )
         if not account.is_active:
-            raise ValidationError(f"Line {idx + 1}: account {account.code} is inactive.")
+            raise ValidationError(
+                _("Line %(line)s: account %(code)s is inactive.")
+                % {"line": idx + 1, "code": account.code}
+            )
         debit = _to_decimal(raw.get("debit", ZERO), f"Line {idx + 1} debit")
         credit = _to_decimal(raw.get("credit", ZERO), f"Line {idx + 1} credit")
         if debit < ZERO or credit < ZERO:
-            raise ValidationError(f"Line {idx + 1}: amounts cannot be negative.")
+            raise ValidationError(
+                _("Line %(line)s: amounts cannot be negative.") % {"line": idx + 1}
+            )
         if debit > ZERO and credit > ZERO:
-            raise ValidationError(f"Line {idx + 1}: a line is either debit or credit, not both.")
+            raise ValidationError(
+                _("Line %(line)s: a line is either debit or credit, not both.") % {"line": idx + 1}
+            )
         if debit == ZERO and credit == ZERO:
-            raise ValidationError(f"Line {idx + 1}: a line cannot be zero on both sides.")
+            raise ValidationError(
+                _("Line %(line)s: a line cannot be zero on both sides.") % {"line": idx + 1}
+            )
         total_debit += debit
         total_credit += credit
         party = _resolve_party(company, raw.get("party"), idx)
         validated.append((account, debit, credit, raw.get("description", ""), party))
     if total_debit != total_credit:
         raise ValidationError(
-            f"Journal entry is not balanced: debit {total_debit} != credit {total_credit}."
+            _("Journal entry is not balanced: debit %(debit)s != credit %(credit)s.")
+            % {"debit": total_debit, "credit": total_credit}
         )
     if total_debit == ZERO:
-        raise ValidationError("Journal entry total cannot be zero.")
+        raise ValidationError(_("Journal entry total cannot be zero."))
     return validated
 
 
@@ -167,9 +190,9 @@ def post_journal_entry(
 
     period = resolve_fiscal_period(company, entry_date)
     if period.status != "OPEN":
-        raise ValidationError("Fiscal period is closed; posting is not allowed.")
+        raise ValidationError(_("Fiscal period is closed; posting is not allowed."))
     if period.company_id != company.id:
-        raise ValidationError("Fiscal period belongs to a different company.")
+        raise ValidationError(_("Fiscal period belongs to a different company."))
 
     validated = _validate_lines(company, lines)
 
@@ -240,22 +263,22 @@ def reverse_journal_entry(*, entry, user=None, reason="", reversal_date=None):
 
     entry = JournalEntry.objects.select_for_update().get(pk=entry.pk)
     if entry.reversal_of_id is not None:
-        raise ValidationError("A reversal entry cannot itself be reversed.")
+        raise ValidationError(_("A reversal entry cannot itself be reversed."))
     if entry.status == JournalEntry.Status.REVERSED:
-        raise ValidationError("This entry has already been reversed.")
+        raise ValidationError(_("This entry has already been reversed."))
     if entry.status != JournalEntry.Status.POSTED:
-        raise ValidationError("Only a POSTED entry can be reversed.")
+        raise ValidationError(_("Only a POSTED entry can be reversed."))
     if JournalReversal.objects.filter(original_entry=entry).exists():
-        raise ValidationError("This entry has already been reversed.")
+        raise ValidationError(_("This entry has already been reversed."))
 
     rev_date = reversal_date or entry.entry_date
     period = resolve_fiscal_period(entry.company, rev_date)
     if period.status != "OPEN":
-        raise ValidationError("Fiscal period for the reversal date is closed.")
+        raise ValidationError(_("Fiscal period for the reversal date is closed."))
 
     original_lines = list(entry.lines.select_related("account").all())
     if len(original_lines) < 2:
-        raise ValidationError("Entry has fewer than two lines and cannot be reversed.")
+        raise ValidationError(_("Entry has fewer than two lines and cannot be reversed."))
 
     reversal = JournalEntry.objects.create(
         company=entry.company,
@@ -335,7 +358,9 @@ def create_journal_draft(
 
     key = idempotency_key or None
     if key and JournalEntry.objects.filter(company=company, idempotency_key=key).exists():
-        raise ValidationError("An entry with this idempotency key already exists for this company.")
+        raise ValidationError(
+            _("An entry with this idempotency key already exists for this company.")
+        )
     period = resolve_fiscal_period(company, entry_date)
     validated = _validate_lines(company, lines)
     entry = JournalEntry.objects.create(
@@ -385,10 +410,10 @@ def post_journal_draft(entry, *, user=None):
     if entry.status == JournalEntry.Status.POSTED:
         return entry
     if entry.status not in (JournalEntry.Status.DRAFT, JournalEntry.Status.VALIDATED):
-        raise ValidationError("Only a DRAFT journal entry can be posted.")
+        raise ValidationError(_("Only a DRAFT journal entry can be posted."))
     period = resolve_fiscal_period(entry.company, entry.entry_date)
     if period.status != "OPEN":
-        raise ValidationError("Fiscal period is closed; posting is not allowed.")
+        raise ValidationError(_("Fiscal period is closed; posting is not allowed."))
     raw_lines = [
         {
             "account": line.account,
@@ -437,25 +462,43 @@ def _parse_opening_line(company, raw, idx):
         account, debit, credit = raw[0], raw[1], raw[2]
         party = raw[3] if len(raw) == 4 else None
     else:
-        raise ValidationError(f"Opening line {idx + 1}: expected a dict or tuple.")
+        raise ValidationError(
+            _("Opening line %(line)s: expected a dict or tuple.") % {"line": idx + 1}
+        )
     if not isinstance(account, Account):
         account = Account.objects.filter(pk=account).first()
         if account is None:
-            raise ValidationError(f"Opening line {idx + 1}: account not found.")
+            raise ValidationError(
+                _("Opening line %(line)s: account not found.") % {"line": idx + 1}
+            )
     if account.company_id != company.id:
-        raise ValidationError(f"Opening line {idx + 1}: account belongs to a different company.")
+        raise ValidationError(
+            _("Opening line %(line)s: account belongs to a different company.") % {"line": idx + 1}
+        )
     if not account.is_postable:
-        raise ValidationError(f"Opening line {idx + 1}: account {account.code} is not postable.")
+        raise ValidationError(
+            _("Opening line %(line)s: account %(code)s is not postable.")
+            % {"line": idx + 1, "code": account.code}
+        )
     if not account.is_active:
-        raise ValidationError(f"Opening line {idx + 1}: account {account.code} is inactive.")
+        raise ValidationError(
+            _("Opening line %(line)s: account %(code)s is inactive.")
+            % {"line": idx + 1, "code": account.code}
+        )
     debit = _to_decimal(debit, f"Opening line {idx + 1} debit")
     credit = _to_decimal(credit, f"Opening line {idx + 1} credit")
     if debit < ZERO or credit < ZERO:
-        raise ValidationError(f"Opening line {idx + 1}: amounts cannot be negative.")
+        raise ValidationError(
+            _("Opening line %(line)s: amounts cannot be negative.") % {"line": idx + 1}
+        )
     if debit > ZERO and credit > ZERO:
-        raise ValidationError(f"Opening line {idx + 1}: a line is either debit or credit.")
+        raise ValidationError(
+            _("Opening line %(line)s: a line is either debit or credit.") % {"line": idx + 1}
+        )
     if debit == ZERO and credit == ZERO:
-        raise ValidationError(f"Opening line {idx + 1}: a line cannot be zero on both sides.")
+        raise ValidationError(
+            _("Opening line %(line)s: a line cannot be zero on both sides.") % {"line": idx + 1}
+        )
     party = _resolve_party(company, party, idx)
     return account, debit, credit, party
 
@@ -481,28 +524,28 @@ def post_opening_balance(*, company, fiscal_year, lines, offset_account, user=No
         return existing
 
     if fiscal_year.company_id != company.id:
-        raise ValidationError("Fiscal year belongs to a different company.")
+        raise ValidationError(_("Fiscal year belongs to a different company."))
     period = fiscal_year.periods.order_by("start_date", "created_at").first()
     if period is None:
-        raise ValidationError("The fiscal year has no periods.")
+        raise ValidationError(_("The fiscal year has no periods."))
     if period.company_id != company.id:
-        raise ValidationError("Fiscal period belongs to a different company.")
+        raise ValidationError(_("Fiscal period belongs to a different company."))
     if period.status != "OPEN":
         raise ValidationError(
-            "The first fiscal period is closed; opening balance cannot be posted."
+            _("The first fiscal period is closed; opening balance cannot be posted.")
         )
 
     if not isinstance(offset_account, Account):
         offset_account = Account.objects.filter(pk=offset_account).first()
         if offset_account is None:
-            raise ValidationError("Offset account not found.")
+            raise ValidationError(_("Offset account not found."))
     if offset_account.company_id != company.id:
-        raise ValidationError("Offset account belongs to a different company.")
+        raise ValidationError(_("Offset account belongs to a different company."))
     if not offset_account.is_postable or not offset_account.is_active:
-        raise ValidationError("Offset account is not postable/active.")
+        raise ValidationError(_("Offset account is not postable/active."))
 
     if not lines:
-        raise ValidationError("An opening balance needs at least one line.")
+        raise ValidationError(_("An opening balance needs at least one line."))
     parsed = [_parse_opening_line(company, raw, idx) for idx, raw in enumerate(lines)]
     total_debit = sum((p[1] for p in parsed), ZERO)
     total_credit = sum((p[2] for p in parsed), ZERO)
@@ -517,7 +560,7 @@ def post_opening_balance(*, company, fiscal_year, lines, offset_account, user=No
     elif diff < ZERO:
         journal_lines.append({"account": offset_account, "debit": -diff})
     if len(journal_lines) < 2:
-        raise ValidationError("An opening balance needs at least two journal lines.")
+        raise ValidationError(_("An opening balance needs at least two journal lines."))
 
     return post_journal_entry(
         company=company,
@@ -574,20 +617,20 @@ def close_fiscal_period(*, company, period, retained_earnings, user=None):
 
     period = FiscalPeriod.objects.select_for_update().get(pk=period.pk)
     if period.company_id != company.id:
-        raise ValidationError("Fiscal period belongs to a different company.")
+        raise ValidationError(_("Fiscal period belongs to a different company."))
     if period.status == FiscalPeriod.Status.CLOSED:
-        raise ValidationError("This fiscal period is already closed.")
+        raise ValidationError(_("This fiscal period is already closed."))
     if _closing_entry_for_period(company, period) is not None:
-        raise ValidationError("This fiscal period already has an active closing entry.")
+        raise ValidationError(_("This fiscal period already has an active closing entry."))
 
     if not isinstance(retained_earnings, Account):
         retained_earnings = Account.objects.filter(pk=retained_earnings).first()
         if retained_earnings is None:
-            raise ValidationError("Retained earnings account not found.")
+            raise ValidationError(_("Retained earnings account not found."))
     if retained_earnings.company_id != company.id:
-        raise ValidationError("Retained earnings account belongs to a different company.")
+        raise ValidationError(_("Retained earnings account belongs to a different company."))
     if not retained_earnings.is_postable or not retained_earnings.is_active:
-        raise ValidationError("Retained earnings account is not postable/active.")
+        raise ValidationError(_("Retained earnings account is not postable/active."))
 
     grouped = (
         JournalLine.objects.filter(
@@ -669,9 +712,9 @@ def reopen_fiscal_period(*, company, period, user=None):
 
     period = FiscalPeriod.objects.select_for_update().get(pk=period.pk)
     if period.company_id != company.id:
-        raise ValidationError("Fiscal period belongs to a different company.")
+        raise ValidationError(_("Fiscal period belongs to a different company."))
     if period.status != FiscalPeriod.Status.CLOSED:
-        raise ValidationError("Only a CLOSED fiscal period can be reopened.")
+        raise ValidationError(_("Only a CLOSED fiscal period can be reopened."))
 
     closing_entry = _closing_entry_for_period(company, period)
     period.status = FiscalPeriod.Status.OPEN
@@ -707,7 +750,7 @@ def close_fiscal_year(*, company, fiscal_year, retained_earnings, user=None):
 
     fiscal_year = FiscalYear.objects.select_for_update().get(pk=fiscal_year.pk)
     if fiscal_year.company_id != company.id:
-        raise ValidationError("Fiscal year belongs to a different company.")
+        raise ValidationError(_("Fiscal year belongs to a different company."))
 
     entries = []
     for period in fiscal_year.periods.order_by("start_date", "created_at"):

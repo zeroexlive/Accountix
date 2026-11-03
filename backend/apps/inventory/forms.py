@@ -1,6 +1,7 @@
 """Inventory forms (master data Sprint 12; stock counts Sprint 13)."""
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog.models import Product, Unit
 from apps.core.forms import date_widget
@@ -12,7 +13,12 @@ class WarehouseForm(forms.ModelForm):
     class Meta:
         model = Warehouse
         fields = ["company", "code", "name", "is_active"]
-        labels = {"company": "شرکت", "code": "کد انبار", "name": "نام انبار", "is_active": "فعال"}
+        labels = {
+            "company": _("شرکت"),
+            "code": _("کد انبار"),
+            "name": _("نام انبار"),
+            "is_active": _("فعال"),
+        }
 
 
 class InventoryCountCreateForm(forms.Form):
@@ -22,16 +28,16 @@ class InventoryCountCreateForm(forms.Form):
     count page before posting."""
 
     company = forms.ModelChoiceField(
-        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label=_("شرکت")
     )
-    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label="انبار")
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label=_("انبار"))
     count_date = forms.DateField(
         widget=date_widget(),
-        label="تاریخ شمارش",
-        help_text="تاریخ به میلادی وارد می‌شود؛ نمایش تاریخ‌ها در سامانه جلالی است.",
+        label=_("تاریخ شمارش"),
+        help_text=_("تاریخ به میلادی وارد می‌شود؛ نمایش تاریخ‌ها در سامانه جلالی است."),
     )
     description = forms.CharField(
-        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label="شرح"
+        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label=_("شرح")
     )
 
     def __init__(self, *args, companies=None, company=None, **kwargs):
@@ -49,9 +55,9 @@ class CountLineEditForm(forms.Form):
     optional unit cost used to value a positive variance of a product
     that has no stock (the service's adjustment rule)."""
 
-    counted_qty = forms.DecimalField(max_digits=19, decimal_places=3, label="شمارش‌شده")
+    counted_qty = forms.DecimalField(max_digits=19, decimal_places=3, label=_("شمارش‌شده"))
     unit_cost = forms.DecimalField(
-        max_digits=19, decimal_places=6, required=False, label="بهای واحد (فقط کالای یافت‌شده)"
+        max_digits=19, decimal_places=6, required=False, label=_("بهای واحد (فقط کالای یافت‌شده)")
     )
 
 
@@ -65,10 +71,10 @@ class CountPostForm(forms.Form):
     adjustment only (GL is opt-in, ADR-013)."""
 
     inventory_account: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, required=False, label="حساب موجودی (دفتر کل)"
+        queryset=None, required=False, label=_("حساب موجودی (دفتر کل)")
     )
     variance_account: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, required=False, label="حساب مغایرت انبارگردانی"
+        queryset=None, required=False, label=_("حساب مغایرت انبارگردانی")
     )
 
     def __init__(self, *args, company=None, **kwargs):
@@ -83,7 +89,9 @@ class CountPostForm(forms.Form):
         cleaned = super().clean()
         if bool(cleaned.get("inventory_account")) != bool(cleaned.get("variance_account")):
             raise forms.ValidationError(
-                "برای ثبت سند مغایرت، هر دو حساب موجودی و مغایرت را انتخاب کنید یا هیچ‌کدام را انتخاب نکنید."
+                _(
+                    "برای ثبت سند مغایرت، هر دو حساب موجودی و مغایرت را انتخاب کنید یا هیچ‌کدام را انتخاب نکنید."
+                )
             )
         return cleaned
 
@@ -96,34 +104,34 @@ class StockDocumentForm(forms.Form):
     the view."""
 
     PURPOSE_CHOICES = [
-        ("NORMAL", "عادی"),
-        ("OPENING_STOCK", "موجودی اول دوره"),
+        ("NORMAL", _("عادی")),
+        ("OPENING_STOCK", _("موجودی اول دوره")),
     ]
 
     company = forms.ModelChoiceField(
-        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label=_("شرکت")
     )
     doc_type = forms.ChoiceField(
         choices=[
-            (StockDocument.DocType.RECEIPT, "رسید (ورود)"),
-            (StockDocument.DocType.ISSUE, "حواله (خروج)"),
-            (StockDocument.DocType.TRANSFER, "انتقال بین انبارها"),
-            (StockDocument.DocType.ADJUSTMENT, "تعدیل"),
+            (StockDocument.DocType.RECEIPT, _("رسید (ورود)")),
+            (StockDocument.DocType.ISSUE, _("حواله (خروج)")),
+            (StockDocument.DocType.TRANSFER, _("انتقال بین انبارها")),
+            (StockDocument.DocType.ADJUSTMENT, _("تعدیل")),
         ],
-        label="نوع سند",
+        label=_("نوع سند"),
     )
-    purpose = forms.ChoiceField(choices=PURPOSE_CHOICES, initial="NORMAL", label="کاربرد سند")
-    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label="انبار")
+    purpose = forms.ChoiceField(choices=PURPOSE_CHOICES, initial="NORMAL", label=_("کاربرد سند"))
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label=_("انبار"))
     destination_warehouse = forms.ModelChoiceField(
-        queryset=Warehouse.objects.none(), required=False, label="انبار مقصد (فقط انتقال)"
+        queryset=Warehouse.objects.none(), required=False, label=_("انبار مقصد (فقط انتقال)")
     )
     doc_date = forms.DateField(
         widget=date_widget(),
-        label="تاریخ سند",
-        help_text="تاریخ به میلادی وارد می‌شود؛ نمایش تاریخ‌ها در سامانه جلالی است.",
+        label=_("تاریخ سند"),
+        help_text=_("تاریخ به میلادی وارد می‌شود؛ نمایش تاریخ‌ها در سامانه جلالی است."),
     )
     description = forms.CharField(
-        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label="شرح"
+        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label=_("شرح")
     )
 
     def __init__(self, *args, companies=None, company=None, **kwargs):
@@ -141,11 +149,11 @@ class StockDocumentLineForm(forms.Form):
     service for receipts (and for positive adjustments of products
     without stock); issues and transfers are costed by MWAC."""
 
-    product = forms.ModelChoiceField(queryset=Product.objects.none(), label="کالا")
-    unit = forms.ModelChoiceField(queryset=Unit.objects.none(), required=False, label="واحد")
-    quantity = forms.DecimalField(max_digits=19, decimal_places=3, label="مقدار")
+    product = forms.ModelChoiceField(queryset=Product.objects.none(), label=_("کالا"))
+    unit = forms.ModelChoiceField(queryset=Unit.objects.none(), required=False, label=_("واحد"))
+    quantity = forms.DecimalField(max_digits=19, decimal_places=3, label=_("مقدار"))
     unit_cost = forms.DecimalField(
-        max_digits=19, decimal_places=6, required=False, label="بهای واحد (رسید)"
+        max_digits=19, decimal_places=6, required=False, label=_("بهای واحد (رسید)")
     )
 
     def __init__(self, *args, company=None, **kwargs):
@@ -169,10 +177,10 @@ class StockDocumentPostForm(forms.Form):
     stock without a journal either way."""
 
     inventory_account: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, required=False, label="حساب موجودی (دفتر کل)"
+        queryset=None, required=False, label=_("حساب موجودی (دفتر کل)")
     )
     offset_account: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, required=False, label="حساب طرف مقابل"
+        queryset=None, required=False, label=_("حساب طرف مقابل")
     )
 
     def __init__(self, *args, company=None, **kwargs):
@@ -187,6 +195,8 @@ class StockDocumentPostForm(forms.Form):
         cleaned = super().clean()
         if bool(cleaned.get("inventory_account")) != bool(cleaned.get("offset_account")):
             raise forms.ValidationError(
-                "برای ثبت سند حسابداری، هر دو حساب موجودی و طرف مقابل را انتخاب کنید یا هیچ‌کدام را انتخاب نکنید."
+                _(
+                    "برای ثبت سند حسابداری، هر دو حساب موجودی و طرف مقابل را انتخاب کنید یا هیچ‌کدام را انتخاب نکنید."
+                )
             )
         return cleaned

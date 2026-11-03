@@ -40,6 +40,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 ZERO = Decimal("0")
 CENT = Decimal("0.01")
@@ -49,9 +50,9 @@ def _dec(value, field: str) -> Decimal:
     try:
         amount = Decimal(str(value))
     except (InvalidOperation, ValueError):
-        raise ValidationError(f"{field} is not a valid decimal.") from None
+        raise ValidationError(_("%(field)s is not a valid decimal.") % {"field": field}) from None
     if amount.is_nan() or amount.is_infinite():
-        raise ValidationError(f"{field} is not finite.")
+        raise ValidationError(_("%(field)s is not finite.") % {"field": field})
     return amount
 
 
@@ -66,15 +67,17 @@ def _money(value: Decimal) -> Decimal:
 
 def _validate_product_line(company, product, unit, quantity, unit_price, price_field):
     if product is None or product.company_id != company.id:
-        raise ValidationError("Line product belongs to a different company (or is missing).")
+        raise ValidationError(_("Line product belongs to a different company (or is missing)."))
     if not product.is_active:
-        raise ValidationError(f"Product {product.sku} is inactive.")
+        raise ValidationError(_("Product %(sku)s is inactive.") % {"sku": product.sku})
     if unit is not None and unit.company_id != company.id:
-        raise ValidationError("Line unit belongs to a different company.")
+        raise ValidationError(_("Line unit belongs to a different company."))
     if quantity is None or quantity <= ZERO:
-        raise ValidationError("Line quantity must be positive.")
+        raise ValidationError(_("Line quantity must be positive."))
     if unit_price is None or unit_price < ZERO:
-        raise ValidationError(f"Line {price_field} cannot be negative.")
+        raise ValidationError(
+            _("Line %(price_field)s cannot be negative.") % {"price_field": price_field}
+        )
 
 
 def validate_quotation_line(line) -> None:
@@ -97,11 +100,11 @@ def validate_invoice_line(line) -> None:
         line.invoice.company, line.product, line.unit, line.quantity, line.unit_price, "unit price"
     )
     if line.discount_amount is not None and line.discount_amount < ZERO:
-        raise ValidationError("Line discount cannot be negative.")
+        raise ValidationError(_("Line discount cannot be negative."))
     if line.discount_amount is not None and line.discount_amount > line.gross_amount():
-        raise ValidationError("Line discount cannot exceed the line gross amount.")
+        raise ValidationError(_("Line discount cannot exceed the line gross amount."))
     if line.tax_rate is not None and line.tax_rate < ZERO:
-        raise ValidationError("Line tax rate cannot be negative.")
+        raise ValidationError(_("Line tax rate cannot be negative."))
 
 
 def validate_return_line(line) -> None:
@@ -109,11 +112,11 @@ def validate_return_line(line) -> None:
         return
     ret = line.sales_return
     if line.invoice_line.invoice_id != ret.original_invoice_id:
-        raise ValidationError("Return line references a line of a different invoice.")
+        raise ValidationError(_("Return line references a line of a different invoice."))
     if line.product_id != line.invoice_line.product_id:
-        raise ValidationError("Return line product does not match the invoice line product.")
+        raise ValidationError(_("Return line product does not match the invoice line product."))
     if line.quantity is None or line.quantity <= ZERO:
-        raise ValidationError("Return line quantity must be positive.")
+        raise ValidationError(_("Return line quantity must be positive."))
 
 
 # ---------------------------------------------------------------------------
@@ -129,17 +132,19 @@ def _resolve_account(company, gl_accounts, key):
         return None
     account = item if isinstance(item, Account) else Account.objects.filter(pk=item).first()
     if account is None:
-        raise ValidationError(f"GL account '{key}' not found.")
+        raise ValidationError(_("GL account '%(key)s' not found.") % {"key": key})
     if account.company_id != company.id:
-        raise ValidationError(f"GL account '{key}' belongs to a different company.")
+        raise ValidationError(
+            _("GL account '%(key)s' belongs to a different company.") % {"key": key}
+        )
     return account
 
 
 def _check_warehouse(company, warehouse):
     if warehouse.company_id != company.id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
     if not warehouse.is_active:
-        raise ValidationError(f"Warehouse {warehouse.code} is inactive.")
+        raise ValidationError(_("Warehouse %(code)s is inactive.") % {"code": warehouse.code})
 
 
 @transaction.atomic
@@ -152,7 +157,7 @@ def create_sales_quotation(
 
     require_customer(company, customer)
     if not lines:
-        raise ValidationError("A sales quotation needs at least one line.")
+        raise ValidationError(_("A sales quotation needs at least one line."))
     quotation = SalesQuotation(
         company=company,
         customer=customer,
@@ -196,11 +201,11 @@ def create_sales_invoice(
     _check_warehouse(company, warehouse)
     if quotation is not None:
         if quotation.company_id != company.id:
-            raise ValidationError("Quotation belongs to a different company.")
+            raise ValidationError(_("Quotation belongs to a different company."))
         if quotation.customer_id != customer.id:
-            raise ValidationError("Quotation customer does not match the invoice customer.")
+            raise ValidationError(_("Quotation customer does not match the invoice customer."))
     if not lines:
-        raise ValidationError("A sales invoice needs at least one line.")
+        raise ValidationError(_("A sales invoice needs at least one line."))
 
     invoice = SalesInvoice(
         company=company,
@@ -240,7 +245,7 @@ def convert_quotation_to_invoice(
 
     quotation = SalesQuotation.objects.select_for_update().get(pk=quotation.pk)
     if quotation.status not in (SalesQuotation.Status.DRAFT, SalesQuotation.Status.SENT):
-        raise ValidationError("Only a DRAFT or SENT quotation can be converted to an invoice.")
+        raise ValidationError(_("Only a DRAFT or SENT quotation can be converted to an invoice."))
     lines = [
         {
             "product": line.product,
@@ -251,7 +256,7 @@ def convert_quotation_to_invoice(
         for line in quotation.lines.select_related("product", "unit").all()
     ]
     if not lines:
-        raise ValidationError("A sales quotation needs at least one line.")
+        raise ValidationError(_("A sales quotation needs at least one line."))
     invoice = create_sales_invoice(
         company=quotation.company,
         customer=quotation.customer,
@@ -275,11 +280,11 @@ def create_sales_return(
     from apps.sales.models import SalesReturn, SalesReturnLine
 
     if original_invoice.company_id != company.id:
-        raise ValidationError("Original invoice belongs to a different company.")
+        raise ValidationError(_("Original invoice belongs to a different company."))
     if original_invoice.status != "POSTED":
-        raise ValidationError("Returns can only be created against a POSTED sales invoice.")
+        raise ValidationError(_("Returns can only be created against a POSTED sales invoice."))
     if not lines:
-        raise ValidationError("A sales return needs at least one line.")
+        raise ValidationError(_("A sales return needs at least one line."))
 
     ret = SalesReturn(
         company=company,
@@ -372,17 +377,17 @@ def post_sales_invoice(invoice, *, user=None, gl_accounts=None):
     if invoice.status == SalesInvoice.Status.POSTED:
         return invoice
     if invoice.status != SalesInvoice.Status.DRAFT:
-        raise ValidationError("Only a DRAFT sales invoice can be posted.")
+        raise ValidationError(_("Only a DRAFT sales invoice can be posted."))
 
     from apps.parties.services import require_customer
 
     require_customer(invoice.company, invoice.customer)
     if invoice.warehouse.company_id != invoice.company_id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
 
     rows, totals = compute_invoice_totals(invoice)
     if not rows:
-        raise ValidationError("A sales invoice needs at least one line.")
+        raise ValidationError(_("A sales invoice needs at least one line."))
     net_total = totals["subtotal"] - totals["discount_total"]
 
     accounts = {}
@@ -392,18 +397,18 @@ def post_sales_invoice(invoice, *, user=None, gl_accounts=None):
             for key in ("receivables", "revenue", "tax_payable", "cogs", "inventory")
         }
         if accounts["receivables"] is None:
-            raise ValidationError("gl_accounts must include a 'receivables' account.")
+            raise ValidationError(_("gl_accounts must include a 'receivables' account."))
         if net_total > ZERO and accounts["revenue"] is None:
-            raise ValidationError("gl_accounts must include a 'revenue' account.")
+            raise ValidationError(_("gl_accounts must include a 'revenue' account."))
         if totals["tax_total"] > ZERO and accounts["tax_payable"] is None:
             raise ValidationError(
-                "gl_accounts must include a 'tax_payable' account when tax is charged."
+                _("gl_accounts must include a 'tax_payable' account when tax is charged.")
             )
         if any(r["line"].product.is_stockable for r in rows) and (
             accounts["cogs"] is None or accounts["inventory"] is None
         ):
             raise ValidationError(
-                "gl_accounts must include 'cogs' and 'inventory' accounts for stockable lines."
+                _("gl_accounts must include 'cogs' and 'inventory' accounts for stockable lines.")
             )
 
     # 1) Stock issue for stockable lines, valued at the current MWAC.
@@ -520,9 +525,9 @@ def reverse_sales_invoice(invoice, *, user=None, reason=""):
 
     invoice = SalesInvoice.objects.select_for_update().get(pk=invoice.pk)
     if invoice.status == SalesInvoice.Status.REVERSED:
-        raise ValidationError("This sales invoice has already been reversed.")
+        raise ValidationError(_("This sales invoice has already been reversed."))
     if invoice.status != SalesInvoice.Status.POSTED:
-        raise ValidationError("Only a POSTED sales invoice can be reversed.")
+        raise ValidationError(_("Only a POSTED sales invoice can be reversed."))
 
     if invoice.cogs_journal_entry_id is not None:
         from apps.accounting.services import reverse_journal_entry
@@ -610,15 +615,15 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
     if ret.status == SalesReturn.Status.POSTED:
         return ret
     if ret.status != SalesReturn.Status.DRAFT:
-        raise ValidationError("Only a DRAFT sales return can be posted.")
+        raise ValidationError(_("Only a DRAFT sales return can be posted."))
 
     invoice = ret.original_invoice
     if invoice.status != "POSTED":
-        raise ValidationError("The original sales invoice is not POSTED.")
+        raise ValidationError(_("The original sales invoice is not POSTED."))
 
     lines = list(ret.lines.select_related("invoice_line", "product", "unit").all())
     if not lines:
-        raise ValidationError("A sales return needs at least one line.")
+        raise ValidationError(_("A sales return needs at least one line."))
 
     net_total = ZERO
     tax_total = ZERO
@@ -628,8 +633,11 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
         already = returned_quantity(line.invoice_line)
         if already + line.quantity > line.invoice_line.quantity:
             raise ValidationError(
-                f"Return quantity for {line.product.sku} exceeds the sold "
-                f"quantity minus previous returns ({already} already returned)."
+                _(
+                    "Return quantity for %(sku)s exceeds the sold "
+                    "quantity minus previous returns (%(already)s already returned)."
+                )
+                % {"sku": line.product.sku, "already": already}
             )
         ratio = line.quantity / line.invoice_line.quantity
         line_net = _money(line.invoice_line.net_amount() * ratio)
@@ -640,7 +648,8 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
             unit_cost = _original_issue_unit_cost(invoice, line.product)
             if unit_cost is None:
                 raise ValidationError(
-                    f"No issue movement found for {line.product.sku} on the original invoice."
+                    _("No issue movement found for %(sku)s on the original invoice.")
+                    % {"sku": line.product.sku}
                 )
             unit = line.unit or line.product.base_unit
             base_qty = convert_quantity(
@@ -686,12 +695,14 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
         tax_payable = _resolve_account(ret.company, gl_accounts, "tax_payable")
         if receivables is None or revenue is None:
             raise ValidationError(
-                "gl_accounts must include 'receivables' and 'revenue' for a return "
-                "against a GL-posted invoice."
+                _(
+                    "gl_accounts must include 'receivables' and 'revenue' for a return "
+                    "against a GL-posted invoice."
+                )
             )
         if tax_total > ZERO and tax_payable is None:
             raise ValidationError(
-                "gl_accounts must include a 'tax_payable' account when tax is reversed."
+                _("gl_accounts must include a 'tax_payable' account when tax is reversed.")
             )
         reversal_lines = []
         if net_total > ZERO:
@@ -716,8 +727,10 @@ def post_sales_return(sales_return, *, user=None, gl_accounts=None):
             cogs_account = _resolve_account(ret.company, gl_accounts, "cogs")
             if inventory_account is None or cogs_account is None:
                 raise ValidationError(
-                    "gl_accounts must include 'inventory' and 'cogs' for a return "
-                    "against a GL-posted invoice."
+                    _(
+                        "gl_accounts must include 'inventory' and 'cogs' for a return "
+                        "against a GL-posted invoice."
+                    )
                 )
             cogs_journal_entry = post_journal_entry(
                 company=ret.company,
@@ -773,9 +786,9 @@ def reverse_sales_return(sales_return, *, user=None, reason=""):
 
     ret = SalesReturn.objects.select_for_update().get(pk=sales_return.pk)
     if ret.status == SalesReturn.Status.REVERSED:
-        raise ValidationError("This sales return has already been reversed.")
+        raise ValidationError(_("This sales return has already been reversed."))
     if ret.status != SalesReturn.Status.POSTED:
-        raise ValidationError("Only a POSTED sales return can be reversed.")
+        raise ValidationError(_("Only a POSTED sales return can be reversed."))
 
     if ret.cogs_journal_entry_id is not None:
         from apps.accounting.services import reverse_journal_entry

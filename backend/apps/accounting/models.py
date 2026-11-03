@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting import services
 from apps.core.models import TimeStampedUUIDModel
@@ -12,15 +13,15 @@ class Account(TimeStampedUUIDModel):
     """Chart-of-accounts node (Sprint 01). Journal models follow below."""
 
     class AccountType(models.TextChoices):
-        ASSET = "ASSET", "Asset"
-        LIABILITY = "LIABILITY", "Liability"
-        EQUITY = "EQUITY", "Equity"
-        REVENUE = "REVENUE", "Revenue"
-        EXPENSE = "EXPENSE", "Expense"
+        ASSET = "ASSET", _("Asset")
+        LIABILITY = "LIABILITY", _("Liability")
+        EQUITY = "EQUITY", _("Equity")
+        REVENUE = "REVENUE", _("Revenue")
+        EXPENSE = "EXPENSE", _("Expense")
 
     class NormalBalance(models.TextChoices):
-        DEBIT = "DEBIT", "Debit"
-        CREDIT = "CREDIT", "Credit"
+        DEBIT = "DEBIT", _("Debit")
+        CREDIT = "CREDIT", _("Credit")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="accounts")
     parent = models.ForeignKey(
@@ -78,10 +79,10 @@ class JournalEntry(TimeStampedUUIDModel):
     """
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        VALIDATED = "VALIDATED", "Validated"
-        POSTED = "POSTED", "Posted"
-        REVERSED = "REVERSED", "Reversed"
+        DRAFT = "DRAFT", _("Draft")
+        VALIDATED = "VALIDATED", _("Validated")
+        POSTED = "POSTED", _("Posted")
+        REVERSED = "REVERSED", _("Reversed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="journal_entries")
     fiscal_period = models.ForeignKey(
@@ -149,13 +150,13 @@ class JournalEntry(TimeStampedUUIDModel):
                 )
                 if not allowed:
                     raise ValidationError(
-                        "Posted journal entries are immutable; reverse the entry instead."
+                        _("Posted journal entries are immutable; reverse the entry instead.")
                     )
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Posted journal entries cannot be deleted.")
+            raise ValidationError(_("Posted journal entries cannot be deleted."))
         return super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -198,7 +199,7 @@ class JournalLine(TimeStampedUUIDModel):
 
     def _guard_mutable(self):
         if self.entry_id and self.entry.status in _IMMUTABLE_STATUSES:
-            raise ValidationError("Lines of a posted journal entry are immutable.")
+            raise ValidationError(_("Lines of a posted journal entry are immutable."))
 
     def save(self, *args, **kwargs):
         # Refetch status to avoid acting on a stale in-memory entry.
@@ -209,7 +210,7 @@ class JournalLine(TimeStampedUUIDModel):
                 .first()
             )
             if status in _IMMUTABLE_STATUSES:
-                raise ValidationError("Lines of a posted journal entry are immutable.")
+                raise ValidationError(_("Lines of a posted journal entry are immutable."))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

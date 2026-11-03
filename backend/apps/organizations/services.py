@@ -5,11 +5,15 @@ same rules apply to forms, the API and future importers.
 """
 
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 def validate_date_range(start, end, *, start_label="Start date", end_label="End date"):
     if start and end and start > end:
-        raise ValidationError(f"{start_label} must be on or before {end_label}.")
+        raise ValidationError(
+            _("%(start_label)s must be on or before %(end_label)s.")
+            % {"start_label": start_label, "end_label": end_label}
+        )
 
 
 def fiscal_years_overlap(company_id, start, end, *, exclude_id=None) -> bool:
@@ -41,7 +45,7 @@ def validate_fiscal_year(instance) -> None:
             instance.company_id, instance.start_date, instance.end_date, exclude_id=instance.pk
         )
     ):
-        raise ValidationError("Fiscal year overlaps an existing fiscal year for this company.")
+        raise ValidationError(_("Fiscal year overlaps an existing fiscal year for this company."))
 
 
 def validate_fiscal_period(instance) -> None:
@@ -49,11 +53,11 @@ def validate_fiscal_period(instance) -> None:
     if instance.fiscal_year_id:
         fy = instance.fiscal_year
         if instance.company_id and fy.company_id != instance.company_id:
-            raise ValidationError("Fiscal period company does not match its fiscal year.")
+            raise ValidationError(_("Fiscal period company does not match its fiscal year."))
         if instance.start_date and instance.start_date < fy.start_date:
-            raise ValidationError("Fiscal period starts before its fiscal year.")
+            raise ValidationError(_("Fiscal period starts before its fiscal year."))
         if instance.end_date and instance.end_date > fy.end_date:
-            raise ValidationError("Fiscal period ends after its fiscal year.")
+            raise ValidationError(_("Fiscal period ends after its fiscal year."))
         if (
             instance.start_date
             and instance.end_date
@@ -64,4 +68,4 @@ def validate_fiscal_period(instance) -> None:
                 exclude_id=instance.pk,
             )
         ):
-            raise ValidationError("Fiscal period overlaps another period in this fiscal year.")
+            raise ValidationError(_("Fiscal period overlaps another period in this fiscal year."))

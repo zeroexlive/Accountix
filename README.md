@@ -55,9 +55,12 @@ for international markets without a rewrite.
 > translation of the application chrome (shell, navigation,
 > login/lockout, dashboard labels), a cookie-based language
 > switcher (no URL prefixes) and language-aware direction and
-> date display. Business pages are not wrapped yet — in English
-> mode they still render Persian; a wrapping sweep is the named
-> follow-up. No migration in this sprint either.
+> date display. Sprint 20 completed the sweep (ADR-046): every
+> business page, form label, flash message and form error is
+> wrapped and translated (1032 msgids, English 100%), so English
+> mode is now complete for the web UI; only the print templates
+> stay Persian, as Persian business documents. No migration in
+> either sprint.
 
 ## Stack
 
@@ -80,11 +83,11 @@ cd backend
 ```
 
 Open http://127.0.0.1:8000/login/ — the UI defaults to Persian / RTL
-(`lang="fa" dir="rtl"`). An English chrome (shell, navigation,
-login, dashboard labels) can be selected with the language button
-in the sidebar footer or on the login page; the choice is stored
-in a cookie, business pages still render Persian for now
-(ADR-045).
+(`lang="fa" dir="rtl"`). A complete English UI can be selected
+with the language button in the sidebar footer or on the login
+page; the choice is stored in a cookie. Every page, form, flash
+message and form error renders in English; printed documents
+stay Persian (ADR-045/046).
 
 ## Quick start (standalone desktop mode)
 

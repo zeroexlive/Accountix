@@ -1,20 +1,20 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>سال مالی {{ year.name }} — {{ year.company.name }}</h1>
+{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+<h1>{% blocktrans with name=year.name company=year.company.name %}سال مالی {{ name }} — {{ company }}{% endblocktrans %}</h1>
 <div class="card">
-<p>شروع: {{ year.start_date|jalali }} — پایان: {{ year.end_date|jalali }} — وضعیت: {{ year.status }}</p>
-<table><tr><th>دوره</th><th>شروع</th><th>پایان</th><th>وضعیت</th><th>سند اختتامیه</th><th>عملیات</th></tr>
+<p>{% blocktrans with start=year.start_date|jalali end=year.end_date|jalali status=year.status %}شروع: {{ start }} — پایان: {{ end }} — وضعیت: {{ status }}{% endblocktrans %}</p>
+<table><tr><th>{% trans "دوره" %}</th><th>{% trans "شروع" %}</th><th>{% trans "پایان" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "سند اختتامیه" %}</th><th>{% trans "عملیات" %}</th></tr>
 {% for row in rows %}<tr><td>{{ row.period.name }}</td><td>{{ row.period.start_date|jalali }}</td><td>{{ row.period.end_date|jalali }}</td><td>{{ row.period.status }}</td>
-<td>{% if row.closing_entry %}<a href="{% url 'journal_detail' row.closing_entry.pk %}">سند {{ row.closing_entry.entry_date|jalali }}</a>{% else %}—{% endif %}</td>
-<td>{% if row.period.status == 'OPEN' %}<a class="btn btn-ghost" href="{% url 'fiscal_period_close' row.period.pk %}">بستن دوره</a>
-{% elif row.period.status == 'CLOSED' %}<form method="post" action="{% url 'fiscal_period_reopen' row.period.pk %}" onsubmit="return confirm('دوره بازگشایی شود؟ سند اختتامیه برگشت می‌خورد.')">{% csrf_token %}<button type="submit" class="btn-danger">بازگشایی</button></form>{% endif %}</td></tr>
-{% empty %}<tr><td colspan="6" class="empty">این سال مالی دوره‌ای ندارد.</td></tr>{% endfor %}</table>
+<td>{% if row.closing_entry %}<a href="{% url 'journal_detail' row.closing_entry.pk %}">{% blocktrans with date=row.closing_entry.entry_date|jalali %}سند {{ date }}{% endblocktrans %}</a>{% else %}—{% endif %}</td>
+<td>{% if row.period.status == 'OPEN' %}<a class="btn btn-ghost" href="{% url 'fiscal_period_close' row.period.pk %}">{% trans "بستن دوره" %}</a>
+{% elif row.period.status == 'CLOSED' %}<form method="post" action="{% url 'fiscal_period_reopen' row.period.pk %}" onsubmit="return confirm('{% trans "دوره بازگشایی شود؟ سند اختتامیه برگشت می‌خورد." %}')">{% csrf_token %}<button type="submit" class="btn-danger">{% trans "بازگشایی" %}</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="6" class="empty">{% trans "این سال مالی دوره‌ای ندارد." %}</td></tr>{% endfor %}</table>
 </div>
 {% if year.status != 'CLOSED' %}
 <div class="card action-card">
-<h2>بستن سال مالی</h2>
-<p class="empty">همه دوره‌های باز این سال، یکی‌یکی با همان سازوکار بستن دوره بسته می‌شوند و سپس وضعیت سال «بسته» می‌شود.</p>
-<p><a class="btn" href="{% url 'fiscal_year_close' year.pk %}">بستن سال مالی</a></p>
+<h2>{% trans "بستن سال مالی" %}</h2>
+<p class="empty">{% trans "همه دوره‌های باز این سال، یکی‌یکی با همان سازوکار بستن دوره بسته می‌شوند و سپس وضعیت سال «بسته» می‌شود." %}</p>
+<p><a class="btn" href="{% url 'fiscal_year_close' year.pk %}">{% trans "بستن سال مالی" %}</a></p>
 </div>
 {% endif %}
-<p><a class="btn btn-ghost" href="{% url 'fiscal_year_list' %}">بازگشت به سال‌های مالی</a></p>
+<p><a class="btn btn-ghost" href="{% url 'fiscal_year_list' %}">{% trans "بازگشت به سال‌های مالی" %}</a></p>
 {% endblock %}

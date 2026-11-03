@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.accounting.models import Account
@@ -121,7 +122,7 @@ def sales_invoice_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "فاکتور فروش به‌صورت پیش‌نویس ایجاد شد.")
+            messages.success(request, _("فاکتور فروش به‌صورت پیش‌نویس ایجاد شد."))
             return redirect("sales_invoice_detail", pk=invoice.pk)
     return render(
         request,
@@ -144,7 +145,7 @@ def sales_invoice_post(request, pk):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "فاکتور فروش ثبت نهایی شد.")
+            messages.success(request, _("فاکتور فروش ثبت نهایی شد."))
             return redirect("sales_invoice_detail", pk=invoice.pk)
     invoice.refresh_from_db()
     return render(
@@ -163,7 +164,7 @@ def sales_invoice_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "فاکتور فروش برگشت خورد.")
+        messages.success(request, _("فاکتور فروش برگشت خورد."))
     return redirect("sales_invoice_detail", pk=invoice.pk)
 
 
@@ -175,7 +176,7 @@ def sales_return_create(request, pk):
         company_id__in=user_company_ids(request.user),
     )
     if invoice.status != SalesInvoice.Status.POSTED:
-        messages.error(request, "برگشت فقط برای فاکتور ثبت‌نهایی‌شده ممکن است.")
+        messages.error(request, _("برگشت فقط برای فاکتور ثبت‌نهایی‌شده ممکن است."))
         return redirect("sales_invoice_detail", pk=invoice.pk)
     invoice_lines = list(invoice.lines.all())
     initial = [{"invoice_line": line.pk, "quantity": 0} for line in invoice_lines]
@@ -204,7 +205,7 @@ def sales_return_create(request, pk):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "برگشت فروش به‌صورت پیش‌نویس ایجاد شد.")
+            messages.success(request, _("برگشت فروش به‌صورت پیش‌نویس ایجاد شد."))
             return redirect("sales_return_detail", pk=ret.pk)
     line_rows = [
         {
@@ -269,7 +270,7 @@ def sales_return_post(request, pk):
             )
         messages.error(request, " ".join(exc.messages))
         return redirect("sales_return_detail", pk=ret.pk)
-    messages.success(request, "برگشت فروش ثبت نهایی شد.")
+    messages.success(request, _("برگشت فروش ثبت نهایی شد."))
     return redirect("sales_return_detail", pk=ret.pk)
 
 
@@ -282,7 +283,7 @@ def sales_return_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "برگشت فروش برگشت خورد.")
+        messages.success(request, _("برگشت فروش برگشت خورد."))
     return redirect("sales_return_detail", pk=ret.pk)
 
 

@@ -42,6 +42,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 ZERO = Decimal("0")
 CENT = Decimal("0.01")
@@ -51,9 +52,9 @@ def _dec(value, field: str) -> Decimal:
     try:
         amount = Decimal(str(value))
     except (InvalidOperation, ValueError):
-        raise ValidationError(f"{field} is not a valid decimal.") from None
+        raise ValidationError(_("%(field)s is not a valid decimal.") % {"field": field}) from None
     if amount.is_nan() or amount.is_infinite():
-        raise ValidationError(f"{field} is not finite.")
+        raise ValidationError(_("%(field)s is not finite.") % {"field": field})
     return amount
 
 
@@ -68,15 +69,17 @@ def _money(value: Decimal) -> Decimal:
 
 def _validate_product_line(company, product, unit, quantity, unit_price, price_field):
     if product is None or product.company_id != company.id:
-        raise ValidationError("Line product belongs to a different company (or is missing).")
+        raise ValidationError(_("Line product belongs to a different company (or is missing)."))
     if not product.is_active:
-        raise ValidationError(f"Product {product.sku} is inactive.")
+        raise ValidationError(_("Product %(sku)s is inactive.") % {"sku": product.sku})
     if unit is not None and unit.company_id != company.id:
-        raise ValidationError("Line unit belongs to a different company.")
+        raise ValidationError(_("Line unit belongs to a different company."))
     if quantity is None or quantity <= ZERO:
-        raise ValidationError("Line quantity must be positive.")
+        raise ValidationError(_("Line quantity must be positive."))
     if unit_price is None or unit_price < ZERO:
-        raise ValidationError(f"Line {price_field} cannot be negative.")
+        raise ValidationError(
+            _("Line %(price_field)s cannot be negative.") % {"price_field": price_field}
+        )
 
 
 def validate_order_line(line) -> None:
@@ -94,11 +97,11 @@ def validate_invoice_line(line) -> None:
         line.invoice.company, line.product, line.unit, line.quantity, line.unit_cost, "unit cost"
     )
     if line.discount_amount is not None and line.discount_amount < ZERO:
-        raise ValidationError("Line discount cannot be negative.")
+        raise ValidationError(_("Line discount cannot be negative."))
     if line.discount_amount is not None and line.discount_amount > line.gross_amount():
-        raise ValidationError("Line discount cannot exceed the line gross amount.")
+        raise ValidationError(_("Line discount cannot exceed the line gross amount."))
     if line.tax_rate is not None and line.tax_rate < ZERO:
-        raise ValidationError("Line tax rate cannot be negative.")
+        raise ValidationError(_("Line tax rate cannot be negative."))
 
 
 def validate_return_line(line) -> None:
@@ -106,11 +109,11 @@ def validate_return_line(line) -> None:
         return
     ret = line.purchase_return
     if line.invoice_line.invoice_id != ret.original_invoice_id:
-        raise ValidationError("Return line references a line of a different invoice.")
+        raise ValidationError(_("Return line references a line of a different invoice."))
     if line.product_id != line.invoice_line.product_id:
-        raise ValidationError("Return line product does not match the invoice line product.")
+        raise ValidationError(_("Return line product does not match the invoice line product."))
     if line.quantity is None or line.quantity <= ZERO:
-        raise ValidationError("Return line quantity must be positive.")
+        raise ValidationError(_("Return line quantity must be positive."))
 
 
 # ---------------------------------------------------------------------------
@@ -126,9 +129,11 @@ def _resolve_account(company, gl_accounts, key):
         return None
     account = item if isinstance(item, Account) else Account.objects.filter(pk=item).first()
     if account is None:
-        raise ValidationError(f"GL account '{key}' not found.")
+        raise ValidationError(_("GL account '%(key)s' not found.") % {"key": key})
     if account.company_id != company.id:
-        raise ValidationError(f"GL account '{key}' belongs to a different company.")
+        raise ValidationError(
+            _("GL account '%(key)s' belongs to a different company.") % {"key": key}
+        )
     return account
 
 
@@ -150,16 +155,16 @@ def create_purchase_invoice(
 
     require_supplier(company, supplier)
     if warehouse.company_id != company.id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
     if not warehouse.is_active:
-        raise ValidationError(f"Warehouse {warehouse.code} is inactive.")
+        raise ValidationError(_("Warehouse %(code)s is inactive.") % {"code": warehouse.code})
     if purchase_order is not None:
         if purchase_order.company_id != company.id:
-            raise ValidationError("Purchase order belongs to a different company.")
+            raise ValidationError(_("Purchase order belongs to a different company."))
         if purchase_order.supplier_id != supplier.id:
-            raise ValidationError("Purchase order supplier does not match the invoice supplier.")
+            raise ValidationError(_("Purchase order supplier does not match the invoice supplier."))
     if not lines:
-        raise ValidationError("A purchase invoice needs at least one line.")
+        raise ValidationError(_("A purchase invoice needs at least one line."))
 
     invoice = PurchaseInvoice(
         company=company,
@@ -195,11 +200,11 @@ def create_purchase_return(
     from apps.purchases.models import PurchaseReturn, PurchaseReturnLine
 
     if original_invoice.company_id != company.id:
-        raise ValidationError("Original invoice belongs to a different company.")
+        raise ValidationError(_("Original invoice belongs to a different company."))
     if original_invoice.status != "POSTED":
-        raise ValidationError("Returns can only be created against a POSTED purchase invoice.")
+        raise ValidationError(_("Returns can only be created against a POSTED purchase invoice."))
     if not lines:
-        raise ValidationError("A purchase return needs at least one line.")
+        raise ValidationError(_("A purchase return needs at least one line."))
 
     ret = PurchaseReturn(
         company=company,
@@ -291,17 +296,17 @@ def post_purchase_invoice(invoice, *, user=None, gl_accounts=None):
     if invoice.status == PurchaseInvoice.Status.POSTED:
         return invoice
     if invoice.status != PurchaseInvoice.Status.DRAFT:
-        raise ValidationError("Only a DRAFT purchase invoice can be posted.")
+        raise ValidationError(_("Only a DRAFT purchase invoice can be posted."))
 
     from apps.parties.services import require_supplier
 
     require_supplier(invoice.company, invoice.supplier)
     if invoice.warehouse.company_id != invoice.company_id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
 
     rows, totals = compute_invoice_totals(invoice)
     if not rows:
-        raise ValidationError("A purchase invoice needs at least one line.")
+        raise ValidationError(_("A purchase invoice needs at least one line."))
 
     accounts = {}
     if gl_accounts is not None:
@@ -310,15 +315,17 @@ def post_purchase_invoice(invoice, *, user=None, gl_accounts=None):
             for key in ("inventory", "payables", "tax", "expense")
         }
         if accounts["payables"] is None:
-            raise ValidationError("gl_accounts must include a 'payables' account.")
+            raise ValidationError(_("gl_accounts must include a 'payables' account."))
         stock_net = sum((r["net"] for r in rows if r["line"].product.is_stockable), ZERO)
         service_net = sum((r["net"] for r in rows if not r["line"].product.is_stockable), ZERO)
         if stock_net > ZERO and accounts["inventory"] is None:
-            raise ValidationError("gl_accounts must include an 'inventory' account.")
+            raise ValidationError(_("gl_accounts must include an 'inventory' account."))
         if service_net > ZERO and accounts["expense"] is None:
-            raise ValidationError("gl_accounts must include an 'expense' account.")
+            raise ValidationError(_("gl_accounts must include an 'expense' account."))
         if totals["tax_total"] > ZERO and accounts["tax"] is None:
-            raise ValidationError("gl_accounts must include a 'tax' account when tax is charged.")
+            raise ValidationError(
+                _("gl_accounts must include a 'tax' account when tax is charged.")
+            )
 
     # 1) Stock receipt for stockable lines, valued at net unit cost.
     stock_document = None
@@ -422,9 +429,9 @@ def reverse_purchase_invoice(invoice, *, user=None, reason=""):
 
     invoice = PurchaseInvoice.objects.select_for_update().get(pk=invoice.pk)
     if invoice.status == PurchaseInvoice.Status.REVERSED:
-        raise ValidationError("This purchase invoice has already been reversed.")
+        raise ValidationError(_("This purchase invoice has already been reversed."))
     if invoice.status != PurchaseInvoice.Status.POSTED:
-        raise ValidationError("Only a POSTED purchase invoice can be reversed.")
+        raise ValidationError(_("Only a POSTED purchase invoice can be reversed."))
 
     if invoice.stock_document_id is not None:
         from apps.inventory import services as inventory_services
@@ -483,22 +490,25 @@ def post_purchase_return(purchase_return, *, user=None, gl_accounts=None):
     if ret.status == PurchaseReturn.Status.POSTED:
         return ret
     if ret.status != PurchaseReturn.Status.DRAFT:
-        raise ValidationError("Only a DRAFT purchase return can be posted.")
+        raise ValidationError(_("Only a DRAFT purchase return can be posted."))
 
     invoice = ret.original_invoice
     if invoice.status != "POSTED":
-        raise ValidationError("The original purchase invoice is not POSTED.")
+        raise ValidationError(_("The original purchase invoice is not POSTED."))
 
     lines = list(ret.lines.select_related("invoice_line", "product", "unit").all())
     if not lines:
-        raise ValidationError("A purchase return needs at least one line.")
+        raise ValidationError(_("A purchase return needs at least one line."))
     for line in lines:
         validate_return_line(line)
         already = returned_quantity(line.invoice_line)
         if already + line.quantity > line.invoice_line.quantity:
             raise ValidationError(
-                f"Return quantity for {line.product.sku} exceeds the purchased "
-                f"quantity minus previous returns ({already} already returned)."
+                _(
+                    "Return quantity for %(sku)s exceeds the purchased "
+                    "quantity minus previous returns (%(already)s already returned)."
+                )
+                % {"sku": line.product.sku, "already": already}
             )
 
     stock_document = inventory_services.create_stock_document(
@@ -525,8 +535,10 @@ def post_purchase_return(purchase_return, *, user=None, gl_accounts=None):
         payables_account = _resolve_account(ret.company, gl_accounts, "payables")
         if inventory_account is None or payables_account is None:
             raise ValidationError(
-                "gl_accounts must include 'inventory' and 'payables' for a return "
-                "against a GL-posted invoice."
+                _(
+                    "gl_accounts must include 'inventory' and 'payables' for a return "
+                    "against a GL-posted invoice."
+                )
             )
         journal_entry = post_journal_entry(
             company=ret.company,
@@ -576,9 +588,9 @@ def reverse_purchase_return(purchase_return, *, user=None, reason=""):
 
     ret = PurchaseReturn.objects.select_for_update().get(pk=purchase_return.pk)
     if ret.status == PurchaseReturn.Status.REVERSED:
-        raise ValidationError("This purchase return has already been reversed.")
+        raise ValidationError(_("This purchase return has already been reversed."))
     if ret.status != PurchaseReturn.Status.POSTED:
-        raise ValidationError("Only a POSTED purchase return can be reversed.")
+        raise ValidationError(_("Only a POSTED purchase return can be reversed."))
 
     if ret.stock_document_id is not None:
         from apps.inventory import services as inventory_services

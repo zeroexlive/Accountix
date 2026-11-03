@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.models import Account
 from apps.core.forms import date_widget
@@ -37,17 +38,17 @@ class JournalEntryForm(forms.Form):
     user may replace it with their own key."""
 
     company = forms.ModelChoiceField(
-        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label=_("شرکت")
     )
-    entry_date = forms.DateField(widget=date_widget(), label="تاریخ سند")
+    entry_date = forms.DateField(widget=date_widget(), label=_("تاریخ سند"))
     description = forms.CharField(
-        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label="شرح سند"
+        max_length=500, required=False, widget=forms.Textarea(attrs={"rows": 2}), label=_("شرح سند")
     )
     idempotency_key = forms.CharField(
         max_length=100,
         required=False,
-        label="کلید یکتایی (اختیاری)",
-        help_text="برای جلوگیری از ثبت تکراری یک سند؛ خالی بماند، سامانه کلید می‌سازد.",
+        label=_("کلید یکتایی (اختیاری)"),
+        help_text=_("برای جلوگیری از ثبت تکراری یک سند؛ خالی بماند، سامانه کلید می‌سازد."),
     )
 
     def __init__(self, *args, companies=None, **kwargs):
@@ -61,16 +62,16 @@ class JournalLineForm(forms.Form):
     purpose: the one-sided/balanced rules are §6.3 service rules and
     their messages must reach the user verbatim (ADR-039)."""
 
-    account = forms.ModelChoiceField(queryset=Account.objects.none(), label="حساب")
+    account = forms.ModelChoiceField(queryset=Account.objects.none(), label=_("حساب"))
     debit = forms.DecimalField(
-        max_digits=19, decimal_places=2, required=False, initial=0, label="بدهکار"
+        max_digits=19, decimal_places=2, required=False, initial=0, label=_("بدهکار")
     )
     credit = forms.DecimalField(
-        max_digits=19, decimal_places=2, required=False, initial=0, label="بستانکار"
+        max_digits=19, decimal_places=2, required=False, initial=0, label=_("بستانکار")
     )
-    description = forms.CharField(max_length=500, required=False, label="شرح")
+    description = forms.CharField(max_length=500, required=False, label=_("شرح"))
     party = forms.ModelChoiceField(
-        queryset=Party.objects.none(), required=False, label="طرف‌حساب (برچسب فرعی)"
+        queryset=Party.objects.none(), required=False, label=_("طرف‌حساب (برچسب فرعی)")
     )
 
     def __init__(self, *args, company=None, **kwargs):
@@ -91,11 +92,11 @@ class OpeningBalanceForm(forms.Form):
     difference to it, so the entry balances by construction."""
 
     company = forms.ModelChoiceField(
-        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label=_("شرکت")
     )
-    fiscal_year: forms.ModelChoiceField = forms.ModelChoiceField(queryset=None, label="سال مالی")
+    fiscal_year: forms.ModelChoiceField = forms.ModelChoiceField(queryset=None, label=_("سال مالی"))
     offset_account: forms.ModelChoiceField = forms.ModelChoiceField(
-        queryset=None, label="حساب طرف تراز افتتاحیه"
+        queryset=None, label=_("حساب طرف تراز افتتاحیه")
     )
 
     def __init__(self, *args, companies=None, company=None, **kwargs):
@@ -115,15 +116,15 @@ class OpeningLineForm(forms.Form):
     """One opening-balance line: a single-sided amount on a postable
     account, optionally tagged with a party (opening AR/AP)."""
 
-    account = forms.ModelChoiceField(queryset=Account.objects.none(), label="حساب")
+    account = forms.ModelChoiceField(queryset=Account.objects.none(), label=_("حساب"))
     debit = forms.DecimalField(
-        max_digits=19, decimal_places=2, required=False, initial=0, label="بدهکار"
+        max_digits=19, decimal_places=2, required=False, initial=0, label=_("بدهکار")
     )
     credit = forms.DecimalField(
-        max_digits=19, decimal_places=2, required=False, initial=0, label="بستانکار"
+        max_digits=19, decimal_places=2, required=False, initial=0, label=_("بستانکار")
     )
     party = forms.ModelChoiceField(
-        queryset=Party.objects.none(), required=False, label="طرف‌حساب (برچسب فرعی)"
+        queryset=Party.objects.none(), required=False, label=_("طرف‌حساب (برچسب فرعی)")
     )
 
     def __init__(self, *args, company=None, **kwargs):

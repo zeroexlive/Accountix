@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TimeStampedUUIDModel
 from apps.organizations import services
@@ -37,14 +38,14 @@ class Branch(TimeStampedUUIDModel):
 
 class CompanyMembership(TimeStampedUUIDModel):
     class Role(models.TextChoices):
-        OWNER = "OWNER", "Owner"
-        ADMIN = "ADMIN", "Admin"
-        ACCOUNTANT = "ACCOUNTANT", "Accountant"
-        SALES = "SALES", "Sales operator"
-        PURCHASES = "PURCHASES", "Purchasing operator"
-        WAREHOUSE = "WAREHOUSE", "Warehouse manager"
-        CASHIER = "CASHIER", "Cashier"
-        VIEWER = "VIEWER", "Viewer"
+        OWNER = "OWNER", _("Owner")
+        ADMIN = "ADMIN", _("Admin")
+        ACCOUNTANT = "ACCOUNTANT", _("Accountant")
+        SALES = "SALES", _("Sales operator")
+        PURCHASES = "PURCHASES", _("Purchasing operator")
+        WAREHOUSE = "WAREHOUSE", _("Warehouse manager")
+        CASHIER = "CASHIER", _("Cashier")
+        VIEWER = "VIEWER", _("Viewer")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="memberships")
     user = models.ForeignKey(
@@ -70,9 +71,9 @@ class FiscalYear(TimeStampedUUIDModel):
     Documented in docs/architecture/DECISIONS.md (ADR-004)."""
 
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft"
-        OPEN = "OPEN", "Open"
-        CLOSED = "CLOSED", "Closed"
+        DRAFT = "DRAFT", _("Draft")
+        OPEN = "OPEN", _("Open")
+        CLOSED = "CLOSED", _("Closed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="fiscal_years")
     name = models.CharField(max_length=100)
@@ -99,8 +100,8 @@ class FiscalYear(TimeStampedUUIDModel):
 
 class FiscalPeriod(TimeStampedUUIDModel):
     class Status(models.TextChoices):
-        OPEN = "OPEN", "Open"
-        CLOSED = "CLOSED", "Closed"
+        OPEN = "OPEN", _("Open")
+        CLOSED = "CLOSED", _("Closed")
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="fiscal_periods")
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.CASCADE, related_name="periods")

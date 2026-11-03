@@ -1,10 +1,10 @@
-{% extends "base.html" %}{% block content %}
-<h1>مطالبات از مشتریان (حساب‌های دریافتنی)</h1>
-<div class="card"><form method="get"><label>شرکت</label>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "مطالبات از مشتریان (حساب‌های دریافتنی)" %}</h1>
+<div class="card"><form method="get"><label>{% trans "شرکت" %}</label>
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
-<label>حساب دریافتنی</label>
+<label>{% trans "حساب دریافتنی" %}</label>
 <select name="account">{% for a in accounts %}<option value="{{ a.pk }}" {% if account and a.pk == account.pk %}selected{% endif %}>{{ a.code }} — {{ a.name }}</option>{% endfor %}</select>
-<button type="submit">نمایش</button></form></div>
-{% if rows != None %}<div class="card"><table><tr><th>کد</th><th>مشتری</th><th>مانده مطالبات</th></tr>
-{% for r in rows %}<tr><td>{{ r.code }}</td><td>{{ r.name }}</td><td>{{ r.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">مطالبه‌ای ثبت نشده است</td></tr>{% endfor %}</table></div>
-{% else %}<p class="empty">یک شرکت و حساب انتخاب کنید.</p>{% endif %}{% endblock %}
+<button type="submit">{% trans "نمایش" %}</button></form></div>
+{% if rows != None %}<div class="card"><table><tr><th>{% trans "کد" %}</th><th>{% trans "مشتری" %}</th><th>{% trans "مانده مطالبات" %}</th></tr>
+{% for r in rows %}<tr><td>{{ r.code }}</td><td>{{ r.name }}</td><td>{{ r.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "مطالبه‌ای ثبت نشده است" %}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="empty">{% trans "یک شرکت و حساب انتخاب کنید." %}</p>{% endif %}{% endblock %}

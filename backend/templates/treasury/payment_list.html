@@ -1,12 +1,12 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>دریافت‌ها و پرداخت‌ها</h1>
-<p><a class="btn" href="{% url 'payment_create' %}">دریافت / پرداخت جدید</a></p>
+{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+<h1>{% trans "دریافت‌ها و پرداخت‌ها" %}</h1>
+<p><a class="btn" href="{% url 'payment_create' %}">{% trans "دریافت / پرداخت جدید" %}</a></p>
 <div class="card"><form method="get">
-<label>وضعیت</label><select name="status"><option value="">همه</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-<label>روش</label><select name="method"><option value="">همه</option>{% for v,l in methods %}<option value="{{ v }}" {% if request.GET.method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-<label>از تاریخ (میلادی)</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
-<label>تا تاریخ (میلادی)</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
-<button type="submit">پالایش</button></form></div>
-{% if payments %}<div class="card"><table><tr><th>تاریخ</th><th>جهت</th><th>طرف‌حساب</th><th>روش</th><th>مبلغ</th><th>وضعیت</th></tr>
-{% for p in payments %}<tr><td>{{ p.payment_date|jalali }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td>{{ p.amount }}</td><td>{{ p.status }}</td><td><a href="{% url 'payment_detail' p.pk %}">جزئیات</a></td></tr>{% endfor %}
-</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">دریافت یا پرداختی یافت نشد.</p>{% endif %}{% endblock %}
+<label>{% trans "وضعیت" %}</label><select name="status"><option value="">{% trans "همه" %}</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>{% trans "روش" %}</label><select name="method"><option value="">{% trans "همه" %}</option>{% for v,l in methods %}<option value="{{ v }}" {% if request.GET.method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<label>{% trans "از تاریخ (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<button type="submit">{% trans "پالایش" %}</button></form></div>
+{% if payments %}<div class="card"><table><tr><th>{% trans "تاریخ" %}</th><th>{% trans "جهت" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "روش" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th></tr>
+{% for p in payments %}<tr><td>{{ p.payment_date|jalali }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td>{{ p.amount }}</td><td>{{ p.status }}</td><td><a href="{% url 'payment_detail' p.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
+</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">{% trans "دریافت یا پرداختی یافت نشد." %}</p>{% endif %}{% endblock %}

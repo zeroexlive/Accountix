@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
-<h1>انبار جدید</h1>
-<div class="card"><form method="post">{% csrf_token %}{{ form.non_field_errors }}{{ form.as_p }}<button type="submit">ذخیره انبار</button></form></div>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "انبار جدید" %}</h1>
+<div class="card"><form method="post">{% csrf_token %}{{ form.non_field_errors }}{{ form.as_p }}<button type="submit">{% trans "ذخیره انبار" %}</button></form></div>
 {% endblock %}

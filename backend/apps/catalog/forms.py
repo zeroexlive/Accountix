@@ -7,6 +7,7 @@ rejected server-side even before the posting services would see it.
 """
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.catalog.models import Product, ProductCategory, Unit
 
@@ -15,7 +16,12 @@ class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
         fields = ["company", "code", "name", "is_active"]
-        labels = {"company": "شرکت", "code": "کد واحد", "name": "نام واحد", "is_active": "فعال"}
+        labels = {
+            "company": _("شرکت"),
+            "code": _("کد واحد"),
+            "name": _("نام واحد"),
+            "is_active": _("فعال"),
+        }
 
 
 class ProductCategoryForm(forms.ModelForm):
@@ -23,11 +29,11 @@ class ProductCategoryForm(forms.ModelForm):
         model = ProductCategory
         fields = ["company", "parent", "code", "name", "is_active"]
         labels = {
-            "company": "شرکت",
-            "parent": "دسته والد",
-            "code": "کد دسته",
-            "name": "نام دسته",
-            "is_active": "فعال",
+            "company": _("شرکت"),
+            "parent": _("دسته والد"),
+            "code": _("کد دسته"),
+            "name": _("نام دسته"),
+            "is_active": _("فعال"),
         }
 
 
@@ -53,18 +59,18 @@ class ProductForm(forms.ModelForm):
             "default_sale_price",
         ]
         labels = {
-            "company": "شرکت",
-            "category": "دسته‌بندی",
-            "base_unit": "واحد پایه",
-            "sku": "کد کالا (SKU)",
-            "barcode": "بارکد",
-            "name": "نام کالا",
-            "description": "توضیحات",
-            "is_stockable": "قابل انبارش",
-            "is_active": "فعال",
-            "min_stock_level": "حداقل موجودی",
-            "default_purchase_price": "قیمت خرید پیش‌فرض",
-            "default_sale_price": "قیمت فروش پیش‌فرض",
+            "company": _("شرکت"),
+            "category": _("دسته‌بندی"),
+            "base_unit": _("واحد پایه"),
+            "sku": _("کد کالا (SKU)"),
+            "barcode": _("بارکد"),
+            "name": _("نام کالا"),
+            "description": _("توضیحات"),
+            "is_stockable": _("قابل انبارش"),
+            "is_active": _("فعال"),
+            "min_stock_level": _("حداقل موجودی"),
+            "default_purchase_price": _("قیمت خرید پیش‌فرض"),
+            "default_sale_price": _("قیمت فروش پیش‌فرض"),
         }
 
     def __init__(self, *args, company=None, **kwargs):

@@ -1,26 +1,26 @@
-{% extends "base.html" %}{% block content %}
-<h1>{% if party %}ویرایش طرف‌حساب {{ party.code }}{% else %}طرف‌حساب جدید{% endif %}</h1>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% if party %}{% blocktrans with code=party.code %}ویرایش طرف‌حساب {{ code }}{% endblocktrans %}{% else %}{% trans "طرف‌حساب جدید" %}{% endif %}</h1>
 <form method="post" class="doc-form">{% csrf_token %}
 <div class="card">
 {{ form.non_field_errors }}
 {{ form.as_p }}
 </div>
 <div class="card">
-<h2>مخاطبان</h2>
+<h2>{% trans "مخاطبان" %}</h2>
 {{ contacts.management_form }}
 {{ contacts.non_form_errors }}
-<table class="line-table"><tr><th>نام کامل</th><th>نقش</th><th>تلفن</th><th>ایمیل</th><th>اصلی</th><th>حذف</th></tr>
+<table class="line-table"><tr><th>{% trans "نام کامل" %}</th><th>{% trans "نقش" %}</th><th>{% trans "تلفن" %}</th><th>{% trans "ایمیل" %}</th><th>{% trans "اصلی" %}</th><th>{% trans "حذف" %}</th></tr>
 {% for f in contacts %}<tr><td>{{ f.id }}{{ f.full_name }}{{ f.full_name.errors }}</td><td>{{ f.role }}{{ f.role.errors }}</td><td>{{ f.phone }}{{ f.phone.errors }}</td><td>{{ f.email }}{{ f.email.errors }}</td><td>{{ f.is_primary }}</td><td>{{ f.DELETE }}</td></tr>{% endfor %}
 </table>
 </div>
 <div class="card">
-<h2>نشانی‌ها</h2>
+<h2>{% trans "نشانی‌ها" %}</h2>
 {{ addresses.management_form }}
 {{ addresses.non_form_errors }}
-<table class="line-table"><tr><th>عنوان</th><th>نشانی ۱</th><th>نشانی ۲</th><th>شهر</th><th>استان</th><th>کد پستی</th><th>کشور</th><th>حذف</th></tr>
+<table class="line-table"><tr><th>{% trans "عنوان" %}</th><th>{% trans "نشانی ۱" %}</th><th>{% trans "نشانی ۲" %}</th><th>{% trans "شهر" %}</th><th>{% trans "استان" %}</th><th>{% trans "کد پستی" %}</th><th>{% trans "کشور" %}</th><th>{% trans "حذف" %}</th></tr>
 {% for f in addresses %}<tr><td>{{ f.id }}{{ f.label }}{{ f.label.errors }}</td><td>{{ f.line1 }}{{ f.line1.errors }}</td><td>{{ f.line2 }}{{ f.line2.errors }}</td><td>{{ f.city }}{{ f.city.errors }}</td><td>{{ f.province }}{{ f.province.errors }}</td><td>{{ f.postal_code }}{{ f.postal_code.errors }}</td><td>{{ f.country }}{{ f.country.errors }}</td><td>{{ f.DELETE }}</td></tr>{% endfor %}
 </table>
 </div>
-<p><button type="submit">ذخیره طرف‌حساب</button> <a class="btn btn-ghost" href="{% url 'party_list' %}">بازگشت</a></p>
+<p><button type="submit">{% trans "ذخیره طرف‌حساب" %}</button> <a class="btn btn-ghost" href="{% url 'party_list' %}">{% trans "بازگشت" %}</a></p>
 </form>
 {% endblock %}

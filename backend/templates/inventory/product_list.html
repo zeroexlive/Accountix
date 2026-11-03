@@ -1,6 +1,6 @@
-{% extends "base.html" %}{% block content %}
-<h1>محصولات</h1>
-<p><a class="btn" href="{% url 'product_create' %}">کالای جدید</a> <a class="btn btn-ghost" href="{% url 'unit_create' %}">واحد جدید</a> <a class="btn btn-ghost" href="{% url 'category_create' %}">دسته‌بندی جدید</a> <a class="btn btn-ghost" href="{% url 'warehouse_create' %}">انبار جدید</a></p>
-{% if products %}<div class="card"><table><tr><th>شرکت</th><th>کد (SKU)</th><th>نام</th><th>دسته</th><th>واحد پایه</th><th>قابل انبارش</th><th>فعال</th><th></th></tr>
-{% for p in products %}<tr><td>{{ p.company.name }}</td><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.category|default:"—" }}</td><td>{{ p.base_unit.code }}</td><td>{{ p.is_stockable }}</td><td>{{ p.is_active }}</td><td><a href="{% url 'product_edit' p.pk %}">ویرایش</a></td></tr>{% endfor %}
-</table></div>{% else %}<p class="empty">محصولی ثبت نشده است.</p>{% endif %}{% endblock %}
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "محصولات" %}</h1>
+<p><a class="btn" href="{% url 'product_create' %}">{% trans "کالای جدید" %}</a> <a class="btn btn-ghost" href="{% url 'unit_create' %}">{% trans "واحد جدید" %}</a> <a class="btn btn-ghost" href="{% url 'category_create' %}">{% trans "دسته‌بندی جدید" %}</a> <a class="btn btn-ghost" href="{% url 'warehouse_create' %}">{% trans "انبار جدید" %}</a></p>
+{% if products %}<div class="card"><table><tr><th>{% trans "شرکت" %}</th><th>{% trans "کد (SKU)" %}</th><th>{% trans "نام" %}</th><th>{% trans "دسته" %}</th><th>{% trans "واحد پایه" %}</th><th>{% trans "قابل انبارش" %}</th><th>{% trans "فعال" %}</th><th></th></tr>
+{% for p in products %}<tr><td>{{ p.company.name }}</td><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.category|default:"—" }}</td><td>{{ p.base_unit.code }}</td><td>{{ p.is_stockable }}</td><td>{{ p.is_active }}</td><td><a href="{% url 'product_edit' p.pk %}">{% trans "ویرایش" %}</a></td></tr>{% endfor %}
+</table></div>{% else %}<p class="empty">{% trans "محصولی ثبت نشده است." %}</p>{% endif %}{% endblock %}

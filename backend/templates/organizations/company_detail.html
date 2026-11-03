@@ -1,2 +1,2 @@
-{% extends "base.html" %}{% block content %}
-<h1>{{ company.name }}</h1><div class="card"><p>{{ company.legal_name }}</p><p>ارز پیش‌فرض: {{ company.default_currency }}</p></div>{% endblock %}
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{{ company.name }}</h1><div class="card"><p>{{ company.legal_name }}</p><p>{% blocktrans with currency=company.default_currency %}ارز پیش‌فرض: {{ currency }}{% endblocktrans %}</p></div>{% endblock %}

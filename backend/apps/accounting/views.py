@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.accounting import reporting, services
@@ -192,7 +193,7 @@ def journal_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "سند دستی به‌صورت پیش‌نویس ایجاد شد.")
+            messages.success(request, _("سند دستی به‌صورت پیش‌نویس ایجاد شد."))
             return redirect("journal_detail", pk=entry.pk)
     return render(
         request,
@@ -225,7 +226,7 @@ def journal_post(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "سند ثبت نهایی شد.")
+        messages.success(request, _("سند ثبت نهایی شد."))
     return redirect("journal_detail", pk=entry.pk)
 
 
@@ -240,7 +241,7 @@ def journal_reverse(request, pk):
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
     else:
-        messages.success(request, "سند برگشت خورد.")
+        messages.success(request, _("سند برگشت خورد."))
     return redirect("journal_detail", pk=entry.pk)
 
 
@@ -325,7 +326,7 @@ def opening_balance_create(request):
         except ValidationError as exc:
             add_service_errors(form, exc)
         else:
-            messages.success(request, "تراز افتتاحیه ثبت شد.")
+            messages.success(request, _("تراز افتتاحیه ثبت شد."))
             return redirect("journal_detail", pk=entry.pk)
     return render(
         request,

@@ -9,20 +9,21 @@ not hop companies and orphan its subledger history).
 
 from django import forms
 from django.forms import BaseInlineFormSet
+from django.utils.translation import gettext_lazy as _
 
 from apps.parties.models import Party, PartyAddress, PartyContact
 
 PARTY_LABELS = {
-    "company": "شرکت",
-    "kind": "نوع طرف‌حساب",
-    "code": "کد",
-    "name": "نام",
-    "legal_name": "نام قانونی",
-    "tax_id": "شناسه مالیاتی",
-    "registration_number": "شماره ثبت",
-    "email": "ایمیل",
-    "phone": "تلفن",
-    "is_active": "فعال",
+    "company": _("شرکت"),
+    "kind": _("نوع طرف‌حساب"),
+    "code": _("کد"),
+    "name": _("نام"),
+    "legal_name": _("نام قانونی"),
+    "tax_id": _("شناسه مالیاتی"),
+    "registration_number": _("شماره ثبت"),
+    "email": _("ایمیل"),
+    "phone": _("تلفن"),
+    "is_active": _("فعال"),
 }
 
 

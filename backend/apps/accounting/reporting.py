@@ -7,6 +7,7 @@ No stored balance fields exist anywhere in Accountix.
 from decimal import Decimal
 
 from django.db.models import Sum
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.models import JournalEntry, JournalLine
 
@@ -212,7 +213,7 @@ def balance_sheet(company, *, as_of=None, fiscal_period=None):
         if fiscal_period.company_id != company.id:
             from django.core.exceptions import ValidationError
 
-            raise ValidationError("Fiscal period belongs to a different company.")
+            raise ValidationError(_("Fiscal period belongs to a different company."))
         as_of = fiscal_period.end_date
 
     asset_rows = []

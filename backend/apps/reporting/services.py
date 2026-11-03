@@ -26,6 +26,7 @@ Two figures need a note:
 from decimal import Decimal
 
 from django.db.models import Sum
+from django.utils.translation import gettext as _
 
 from apps.accounting import reporting as acct_reporting
 from apps.accounting.models import JournalLine
@@ -198,31 +199,37 @@ def _performance(company, *, open_receivable_total, open_payable_total, low_stoc
     return [
         {
             "key": "collections",
-            "label": "وصول مطالبات از مشتریان",
+            "label": _("وصول مطالبات از مشتریان"),
             "percent": _percent(sales_collected, sales_all),
-            "caption": f"{sales_collected} از {sales_all} فاکتورهای فروش وصول شده است.",
-            "empty": "هنوز فاکتور فروش ثبت‌شده‌ای وجود ندارد.",
+            "caption": _("%(sales_collected)s از %(sales_all)s فاکتورهای فروش وصول شده است.")
+            % {"sales_collected": sales_collected, "sales_all": sales_all},
+            "empty": _("هنوز فاکتور فروش ثبت‌شده‌ای وجود ندارد."),
         },
         {
             "key": "settlements",
-            "label": "تسویه بدهی به تأمین‌کنندگان",
+            "label": _("تسویه بدهی به تأمین‌کنندگان"),
             "percent": _percent(purchases_settled, purchases_all),
-            "caption": f"{purchases_settled} از {purchases_all} فاکتورهای خرید تسویه شده است.",
-            "empty": "هنوز فاکتور خرید ثبت‌شده‌ای وجود ندارد.",
+            "caption": _("%(purchases_settled)s از %(purchases_all)s فاکتورهای خرید تسویه شده است.")
+            % {"purchases_settled": purchases_settled, "purchases_all": purchases_all},
+            "empty": _("هنوز فاکتور خرید ثبت‌شده‌ای وجود ندارد."),
         },
         {
             "key": "cheques",
-            "label": "چک‌های دریافتی وصول‌شده (بر اساس مبلغ)",
+            "label": _("چک‌های دریافتی وصول‌شده (بر اساس مبلغ)"),
             "percent": _percent(cleared_received_amount, cheques_base),
-            "caption": f"{cleared_received_amount} وصول شده و {outstanding_received_amount} در انتظار وصول است.",
-            "empty": "هنوز چک دریافتی ثبت نشده است.",
+            "caption": _("%(cleared)s وصول شده و %(outstanding)s در انتظار وصول است.")
+            % {"cleared": cleared_received_amount, "outstanding": outstanding_received_amount},
+            "empty": _("هنوز چک دریافتی ثبت نشده است."),
         },
         {
             "key": "inventory_health",
-            "label": "سلامت موجودی انبار",
+            "label": _("سلامت موجودی انبار"),
             "percent": health,
-            "caption": f"{low_stock_count} کالای کم‌موجودی از {products_with_stock} کالای دارای موجودی.",
-            "empty": "هنوز کالای دارای موجودی ثبت نشده است.",
+            "caption": _(
+                "%(low_stock_count)s کالای کم‌موجودی از %(products_with_stock)s کالای دارای موجودی."
+            )
+            % {"low_stock_count": low_stock_count, "products_with_stock": products_with_stock},
+            "empty": _("هنوز کالای دارای موجودی ثبت نشده است."),
         },
     ]
 

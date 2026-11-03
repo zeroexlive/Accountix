@@ -6,6 +6,7 @@ picked per document from the company's eligible accounts (ADR-011).
 """
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.forms import account_field
 from apps.catalog.models import Product, Unit
@@ -18,14 +19,14 @@ from apps.sales.models import SalesInvoiceLine
 
 class SalesInvoiceForm(forms.Form):
     company = forms.ModelChoiceField(
-        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label=_("شرکت")
     )
-    customer = forms.ModelChoiceField(queryset=Party.objects.none(), label="مشتری")
-    invoice_number = forms.CharField(max_length=32, label="شماره فاکتور")
-    invoice_date = forms.DateField(widget=date_widget(), label="تاریخ فاکتور")
-    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label="انبار")
+    customer = forms.ModelChoiceField(queryset=Party.objects.none(), label=_("مشتری"))
+    invoice_number = forms.CharField(max_length=32, label=_("شماره فاکتور"))
+    invoice_date = forms.DateField(widget=date_widget(), label=_("تاریخ فاکتور"))
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.none(), label=_("انبار"))
     description = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 2}), label="توضیحات"
+        required=False, widget=forms.Textarea(attrs={"rows": 2}), label=_("توضیحات")
     )
 
     def __init__(self, *args, company=None, companies=None, **kwargs):
@@ -42,15 +43,15 @@ class SalesInvoiceForm(forms.Form):
 
 
 class SalesInvoiceLineForm(forms.Form):
-    product = forms.ModelChoiceField(queryset=Product.objects.none(), label="کالا")
-    unit = forms.ModelChoiceField(queryset=Unit.objects.none(), required=False, label="واحد")
-    quantity = forms.DecimalField(max_digits=19, decimal_places=3, label="مقدار")
-    unit_price = forms.DecimalField(max_digits=19, decimal_places=2, label="قیمت واحد")
+    product = forms.ModelChoiceField(queryset=Product.objects.none(), label=_("کالا"))
+    unit = forms.ModelChoiceField(queryset=Unit.objects.none(), required=False, label=_("واحد"))
+    quantity = forms.DecimalField(max_digits=19, decimal_places=3, label=_("مقدار"))
+    unit_price = forms.DecimalField(max_digits=19, decimal_places=2, label=_("قیمت واحد"))
     discount_amount = forms.DecimalField(
-        max_digits=19, decimal_places=2, required=False, initial=0, label="تخفیف"
+        max_digits=19, decimal_places=2, required=False, initial=0, label=_("تخفیف")
     )
     tax_rate = forms.DecimalField(
-        max_digits=9, decimal_places=4, required=False, initial=0, label="نرخ مالیات"
+        max_digits=9, decimal_places=4, required=False, initial=0, label=_("نرخ مالیات")
     )
 
     def __init__(self, *args, company=None, **kwargs):
@@ -74,26 +75,26 @@ class SalesInvoicePostForm(forms.Form):
 
     def __init__(self, *args, company, require=(), **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["receivables"] = account_field(company, "ASSET", label="حساب دریافتنی")
+        self.fields["receivables"] = account_field(company, "ASSET", label=_("حساب دریافتنی"))
         self.fields["revenue"] = account_field(
-            company, "REVENUE", required="revenue" in require, label="حساب درآمد فروش"
+            company, "REVENUE", required="revenue" in require, label=_("حساب درآمد فروش")
         )
         self.fields["tax_payable"] = account_field(
-            company, "LIABILITY", required="tax_payable" in require, label="حساب مالیات فروش"
+            company, "LIABILITY", required="tax_payable" in require, label=_("حساب مالیات فروش")
         )
         self.fields["cogs"] = account_field(
-            company, "EXPENSE", required="cogs" in require, label="حساب بهای تمام‌شده"
+            company, "EXPENSE", required="cogs" in require, label=_("حساب بهای تمام‌شده")
         )
         self.fields["inventory"] = account_field(
-            company, "ASSET", required="inventory" in require, label="حساب موجودی کالا"
+            company, "ASSET", required="inventory" in require, label=_("حساب موجودی کالا")
         )
 
 
 class SalesReturnForm(forms.Form):
-    return_number = forms.CharField(max_length=32, label="شماره برگشت")
-    return_date = forms.DateField(widget=date_widget(), label="تاریخ برگشت")
+    return_number = forms.CharField(max_length=32, label=_("شماره برگشت"))
+    return_date = forms.DateField(widget=date_widget(), label=_("تاریخ برگشت"))
     description = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 2}), label="توضیحات"
+        required=False, widget=forms.Textarea(attrs={"rows": 2}), label=_("توضیحات")
     )
 
 
@@ -104,7 +105,7 @@ class SalesReturnLineForm(forms.Form):
         queryset=SalesInvoiceLine.objects.none(), widget=forms.HiddenInput
     )
     quantity = forms.DecimalField(
-        max_digits=19, decimal_places=3, required=False, initial=0, label="مقدار برگشتی"
+        max_digits=19, decimal_places=3, required=False, initial=0, label=_("مقدار برگشتی")
     )
 
     def __init__(self, *args, invoice=None, **kwargs):
@@ -124,14 +125,14 @@ class SalesReturnPostForm(forms.Form):
 
     def __init__(self, *args, company, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["receivables"] = account_field(company, "ASSET", label="حساب دریافتنی")
-        self.fields["revenue"] = account_field(company, "REVENUE", label="حساب درآمد فروش")
+        self.fields["receivables"] = account_field(company, "ASSET", label=_("حساب دریافتنی"))
+        self.fields["revenue"] = account_field(company, "REVENUE", label=_("حساب درآمد فروش"))
         self.fields["tax_payable"] = account_field(
-            company, "LIABILITY", required=False, label="حساب مالیات فروش"
+            company, "LIABILITY", required=False, label=_("حساب مالیات فروش")
         )
         self.fields["inventory"] = account_field(
-            company, "ASSET", required=False, label="حساب موجودی کالا"
+            company, "ASSET", required=False, label=_("حساب موجودی کالا")
         )
         self.fields["cogs"] = account_field(
-            company, "EXPENSE", required=False, label="حساب بهای تمام‌شده"
+            company, "EXPENSE", required=False, label=_("حساب بهای تمام‌شده")
         )

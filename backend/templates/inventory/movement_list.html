@@ -1,11 +1,11 @@
-{% extends "base.html" %}{% load jalali %}{% block content %}
-<h1>حرکات انبار</h1>
+{% extends "base.html" %}{% load jalali i18n %}{% block content %}
+<h1>{% trans "حرکات انبار" %}</h1>
 <div class="card"><form method="get">
-<label>انبار</label><select name="warehouse"><option value="">همه</option>{% for w in warehouses %}<option value="{{ w.pk }}" {% if request.GET.warehouse == w.pk|stringformat:"s" %}selected{% endif %}>{{ w.code }} — {{ w.name }}</option>{% endfor %}</select>
-<label>جستجوی کالا (کد یا نام)</label><input type="text" name="q" value="{{ request.GET.q }}">
-<label>از تاریخ (میلادی)</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
-<label>تا تاریخ (میلادی)</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
-<button type="submit">پالایش</button></form></div>
-{% if movements %}<div class="card"><table><tr><th>تاریخ</th><th>انبار</th><th>کالا</th><th>تغییر مقدار</th><th>بهای واحد</th><th>تغییر ارزش</th><th>سند</th></tr>
+<label>{% trans "انبار" %}</label><select name="warehouse"><option value="">{% trans "همه" %}</option>{% for w in warehouses %}<option value="{{ w.pk }}" {% if request.GET.warehouse == w.pk|stringformat:"s" %}selected{% endif %}>{{ w.code }} — {{ w.name }}</option>{% endfor %}</select>
+<label>{% trans "جستجوی کالا (کد یا نام)" %}</label><input type="text" name="q" value="{{ request.GET.q }}">
+<label>{% trans "از تاریخ (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<button type="submit">{% trans "پالایش" %}</button></form></div>
+{% if movements %}<div class="card"><table><tr><th>{% trans "تاریخ" %}</th><th>{% trans "انبار" %}</th><th>{% trans "کالا" %}</th><th>{% trans "تغییر مقدار" %}</th><th>{% trans "بهای واحد" %}</th><th>{% trans "تغییر ارزش" %}</th><th>{% trans "سند" %}</th></tr>
 {% for m in movements %}<tr><td>{{ m.movement_date|jalali }}</td><td>{{ m.warehouse.code }}</td><td>{{ m.product.sku }} — {{ m.product.name }}</td><td>{{ m.quantity_delta }}</td><td>{{ m.unit_cost }}</td><td>{{ m.value_delta }}</td><td>{{ m.document.doc_type }} {{ m.document_id|truncatechars:8 }}</td></tr>{% endfor %}
-</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">حرکتی یافت نشد.</p>{% endif %}{% endblock %}
+</table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">{% trans "حرکتی یافت نشد." %}</p>{% endif %}{% endblock %}

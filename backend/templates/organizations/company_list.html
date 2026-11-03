@@ -1,5 +1,5 @@
-{% extends "base.html" %}{% block content %}
-<h1>شرکت‌ها</h1><p><a class="btn" href="{% url 'company_create' %}">شرکت جدید</a></p>
-<div class="card"><table><tr><th>نام</th><th>ارز</th><th>وضعیت</th></tr>
+{% extends "base.html" %}{% load i18n %}{% block content %}
+<h1>{% trans "شرکت‌ها" %}</h1><p><a class="btn" href="{% url 'company_create' %}">{% trans "شرکت جدید" %}</a></p>
+<div class="card"><table><tr><th>{% trans "نام" %}</th><th>{% trans "ارز" %}</th><th>{% trans "وضعیت" %}</th></tr>
 {% for c in companies %}<tr><td><a href="{% url 'company_detail' c.pk %}">{{ c.name }}</a></td><td>{{ c.default_currency }}</td><td>{{ c.is_active }}</td></tr>
-{% empty %}<tr><td colspan="3" class="empty">موردی نیست</td></tr>{% endfor %}</table></div>{% endblock %}
+{% empty %}<tr><td colspan="3" class="empty">{% trans "موردی نیست" %}</td></tr>{% endfor %}</table></div>{% endblock %}

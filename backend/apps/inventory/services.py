@@ -33,6 +33,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.inventory import reporting
 
@@ -44,9 +45,9 @@ def _dec(value, field: str) -> Decimal:
     try:
         amount = Decimal(str(value))
     except (InvalidOperation, ValueError):
-        raise ValidationError(f"{field} is not a valid decimal.") from None
+        raise ValidationError(_("%(field)s is not a valid decimal.") % {"field": field}) from None
     if amount.is_nan() or amount.is_infinite():
-        raise ValidationError(f"{field} is not finite.")
+        raise ValidationError(_("%(field)s is not finite.") % {"field": field})
     return amount
 
 
@@ -63,47 +64,52 @@ def _validate_header(company, doc_type, warehouse, destination_warehouse):
     from apps.inventory.models import StockDocument
 
     if doc_type not in StockDocument.DocType.values:
-        raise ValidationError(f"Unknown stock document type: {doc_type}.")
+        raise ValidationError(
+            _("Unknown stock document type: %(doc_type)s.") % {"doc_type": doc_type}
+        )
     if warehouse.company_id != company.id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
     if not warehouse.is_active:
-        raise ValidationError(f"Warehouse {warehouse.code} is inactive.")
+        raise ValidationError(_("Warehouse %(code)s is inactive.") % {"code": warehouse.code})
     if doc_type == StockDocument.DocType.TRANSFER:
         if destination_warehouse is None:
-            raise ValidationError("A transfer needs a destination warehouse.")
+            raise ValidationError(_("A transfer needs a destination warehouse."))
         if destination_warehouse.pk == warehouse.pk:
-            raise ValidationError("Transfer source and destination must differ.")
+            raise ValidationError(_("Transfer source and destination must differ."))
         if destination_warehouse.company_id != company.id:
-            raise ValidationError("Destination warehouse belongs to a different company.")
+            raise ValidationError(_("Destination warehouse belongs to a different company."))
         if not destination_warehouse.is_active:
-            raise ValidationError(f"Warehouse {destination_warehouse.code} is inactive.")
+            raise ValidationError(
+                _("Warehouse %(code)s is inactive.") % {"code": destination_warehouse.code}
+            )
     elif destination_warehouse is not None:
-        raise ValidationError("Only transfers take a destination warehouse.")
+        raise ValidationError(_("Only transfers take a destination warehouse."))
 
 
 def _validate_line(company, doc_type, raw):
     product = raw.get("product")
     if product is None or product.company_id != company.id:
-        raise ValidationError("Line product belongs to a different company (or is missing).")
+        raise ValidationError(_("Line product belongs to a different company (or is missing)."))
     if not product.is_active:
-        raise ValidationError(f"Product {product.sku} is inactive.")
+        raise ValidationError(_("Product %(sku)s is inactive.") % {"sku": product.sku})
     if not product.is_stockable:
         raise ValidationError(
-            f"Product {product.sku} is not stockable; services cannot move through inventory."
+            _("Product %(sku)s is not stockable; services cannot move through inventory.")
+            % {"sku": product.sku}
         )
     unit = raw.get("unit") or product.base_unit
     if unit.company_id != company.id:
-        raise ValidationError("Line unit belongs to a different company.")
+        raise ValidationError(_("Line unit belongs to a different company."))
     quantity = _dec(raw.get("quantity", ZERO), "quantity")
     if quantity == ZERO:
-        raise ValidationError("Line quantity cannot be zero.")
+        raise ValidationError(_("Line quantity cannot be zero."))
     if doc_type != "ADJUSTMENT" and quantity < ZERO:
-        raise ValidationError("Line quantity must be positive for this document type.")
+        raise ValidationError(_("Line quantity must be positive for this document type."))
     unit_cost = raw.get("unit_cost")
     if unit_cost is not None:
         unit_cost = _dec(unit_cost, "unit_cost")
         if unit_cost < ZERO:
-            raise ValidationError("Unit cost cannot be negative.")
+            raise ValidationError(_("Unit cost cannot be negative."))
     return product, unit, quantity, unit_cost
 
 
@@ -125,7 +131,7 @@ def create_stock_document(
 
     _validate_header(company, doc_type, warehouse, destination_warehouse)
     if not lines:
-        raise ValidationError("A stock document needs at least one line.")
+        raise ValidationError(_("A stock document needs at least one line."))
     validated = [_validate_line(company, doc_type, raw) for raw in lines]
 
     doc = StockDocument.objects.create(
@@ -177,7 +183,8 @@ def _issue_value(balance_row, qty_out: Decimal, sku: str):
     available = balance_row["quantity"]
     if qty_out > available:
         raise ValidationError(
-            f"Insufficient stock for {sku}: requested {qty_out}, available {available}."
+            _("Insufficient stock for %(sku)s: requested %(requested)s, available %(available)s.")
+            % {"sku": sku, "requested": qty_out, "available": available}
         )
     if qty_out == available:
         return balance_row["value"], balance_row["average_cost"]
@@ -214,7 +221,9 @@ def _plan_movements(company, doc):
         )
         if doc.doc_type == "RECEIPT":
             if line.unit_cost is None:
-                raise ValidationError(f"Receipt of {product.sku} needs a unit cost.")
+                raise ValidationError(
+                    _("Receipt of %(sku)s needs a unit cost.") % {"sku": product.sku}
+                )
             # unit_cost is priced per line unit; movements store the
             # equivalent cost per base unit.
             value = _money(line.quantity * line.unit_cost)
@@ -239,8 +248,11 @@ def _plan_movements(company, doc):
                 else:
                     if row["quantity"] <= ZERO:
                         raise ValidationError(
-                            f"Positive adjustment of {product.sku} with no existing stock "
-                            "needs a unit cost."
+                            _(
+                                "Positive adjustment of %(sku)s with no existing stock "
+                                "needs a unit cost."
+                            )
+                            % {"sku": product.sku}
                         )
                     value = _money(base_qty * row["average_cost"])
                     add(doc.warehouse, line, base_qty, row["average_cost"], value)
@@ -249,7 +261,9 @@ def _plan_movements(company, doc):
                 value, avg = _issue_value(row, -base_qty, product.sku)
                 add(doc.warehouse, line, base_qty, avg, -value)
         else:  # pragma: no cover - header validation already restricts types
-            raise ValidationError(f"Unsupported document type {doc.doc_type}.")
+            raise ValidationError(
+                _("Unsupported document type %(doc_type)s.") % {"doc_type": doc.doc_type}
+            )
     return planned, gl_total
 
 
@@ -260,9 +274,9 @@ def _resolve_gl_accounts(company, gl_accounts):
     for item in gl_accounts:
         account = item if isinstance(item, Account) else Account.objects.filter(pk=item).first()
         if account is None:
-            raise ValidationError("GL account not found.")
+            raise ValidationError(_("GL account not found."))
         if account.company_id != company.id:
-            raise ValidationError("GL account belongs to a different company.")
+            raise ValidationError(_("GL account belongs to a different company."))
         resolved.append(account)
     return resolved
 
@@ -275,7 +289,7 @@ def post_stock_document(document, *, user=None, gl_accounts=None):
 
     doc = StockDocument.objects.select_for_update().get(pk=document.pk)
     if doc.status != StockDocument.Status.DRAFT:
-        raise ValidationError("Only a DRAFT stock document can be posted.")
+        raise ValidationError(_("Only a DRAFT stock document can be posted."))
 
     # Concurrency (Sprint 10, ADR-037): the movement plan is computed
     # from the derived stock balance, so two documents drawing on the
@@ -296,9 +310,11 @@ def post_stock_document(document, *, user=None, gl_accounts=None):
     gl_pair = None
     if gl_accounts is not None:
         if doc.doc_type not in ("RECEIPT", "ISSUE"):
-            raise ValidationError("GL posting is supported only for RECEIPT and ISSUE documents.")
+            raise ValidationError(
+                _("GL posting is supported only for RECEIPT and ISSUE documents.")
+            )
         if len(gl_accounts) != 2:
-            raise ValidationError("gl_accounts must be (inventory_account, offset_account).")
+            raise ValidationError(_("gl_accounts must be (inventory_account, offset_account)."))
         gl_pair = _resolve_gl_accounts(doc.company, gl_accounts)
 
     planned, gl_total = _plan_movements(doc.company, doc)
@@ -489,11 +505,11 @@ def create_inventory_count(*, company, warehouse, count_date, lines, description
     from apps.inventory.models import InventoryCount, InventoryCountLine
 
     if warehouse.company_id != company.id:
-        raise ValidationError("Warehouse belongs to a different company.")
+        raise ValidationError(_("Warehouse belongs to a different company."))
     if not warehouse.is_active:
-        raise ValidationError(f"Warehouse {warehouse.code} is inactive.")
+        raise ValidationError(_("Warehouse %(code)s is inactive.") % {"code": warehouse.code})
     if not lines:
-        raise ValidationError("An inventory count needs at least one line.")
+        raise ValidationError(_("An inventory count needs at least one line."))
 
     count = InventoryCount.objects.create(
         company=company,
@@ -505,22 +521,26 @@ def create_inventory_count(*, company, warehouse, count_date, lines, description
     for raw in lines:
         product = raw.get("product")
         if product is None or product.company_id != company.id:
-            raise ValidationError("Count line product belongs to a different company.")
+            raise ValidationError(_("Count line product belongs to a different company."))
         if not product.is_active:
-            raise ValidationError(f"Product {product.sku} is inactive.")
+            raise ValidationError(_("Product %(sku)s is inactive.") % {"sku": product.sku})
         if not product.is_stockable:
-            raise ValidationError(f"Product {product.sku} is not stockable and cannot be counted.")
+            raise ValidationError(
+                _("Product %(sku)s is not stockable and cannot be counted.") % {"sku": product.sku}
+            )
         if product.pk in seen:
-            raise ValidationError(f"Product {product.sku} appears twice in this count.")
+            raise ValidationError(
+                _("Product %(sku)s appears twice in this count.") % {"sku": product.sku}
+            )
         seen.add(product.pk)
         counted_qty = _dec(raw.get("counted_qty", ZERO), "counted_qty")
         if counted_qty < ZERO:
-            raise ValidationError("Counted quantity cannot be negative.")
+            raise ValidationError(_("Counted quantity cannot be negative."))
         unit_cost = raw.get("unit_cost")
         if unit_cost is not None:
             unit_cost = _dec(unit_cost, "unit_cost")
             if unit_cost < ZERO:
-                raise ValidationError("Unit cost cannot be negative.")
+                raise ValidationError(_("Unit cost cannot be negative."))
         snapshot = reporting.stock_balance(company, warehouse, product)["quantity"]
         InventoryCountLine.objects.create(
             count=count,
@@ -551,7 +571,7 @@ def update_inventory_count_lines(count, *, lines, user=None):
 
     count = InventoryCount.objects.select_for_update().get(pk=count.pk)
     if count.status != InventoryCount.Status.DRAFT:
-        raise ValidationError("Only a DRAFT inventory count can be edited.")
+        raise ValidationError(_("Only a DRAFT inventory count can be edited."))
 
     existing = {line.product_id: line for line in count.lines.all()}
     seen = set()
@@ -560,19 +580,19 @@ def update_inventory_count_lines(count, *, lines, user=None):
         product_id = getattr(product, "pk", product)
         line = existing.get(product_id)
         if line is None:
-            raise ValidationError("Count line product is not part of this count.")
+            raise ValidationError(_("Count line product is not part of this count."))
         if product_id in seen:
-            raise ValidationError(f"Product {line.product.sku} appears twice.")
+            raise ValidationError(_("Product %(sku)s appears twice.") % {"sku": line.product.sku})
         seen.add(product_id)
         counted_qty = _dec(raw.get("counted_qty", ZERO), "counted_qty")
         if counted_qty < ZERO:
-            raise ValidationError("Counted quantity cannot be negative.")
+            raise ValidationError(_("Counted quantity cannot be negative."))
         line.counted_qty = counted_qty
         unit_cost = raw.get("unit_cost")
         if unit_cost is not None:
             unit_cost = _dec(unit_cost, "unit_cost")
             if unit_cost < ZERO:
-                raise ValidationError("Unit cost cannot be negative.")
+                raise ValidationError(_("Unit cost cannot be negative."))
         line.unit_cost = unit_cost
         line.save()
     record_event(
@@ -594,11 +614,13 @@ def _resolve_count_gl_account(company, gl_accounts, key):
         return None
     account = item if isinstance(item, Account) else Account.objects.filter(pk=item).first()
     if account is None:
-        raise ValidationError(f"GL account '{key}' not found.")
+        raise ValidationError(_("GL account '%(key)s' not found.") % {"key": key})
     if account.company_id != company.id:
-        raise ValidationError(f"GL account '{key}' belongs to a different company.")
+        raise ValidationError(
+            _("GL account '%(key)s' belongs to a different company.") % {"key": key}
+        )
     if not account.is_postable or not account.is_active:
-        raise ValidationError(f"GL account '{key}' is not postable/active.")
+        raise ValidationError(_("GL account '%(key)s' is not postable/active.") % {"key": key})
     return account
 
 
@@ -624,17 +646,20 @@ def post_inventory_count(count, *, user=None, gl_accounts=None):
     if count.status == InventoryCount.Status.POSTED:
         return count
     if count.status != InventoryCount.Status.DRAFT:
-        raise ValidationError("Only a DRAFT inventory count can be posted.")
+        raise ValidationError(_("Only a DRAFT inventory count can be posted."))
 
     lines = list(count.lines.select_related("product").all())
     if not lines:
-        raise ValidationError("An inventory count needs at least one line.")
+        raise ValidationError(_("An inventory count needs at least one line."))
     for line in lines:
         current = reporting.stock_balance(count.company, count.warehouse, line.product)["quantity"]
         if current != line.system_qty:
             raise ValidationError(
-                f"Stock of {line.product.sku} moved since the count was taken "
-                f"(snapshot {line.system_qty}, now {current}); recreate the count."
+                _(
+                    "Stock of %(sku)s moved since the count was taken "
+                    "(snapshot %(snapshot)s, now %(current)s); recreate the count."
+                )
+                % {"sku": line.product.sku, "snapshot": line.system_qty, "current": current}
             )
 
     inventory_account = variance_account = None
@@ -642,7 +667,9 @@ def post_inventory_count(count, *, user=None, gl_accounts=None):
         inventory_account = _resolve_count_gl_account(count.company, gl_accounts, "inventory")
         variance_account = _resolve_count_gl_account(count.company, gl_accounts, "variance")
         if inventory_account is None or variance_account is None:
-            raise ValidationError("gl_accounts must include 'inventory' and 'variance' accounts.")
+            raise ValidationError(
+                _("gl_accounts must include 'inventory' and 'variance' accounts.")
+            )
 
     stock_document = None
     net_value = ZERO
@@ -724,11 +751,11 @@ def reverse_inventory_count(count, *, user=None, reason=""):
 
     count = InventoryCount.objects.select_for_update().get(pk=count.pk)
     if count.reversal_of_id is not None:
-        raise ValidationError("A reversal count cannot itself be reversed.")
+        raise ValidationError(_("A reversal count cannot itself be reversed."))
     if count.status == InventoryCount.Status.REVERSED:
-        raise ValidationError("This inventory count has already been reversed.")
+        raise ValidationError(_("This inventory count has already been reversed."))
     if count.status != InventoryCount.Status.POSTED:
-        raise ValidationError("Only a POSTED inventory count can be reversed.")
+        raise ValidationError(_("Only a POSTED inventory count can be reversed."))
 
     if count.journal_entry_id is not None:
         from apps.accounting.services import reverse_journal_entry
@@ -810,17 +837,17 @@ def reverse_stock_document(document, *, user=None, reason="", reversal_date=None
 
     doc = StockDocument.objects.select_for_update().get(pk=document.pk)
     if doc.reversal_of_id is not None:
-        raise ValidationError("A reversal document cannot itself be reversed.")
+        raise ValidationError(_("A reversal document cannot itself be reversed."))
     if doc.status == StockDocument.Status.REVERSED:
-        raise ValidationError("This document has already been reversed.")
+        raise ValidationError(_("This document has already been reversed."))
     if doc.status != StockDocument.Status.POSTED:
-        raise ValidationError("Only a POSTED stock document can be reversed.")
+        raise ValidationError(_("Only a POSTED stock document can be reversed."))
     if StockDocumentReversal.objects.filter(original_document=doc).exists():
-        raise ValidationError("This document has already been reversed.")
+        raise ValidationError(_("This document has already been reversed."))
 
     originals = list(doc.movements.all())
     if not originals:
-        raise ValidationError("Document has no movements and cannot be reversed.")
+        raise ValidationError(_("Document has no movements and cannot be reversed."))
 
     # Guard: negating must not drive any (warehouse, product) balance negative.
     balance, apply = _balance_map(doc.company)
@@ -828,8 +855,8 @@ def reverse_stock_document(document, *, user=None, reason="", reversal_date=None
         row = balance(movement.warehouse, movement.product)
         if row["quantity"] - movement.quantity_delta < ZERO:
             raise ValidationError(
-                f"Reversal would make stock of {movement.product.sku} negative "
-                f"in warehouse {movement.warehouse.code}."
+                _("Reversal would make stock of %(sku)s negative in warehouse %(warehouse)s.")
+                % {"sku": movement.product.sku, "warehouse": movement.warehouse.code}
             )
         apply(
             movement.warehouse,
