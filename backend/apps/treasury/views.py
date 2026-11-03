@@ -5,18 +5,30 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from apps.accounting.models import JournalLine
 from apps.core.access import resolve_scoped_company, user_company_ids
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
-from apps.treasury import reporting, services
+from apps.treasury import reconciliation, reporting, services
 from apps.treasury.forms import (
     AllocationForm,
+    BankStatementForm,
+    BankStatementLineForm,
     ChequeClearForm,
     PaymentForm,
     PaymentPostForm,
+    StatementImportForm,
+    StatementMatchForm,
     TreasuryAccountForm,
 )
-from apps.treasury.models import Cheque, Payment, PaymentAllocation, TreasuryAccount
+from apps.treasury.models import (
+    BankStatement,
+    BankStatementLine,
+    Cheque,
+    Payment,
+    PaymentAllocation,
+    TreasuryAccount,
+)
 
 
 @login_required
@@ -374,6 +386,233 @@ def cheque_return(request, pk):
     else:
         messages.success(request, "چک به صادرکننده عودت داده شد.")
     return redirect("cheque_detail", pk=cheque.pk)
+
+
+def _scoped_statement(request, pk):
+    return get_object_or_404(
+        BankStatement.objects.select_related(
+            "company", "treasury_account", "treasury_account__gl_account"
+        ),
+        pk=pk,
+        company_id__in=user_company_ids(request.user),
+    )
+
+
+@login_required
+def bank_statement_list(request):
+    statements = BankStatement.objects.filter(
+        company_id__in=user_company_ids(request.user)
+    ).select_related("company", "treasury_account")
+    if request.GET.get("account"):
+        account = get_object_or_404(
+            TreasuryAccount,
+            pk=request.GET["account"],
+            company_id__in=user_company_ids(request.user),
+        )
+        statements = statements.filter(treasury_account=account)
+    accounts = TreasuryAccount.objects.filter(
+        company_id__in=user_company_ids(request.user), kind=TreasuryAccount.Kind.BANK
+    )
+    return render(
+        request,
+        "treasury/statement_list.html",
+        {"statements": statements, "accounts": accounts},
+    )
+
+
+@login_required
+def bank_statement_create(request):
+    companies, company = resolve_scoped_company(request)
+    form = BankStatementForm(request.POST or None, company=company, companies=companies)
+    if request.method == "POST" and company is not None and form.is_valid():
+        data = form.cleaned_data
+        try:
+            statement = reconciliation.create_statement(
+                company=company,
+                treasury_account=data["treasury_account"],
+                start_date=data["start_date"],
+                end_date=data["end_date"],
+                opening_balance=data["opening_balance"],
+                closing_balance=data["closing_balance"],
+                source_note=data["source_note"],
+                user=request.user,
+            )
+        except ValidationError as exc:
+            add_service_errors(form, exc)
+        else:
+            messages.success(request, "صورت‌حساب بانکی ایجاد شد.")
+            return redirect("bank_statement_detail", pk=statement.pk)
+    return render(
+        request,
+        "treasury/statement_form.html",
+        {"form": form, "companies": companies, "company": company},
+    )
+
+
+def _statement_detail_context(statement, line_form=None, import_form=None):
+    summary = reconciliation.reconciliation_summary(statement)
+    movements = summary["outstanding_book"]
+    return {
+        "statement": statement,
+        "summary": summary,
+        "lines": statement.lines.select_related(
+            "matched_journal_line", "matched_journal_line__entry"
+        ).all(),
+        "line_form": line_form or BankStatementLineForm(),
+        "import_form": import_form or StatementImportForm(),
+        "match_forms": [
+            {
+                "row": row,
+                "form": StatementMatchForm(
+                    statement=statement, initial={"journal_line": row["journal_line"].pk}
+                ),
+            }
+            for row in movements
+        ],
+    }
+
+
+@login_required
+def bank_statement_detail(request, pk):
+    statement = _scoped_statement(request, pk)
+    return render(request, "treasury/statement_detail.html", _statement_detail_context(statement))
+
+
+@login_required
+@require_POST
+def bank_statement_add_line(request, pk):
+    statement = _scoped_statement(request, pk)
+    form = BankStatementLineForm(request.POST)
+    if form.is_valid():
+        data = form.cleaned_data
+        try:
+            reconciliation.add_statement_line(
+                statement,
+                line_date=data["line_date"],
+                amount=data["amount"],
+                description=data["description"],
+                reference=data["reference"],
+                user=request.user,
+            )
+        except ValidationError as exc:
+            add_service_errors(form, exc)
+        else:
+            messages.success(request, "ردیف صورت‌حساب افزوده شد.")
+            return redirect("bank_statement_detail", pk=statement.pk)
+    return render(
+        request,
+        "treasury/statement_detail.html",
+        _statement_detail_context(statement, line_form=form),
+    )
+
+
+@login_required
+@require_POST
+def bank_statement_import(request, pk):
+    statement = _scoped_statement(request, pk)
+    form = StatementImportForm(request.POST, request.FILES)
+    if not form.is_valid():
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return redirect("bank_statement_detail", pk=statement.pk)
+    upload = form.cleaned_data["file"]
+    try:
+        csv_text = upload.read().decode("utf-8-sig")
+    except UnicodeDecodeError:
+        messages.error(request, "فایل باید با کدگذاری UTF-8 باشد.")
+        return redirect("bank_statement_detail", pk=statement.pk)
+    try:
+        report = reconciliation.import_statement_lines(
+            statement, csv_text=csv_text, user=request.user
+        )
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+        return redirect("bank_statement_detail", pk=statement.pk)
+    messages.success(request, f"{report['imported']} ردیف از فایل وارد شد.")
+    for rejected in report["rejected"]:
+        messages.error(request, f"ردیف {rejected['row']}: {rejected['reason']}")
+    return redirect("bank_statement_detail", pk=statement.pk)
+
+
+@login_required
+@require_POST
+def bank_statement_auto_match(request, pk):
+    statement = _scoped_statement(request, pk)
+    try:
+        result = reconciliation.auto_match(statement, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(
+            request,
+            f"{result['matched']} ردیف به‌صورت خودکار تطبیق شد؛ {result['remaining']} ردیف باقی ماند.",
+        )
+    return redirect("bank_statement_detail", pk=statement.pk)
+
+
+@login_required
+@require_POST
+def bank_statement_match(request, pk):
+    statement = _scoped_statement(request, pk)
+    form = StatementMatchForm(request.POST, statement=statement)
+    if not form.is_valid():
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return redirect("bank_statement_detail", pk=statement.pk)
+    journal_line = get_object_or_404(
+        JournalLine, pk=form.cleaned_data["journal_line"], entry__company=statement.company
+    )
+    try:
+        reconciliation.match_line(
+            form.cleaned_data["statement_line"], journal_line, user=request.user
+        )
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "تطبیق ثبت شد.")
+    return redirect("bank_statement_detail", pk=statement.pk)
+
+
+@login_required
+@require_POST
+def bank_statement_unmatch(request, pk, line_pk):
+    statement = _scoped_statement(request, pk)
+    line = get_object_or_404(BankStatementLine, pk=line_pk, statement=statement)
+    try:
+        reconciliation.unmatch_line(line, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "تطبیق لغو شد.")
+    return redirect("bank_statement_detail", pk=statement.pk)
+
+
+@login_required
+@require_POST
+def bank_statement_complete(request, pk):
+    statement = _scoped_statement(request, pk)
+    try:
+        reconciliation.complete_statement(statement, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "صورت‌حساب نهایی و قفل شد.")
+    return redirect("bank_statement_detail", pk=statement.pk)
+
+
+@login_required
+@require_POST
+def bank_statement_reopen(request, pk):
+    statement = _scoped_statement(request, pk)
+    try:
+        reconciliation.reopen_statement(statement, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "صورت‌حساب بازگشایی شد.")
+    return redirect("bank_statement_detail", pk=statement.pk)
 
 
 @login_required

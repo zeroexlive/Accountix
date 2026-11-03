@@ -131,6 +131,24 @@ Modular monolith, single Django project under `backend/`:
   «(میلادی)». No page remains read-only except the statement/report
   pages themselves (filters + exports, by design). Suite: 283 passed
   + 3 skipped on SQLite, mypy clean, no model changes.
+- Update (Sprint 14): bank reconciliation and stock document forms —
+  see `SPRINT_14_REPORT.md` and ADR-041. Reconciliation is defined at
+  the GL level (a book movement is a posted journal line on the bank
+  treasury account's GL account, which covers bank payments and
+  cheque clearings — and only flows that actually touch the bank GL);
+  statements enter manually or by CSV import with per-row error
+  reporting, auto-match links only unambiguous exact matches,
+  matching is link-only (OneToOne to the journal line), the summary
+  uses difference = book − (stated closing − unmatched statement
+  net), and completion is locked until the difference is exactly
+  zero with no unmatched line. Stock documents (receipt / issue /
+  transfer / adjustment) now have create → draft → post/reverse UI
+  with the ADR-013 GL opt-in, including the «موجودی اول دوره»
+  purpose that stamps the Sprint 07 `opening_stock` receipt; the
+  opening-balance page's opening-stock guidance links to the new
+  form. This sprint HAS a migration
+  (`treasury/0002_bankstatement_bankstatementline`). Suite: 298
+  passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -226,7 +244,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-283 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+298 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -247,7 +265,9 @@ empty states, sidebar link integrity, print markers); Sprint 12:
 forms, per-area UI flows, negative/permission paths); Sprint 13:
 +25 (Jalali conversion pairs + rendered pages, closing/reopen via
 UI, opening balances via UI, stock-count UI incl. the freeze
-rejection and the draft-lines service) — see the sprint reports for exact
+rejection and the draft-lines service); Sprint 14:
++15 (reconciliation services incl. the difference-identity scenario,
+reconciliation UI, stock-document UI) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -271,9 +291,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    review, RELEASE_READINESS.md verdict "Ready with documented
    limitations"). ~~Data-entry UI for business documents~~ — done
    (Sprints 12–13, including opening balances, stock counts, fiscal
-   closing and Jalali display). Post-v1.0 candidates: bank
-   reconciliation (largest unbuilt treasury feature), Windows
-   verification, login rate limiting, PG restore drill, .po
+   closing and Jalali display). ~~Bank reconciliation + stock
+   document forms~~ — done (Sprint 14, ADR-041; the largest unbuilt
+   treasury feature is closed). Post-v1.0 candidates: cheque books,
+   Windows verification, login rate limiting, PG restore drill, .po
    translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.

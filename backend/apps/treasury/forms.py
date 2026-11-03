@@ -16,7 +16,7 @@ from apps.accounting.models import Account
 from apps.core.forms import date_widget
 from apps.organizations.models import Company
 from apps.parties.models import Party
-from apps.treasury.models import Payment, TreasuryAccount
+from apps.treasury.models import BankStatementLine, Payment, TreasuryAccount
 
 
 class TreasuryAccountForm(forms.Form):
@@ -146,3 +146,81 @@ class ChequeClearForm(forms.Form):
             self.fields["bank_treasury_account"].queryset = TreasuryAccount.objects.filter(
                 company=company, is_active=True, kind=TreasuryAccount.Kind.BANK
             ).order_by("name")
+
+
+class BankStatementForm(forms.Form):
+    """New bank statement header (Sprint 14, ADR-041). Opening and
+    closing balances are the bank's stated figures; the account
+    picker offers only BANK treasury accounts of the scoped company."""
+
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+    )
+    treasury_account = forms.ModelChoiceField(
+        queryset=TreasuryAccount.objects.none(), label="حساب بانکی"
+    )
+    start_date = forms.DateField(
+        widget=date_widget(),
+        label="از تاریخ (میلادی)",
+        help_text="تاریخ‌ها به میلادی وارد می‌شوند؛ نمایش در سامانه جلالی است.",
+    )
+    end_date = forms.DateField(widget=date_widget(), label="تا تاریخ (میلادی)")
+    opening_balance = forms.DecimalField(
+        max_digits=19, decimal_places=2, label="مانده ابتدای دوره (طبق بانک)"
+    )
+    closing_balance = forms.DecimalField(
+        max_digits=19, decimal_places=2, label="مانده پایان دوره (طبق بانک)"
+    )
+    source_note = forms.CharField(max_length=500, required=False, label="منبع / توضیح")
+
+    def __init__(self, *args, company=None, companies=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if companies is not None:
+            self.fields["company"].queryset = companies
+        if company is not None:
+            self.fields["treasury_account"].queryset = TreasuryAccount.objects.filter(
+                company=company, is_active=True, kind=TreasuryAccount.Kind.BANK
+            ).order_by("name")
+
+
+class BankStatementLineForm(forms.Form):
+    """One manually added statement line. The amount is signed from
+    the bank's perspective: positive = money in (bank credit),
+    negative = money out (bank debit)."""
+
+    line_date = forms.DateField(widget=date_widget(), label="تاریخ (میلادی)")
+    description = forms.CharField(max_length=500, required=False, label="شرح")
+    reference = forms.CharField(max_length=64, required=False, label="شماره ارجاع")
+    amount = forms.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        label="مبلغ (با علامت)",
+        help_text="واریز به حساب مثبت و برداشت از حساب منفی وارد شود.",
+    )
+
+
+class StatementImportForm(forms.Form):
+    """CSV upload for statement lines — the column contract lives in
+    ``treasury.reconciliation.import_statement_lines``."""
+
+    file = forms.FileField(
+        label="فایل CSV صورت‌حساب",
+        help_text="ستون‌ها: date, description, reference, amount (یا debit و credit). تاریخ‌ها میلادی (YYYY-MM-DD) و مبلغ با علامت بانک است.",
+    )
+
+
+class StatementMatchForm(forms.Form):
+    """Manual match: one book movement (hidden id, rendered per row)
+    plus the statement line chosen for it."""
+
+    journal_line = forms.UUIDField(widget=forms.HiddenInput)
+    statement_line = forms.ModelChoiceField(
+        queryset=BankStatementLine.objects.none(), label="ردیف صورت‌حساب"
+    )
+
+    def __init__(self, *args, statement=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if statement is not None:
+            self.fields["statement_line"].queryset = statement.lines.filter(
+                matched_journal_line__isnull=True
+            )

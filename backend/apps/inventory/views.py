@@ -22,9 +22,12 @@ from apps.inventory.forms import (
     CountLineFormSet,
     CountPostForm,
     InventoryCountCreateForm,
+    StockDocumentForm,
+    StockDocumentLineFormSet,
+    StockDocumentPostForm,
     WarehouseForm,
 )
-from apps.inventory.models import InventoryCount
+from apps.inventory.models import InventoryCount, StockDocument
 from apps.organizations.models import Company
 
 
@@ -179,6 +182,129 @@ def inventory_count_create(request):
         "inventory/count_form.html",
         {"form": form, "companies": companies, "company": company},
     )
+
+
+def _scoped_stock_document(request, pk):
+    return get_object_or_404(
+        StockDocument.objects.select_related(
+            "company", "warehouse", "destination_warehouse", "journal_entry"
+        ),
+        pk=pk,
+        company_id__in=user_company_ids(request.user),
+    )
+
+
+@login_required
+def stock_document_list(request):
+    documents = (
+        StockDocument.objects.filter(company_id__in=user_company_ids(request.user))
+        .select_related("company", "warehouse", "destination_warehouse")
+        .prefetch_related("lines")
+    )
+    return render(request, "inventory/document_list.html", {"documents": documents})
+
+
+@login_required
+def stock_document_create(request):
+    companies, company = resolve_scoped_company(request)
+    form_kw = {"companies": companies, "company": company}
+    form = StockDocumentForm(request.POST or None, **form_kw)
+    formset = StockDocumentLineFormSet(
+        request.POST or None, prefix="lines", form_kwargs={"company": company}
+    )
+    if request.method == "POST" and company is not None and form.is_valid() and formset.is_valid():
+        data = form.cleaned_data
+        doc_type = data["doc_type"]
+        source_type = ""
+        if data["purpose"] == "OPENING_STOCK":
+            doc_type = StockDocument.DocType.RECEIPT
+            source_type = "opening_stock"
+        lines = [
+            {
+                "product": line_form.cleaned_data["product"],
+                "unit": line_form.cleaned_data.get("unit"),
+                "quantity": line_form.cleaned_data["quantity"],
+                "unit_cost": line_form.cleaned_data.get("unit_cost"),
+            }
+            for line_form in formset
+            if not line_form.cleaned_data.get("DELETE") and line_form.cleaned_data.get("product")
+        ]
+        try:
+            document = services.create_stock_document(
+                company=company,
+                doc_type=doc_type,
+                warehouse=data["warehouse"],
+                destination_warehouse=data["destination_warehouse"],
+                doc_date=data["doc_date"],
+                description=data["description"],
+                source_type=source_type,
+                lines=lines,
+            )
+        except ValidationError as exc:
+            add_service_errors(form, exc)
+        else:
+            messages.success(request, "سند انبار به‌صورت پیش‌نویس ایجاد شد.")
+            return redirect("stock_document_detail", pk=document.pk)
+    return render(
+        request,
+        "inventory/document_form.html",
+        {
+            "form": form,
+            "line_formset": formset,
+            "companies": companies,
+            "company": company,
+            "form_title": "سند انبار جدید",
+        },
+    )
+
+
+@login_required
+def stock_document_detail(request, pk):
+    document = _scoped_stock_document(request, pk)
+    post_form = StockDocumentPostForm(company=document.company)
+    return render(
+        request,
+        "inventory/document_detail.html",
+        {"document": document, "post_form": post_form},
+    )
+
+
+@login_required
+@require_POST
+def stock_document_post(request, pk):
+    document = _scoped_stock_document(request, pk)
+    form = StockDocumentPostForm(request.POST, company=document.company)
+    if not form.is_valid():
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return redirect("stock_document_detail", pk=document.pk)
+    gl_accounts = None
+    if form.cleaned_data.get("inventory_account"):
+        gl_accounts = (
+            form.cleaned_data["inventory_account"],
+            form.cleaned_data["offset_account"],
+        )
+    try:
+        services.post_stock_document(document, user=request.user, gl_accounts=gl_accounts)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "سند انبار ثبت شد.")
+    return redirect("stock_document_detail", pk=document.pk)
+
+
+@login_required
+@require_POST
+def stock_document_reverse(request, pk):
+    document = _scoped_stock_document(request, pk)
+    try:
+        services.reverse_stock_document(document, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, "سند انبار برگشت خورد.")
+    return redirect("stock_document_detail", pk=document.pk)
 
 
 def _scoped_count(request, pk):

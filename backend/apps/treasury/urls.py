@@ -23,4 +23,30 @@ urlpatterns = [
     path("cheques/<uuid:pk>/bounce/", views.cheque_bounce, name="cheque_bounce"),
     path("cheques/<uuid:pk>/return/", views.cheque_return, name="cheque_return"),
     path("open-items/", views.open_items_view, name="treasury_open_items"),
+    path("statements/", views.bank_statement_list, name="bank_statement_list"),
+    path("statements/new/", views.bank_statement_create, name="bank_statement_create"),
+    path("statements/<uuid:pk>/", views.bank_statement_detail, name="bank_statement_detail"),
+    path(
+        "statements/<uuid:pk>/lines/add/",
+        views.bank_statement_add_line,
+        name="bank_statement_add_line",
+    ),
+    path("statements/<uuid:pk>/import/", views.bank_statement_import, name="bank_statement_import"),
+    path(
+        "statements/<uuid:pk>/auto-match/",
+        views.bank_statement_auto_match,
+        name="bank_statement_auto_match",
+    ),
+    path("statements/<uuid:pk>/match/", views.bank_statement_match, name="bank_statement_match"),
+    path(
+        "statements/<uuid:pk>/lines/<uuid:line_pk>/unmatch/",
+        views.bank_statement_unmatch,
+        name="bank_statement_unmatch",
+    ),
+    path(
+        "statements/<uuid:pk>/complete/",
+        views.bank_statement_complete,
+        name="bank_statement_complete",
+    ),
+    path("statements/<uuid:pk>/reopen/", views.bank_statement_reopen, name="bank_statement_reopen"),
 ]

@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<h1>صورت‌حساب بانکی جدید</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<div class="card">
+<p>دوره صورت‌حساب و مانده‌های ابتدا و پایان دوره را همان‌طور که بانک اعلام کرده وارد کنید. مانده‌ها با علامت دفتر بانک‌اند: مانده عادی حساب مثبت است.</p>
+<form method="post">{% csrf_token %}
+{{ form.company }}
+{{ form.non_field_errors }}
+{{ form.as_p }}
+<p><button type="submit">ایجاد صورت‌حساب</button> <a class="btn btn-ghost" href="{% url 'bank_statement_list' %}">بازگشت</a></p>
+</form>
+</div>
+{% endif %}
+{% endblock %}

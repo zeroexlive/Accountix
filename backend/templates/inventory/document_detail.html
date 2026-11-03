@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load jalali %}{% block content %}
+<h1>سند انبار — {{ document.get_doc_type_display }}</h1>
+<div class="card">
+<p>شرکت: {{ document.company.name }} — انبار: {{ document.warehouse.code }}{% if document.destination_warehouse %} → مقصد: {{ document.destination_warehouse.code }}{% endif %} — تاریخ: {{ document.doc_date|jalali }} — وضعیت: {{ document.get_status_display }}{% if document.source_type == 'opening_stock' %} — موجودی اول دوره{% endif %}{% if document.description %} — {{ document.description }}{% endif %}</p>
+{% if document.journal_entry %}<p>سند حسابداری: <a href="{% url 'journal_detail' document.journal_entry.pk %}">مشاهده سند</a> ({{ document.journal_entry.entry_number|default:document.journal_entry.pk }})</p>{% endif %}
+<table class="line-table"><thead><tr><th>کالا</th><th>واحد</th><th>مقدار</th><th>بهای واحد</th></tr></thead>
+<tbody>
+{% for line in document.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{{ line.unit.name }}</td><td>{{ line.quantity }}</td><td>{{ line.unit_cost|default:"—" }}</td></tr>{% endfor %}
+</tbody></table>
+{% if document.status == 'DRAFT' %}
+<form method="post" action="{% url 'stock_document_post' document.pk %}">{% csrf_token %}
+{{ post_form.non_field_errors }}
+<p><label for="{{ post_form.inventory_account.id_for_label }}">حساب موجودی (دفتر کل)</label>{{ post_form.inventory_account }}{{ post_form.inventory_account.errors }}</p>
+<p><label for="{{ post_form.offset_account.id_for_label }}">حساب طرف مقابل</label>{{ post_form.offset_account }}{{ post_form.offset_account.errors }}</p>
+<p class="empty">ثبت سند حسابداری اختیاری است (ADR-013): برای رسید و حواله، با انتخاب هر دو حساب سند حسابداری صادر می‌شود و بدون انتخاب حسابی صادر نمی‌شود. انتقال و تعدیل سند حسابداری ندارند.</p>
+<p><button type="submit" onclick="return confirm('سند انبار ثبت نهایی می‌شود. ادامه می‌دهید؟')">ثبت سند</button></p>
+</form>
+{% elif document.status == 'POSTED' and not document.is_reversal %}
+<form method="post" action="{% url 'stock_document_reverse' document.pk %}" onsubmit="return confirm('سند برگشت می‌خورد و حرکات آن خنثی می‌شود. ادامه می‌دهید؟')">{% csrf_token %}<button type="submit" class="btn-danger">برگشت سند</button></form>
+{% endif %}
+</div>
+<p><a class="btn btn-ghost" href="{% url 'stock_documents' %}">بازگشت به اسناد انبار</a></p>
+{% endblock %}

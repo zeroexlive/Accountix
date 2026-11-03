@@ -481,3 +481,76 @@ generated *text* (e.g. journal descriptions that embed an ISO date)
 is content, not a date display, and is deliberately left untouched —
 changing it would mean editing the services, which this layer
 forswears.
+
+## ADR-041 — Bank reconciliation at the GL level; link-only matching; difference identity (accepted, Sprint 14)
+Reconciliation answers one question: do the books and the bank agree
+about one bank account? Rather than bolting a second bookkeeping of
+"bank movements" onto payments and cheques, the reconciliation is
+defined directly on the ledger. (1) **Book movement**: for a BANK
+treasury account, a book movement is a journal line on the account's
+linked GL account whose entry is in the ledger set (POSTED or
+REVERSED — the same set `accounting.reporting` uses, so a reversed
+original and its reversal entry both appear and net out). By
+construction this covers payments posted with method CASH or
+BANK_TRANSFER on the bank account, received cheques *when they
+clear* into the bank (Dr bank GL), issued cheques *when they clear*
+(Cr bank GL), payment/journal reversals, and manual journals posted
+straight to the bank GL — which is how bank-only items (fees,
+charges, interest) enter the books. It deliberately does NOT cover
+cheque *posting* (the value sits in the cheques-in-hand /
+cheques-payable holding account until clearing — Sprint 06,
+ADR-026), cheque deposit (register-only, no journal), or
+bounce/return (holding + counterparty accounts only): none of those
+touch the bank GL, so none of them can appear on a bank statement,
+and no postings were invented to change that.
+(2) **Sign mapping**: the bank GL account is debit-normal (an
+asset), so a book movement's signed amount is `debit − credit`; a
+statement line's `amount` is stored signed from the bank's
+perspective with the same convention (+ = money in). A match
+therefore requires exact equality of the two signed amounts — no
+absolute-value matching, no tolerance.
+(3) **The difference identity**: with `book` = the GL balance of the
+bank account as of the statement end date, `S` = the bank's stated
+closing, `U` = the net of unmatched statement lines and `O` = the
+net of unmatched book movements ≤ end date, the summary reports
+`difference = book − (S − U)`. The books and the statement both
+enumerate the same underlying movements, so
+`book − S = O − U + (opening gap)`, where the opening gap is the
+book balance at the period start minus the bank's stated opening.
+Under the chaining discipline — each statement's stated opening
+equals the book balance at its start, which a cleanly completed
+previous statement guarantees — the opening gap is zero and the
+identity reduces to **`difference == O`**: the difference is exactly
+the net of book movements the bank has not shown yet. When every
+book movement ≤ end date is matched and every statement line is
+matched, `O = 0` and `difference = 0` exactly.
+Worked example (pinned in `test_reconciliation.py`): book movements
++1100 (receipt, Jun 1), −300 (payment, Jun 2), +1100 (cheque
+cleared, Jun 1) → book = 1900. Statement (opening 0, closing 1850):
++1100, +1100, −300, and a −50 bank fee the books lack. Auto-match
+takes only the −300 (each +1100 line has two candidates). Then
+U = 2150, O = 2200, difference = 1900 − (1850 − 2150) = 2200 = O.
+After the two +1100 lines are matched by hand (U = −50, O = 0,
+difference = 0), booking the fee (Dr expense 50 / Cr bank 50) and
+matching it gives U = O = difference = 0.
+(4) **Completion rule**: a statement completes only when
+`difference == 0` AND no statement line is unmatched. The second
+clause is not redundant: difference can be zero while a bank-only
+line (the fee above) is still unmatched, and closing over it would
+freeze a real bank movement the books never recorded. Completing
+locks all match/unmatch/import changes; reopening restores them.
+(5) **Matching is link-only**: a match stores a OneToOne from the
+statement line to the journal line (the database itself guarantees
+a journal line is claimed at most once across all statements) and
+never mutates the journal, the payment or the cheque behind it;
+unmatching clears the link. Auto-match links a line only when
+exactly one unmatched book movement has the equal signed amount
+within ±7 days; ambiguity always falls back to the user.
+(6) **Statement lines enter two ways**: manual entry, and CSV import
+with a documented contract (header `date,description,reference,
+amount` signed, or a `debit`+`credit` pair with
+amount = credit − debit; ISO dates). Valid rows import in one
+transaction; invalid rows are reported with their physical file
+line numbers and reasons — never silently dropped, never a partial
+silent mess. A (date, amount, reference) triple may occur at most
+once per statement, on import and on manual entry alike.

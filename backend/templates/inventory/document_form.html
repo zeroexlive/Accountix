@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ form_title }}</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<form method="post" class="doc-form">{% csrf_token %}
+<div class="card">
+<p>شرکت: <strong>{{ company.name }}</strong></p>
+{{ form.company }}
+{{ form.non_field_errors }}
+<p><label for="{{ form.doc_type.id_for_label }}">نوع سند</label>{{ form.doc_type }}{{ form.doc_type.errors }}</p>
+<p><label for="{{ form.purpose.id_for_label }}">کاربرد سند</label>{{ form.purpose }}{{ form.purpose.errors }}</p>
+<p class="empty">با انتخاب «موجودی اول دوره» سند به‌صورت رسیدِ موجودی اول دوره ثبت می‌شود؛ برای مانده اول دوره حسابداری از صفحه «مانده اول دوره» استفاده کنید و موجودی کالا را از همین فرم وارد کنید.</p>
+<p><label for="{{ form.warehouse.id_for_label }}">انبار</label>{{ form.warehouse }}{{ form.warehouse.errors }}</p>
+<p><label for="{{ form.destination_warehouse.id_for_label }}">انبار مقصد (فقط انتقال)</label>{{ form.destination_warehouse }}{{ form.destination_warehouse.errors }}</p>
+<p><label for="{{ form.doc_date.id_for_label }}">تاریخ سند</label>{{ form.doc_date }}{{ form.doc_date.errors }}</p>
+<p><label for="{{ form.description.id_for_label }}">شرح</label>{{ form.description }}{{ form.description.errors }}</p>
+</div>
+<div class="card">
+<h2>ردیف‌های سند</h2>
+{{ line_formset.management_form }}
+{{ line_formset.non_form_errors }}
+<table class="line-table"><thead><tr><th>کالا</th><th>واحد</th><th>مقدار</th><th>بهای واحد</th><th>حذف</th></tr></thead>
+<tbody id="line-rows">
+{% for f in line_formset %}<tr>{% for field in f %}<td>{{ field }}{{ field.errors }}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table>
+<p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">+ ردیف جدید</button></p>
+<p class="empty">بهای واحد فقط برای رسید (و تعدیل مثبت کالای بدون موجودی) لازم است؛ خروج و انتقال با میانگین موزون بهادار می‌شوند.</p>
+</div>
+<p><button type="submit">ایجاد پیش‌نویس سند</button> <a class="btn btn-ghost" href="{% url 'stock_documents' %}">بازگشت</a></p>
+</form>
+{% include "_line_formset_js.html" with formset=line_formset %}
+{% endif %}
+{% endblock %}

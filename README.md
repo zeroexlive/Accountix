@@ -4,16 +4,17 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-03): Sprints 01-13 done; release verdict "Ready
+> **Status (2026-11-03): Sprints 01-14 done; release verdict "Ready
 > with documented limitations" (`docs/engineering/RELEASE_READINESS.md`).**
 > Authentication, companies/memberships, fiscal years/periods, chart of
 > accounts, the double-entry journal engine (posting/reversal, trial
 > balance, general ledger), the inventory engine (ledger-based stock
 > movements, MWAC), purchasing, sales, treasury (allocations, Iranian
-> cheque workflows), financial statements, fiscal closing, opening
-> balances, a reporting dashboard with CSV/XLSX exports and print
-> templates, a standalone launcher with backup/restore, and a
-> PostgreSQL-verified, type-checked codebase (283 tests on SQLite).
+> cheque workflows), bank reconciliation, financial statements, fiscal
+> closing, opening balances, a reporting dashboard with CSV/XLSX
+> exports and print templates, a standalone launcher with
+> backup/restore, and a PostgreSQL-verified, type-checked codebase
+> (298 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -24,7 +25,14 @@ for international markets without a rewrite.
 > never around it. Sprint 13 completed data entry (opening balances,
 > stock counts, fiscal closing/reopening from the fiscal-year pages)
 > and made every displayed date Jalali (ADR-040; storage and inputs
-> stay Gregorian) — see `docs/engineering/CURRENT_STATE.md`.
+> stay Gregorian). Sprint 14 added bank reconciliation at the GL
+> level (ADR-041: CSV/manual statement entry, unambiguous-only
+> auto-match, link-only matching, completion locked at zero
+> difference) and stock document forms (receipt/issue/transfer with
+> the ADR-013 GL opt-in and an opening-stock purpose) — see
+> `docs/engineering/CURRENT_STATE.md`. Note: Sprint 14 adds a
+> database migration (`treasury/0002`); run `manage.py migrate`
+> after pulling.
 
 ## Stack
 

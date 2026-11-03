@@ -299,3 +299,92 @@ class Cheque(TimeStampedUUIDModel):
 
     def __str__(self):
         return f"Cheque {self.cheque_number} {self.amount} [{self.status}]"
+
+
+class BankStatement(TimeStampedUUIDModel):
+    """One bank statement for one BANK treasury account (Sprint 14,
+    ADR-041). Reconciliation happens at the GL level: the book side of
+    a statement is the set of posted journal lines on the treasury
+    account's GL account, and a statement line reconciles by *linking*
+    to exactly one of those lines — matching never mutates the
+    journal, the payment or the cheque behind the line.
+
+    ``opening_balance`` / ``closing_balance`` are the balances *as
+    stated by the bank* for [start_date, end_date]; everything else in
+    the reconciliation summary is derived.
+    """
+
+    class Status(models.TextChoices):
+        OPEN = "OPEN", "Open"
+        COMPLETED = "COMPLETED", "Completed"
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bank_statements")
+    treasury_account = models.ForeignKey(
+        TreasuryAccount, on_delete=models.PROTECT, related_name="bank_statements"
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+    opening_balance = models.DecimalField(max_digits=19, decimal_places=2)
+    closing_balance = models.DecimalField(max_digits=19, decimal_places=2)
+    source_note = models.CharField(max_length=500, blank=True)
+    status = models.CharField(max_length=9, choices=Status.choices, default=Status.OPEN)
+
+    class Meta:
+        ordering = ["-end_date", "-created_at"]
+
+    def __str__(self):
+        return f"Statement {self.treasury_account.name} {self.start_date}..{self.end_date} [{self.status}]"
+
+
+class BankStatementLine(TimeStampedUUIDModel):
+    """One line of a bank statement. ``amount`` is SIGNED from the
+    bank's perspective: positive (a bank credit) is money IN to the
+    account, negative (a bank debit) is money OUT. It therefore equals
+    ``debit - credit`` of the bank-GL journal line it matches (the
+    bank account is debit-normal), which is the sign mapping the
+    matcher enforces (ADR-041).
+
+    ``matched_journal_line`` is a OneToOne: the database itself
+    guarantees a journal line is matched at most once across all
+    statements, so two statements can never claim the same book
+    movement.
+    """
+
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="bank_statement_lines"
+    )
+    statement = models.ForeignKey(BankStatement, on_delete=models.CASCADE, related_name="lines")
+    line_date = models.DateField()
+    description = models.CharField(max_length=500, blank=True)
+    reference = models.CharField(max_length=64, blank=True)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
+    matched_journal_line = models.OneToOneField(
+        "accounting.JournalLine",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="bank_statement_match",
+    )
+    matched_at = models.DateTimeField(null=True, blank=True)
+    matched_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="matched_statement_lines",
+    )
+
+    class Meta:
+        ordering = ["line_date", "created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(amount=0), name="statement_line_amount_non_zero"
+            )
+        ]
+
+    @property
+    def is_matched(self):
+        return self.matched_journal_line_id is not None
+
+    def __str__(self):
+        return f"Statement line {self.line_date} {self.amount}"
