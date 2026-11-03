@@ -8,11 +8,9 @@ urlpatterns = [
     # set_language view at /i18n/setlang/ — POST-only, stores the
     # choice in the language cookie; URLs themselves are not prefixed.
     path("i18n/", include("django.conf.urls.i18n")),
-    path(
-        "login/",
-        auth_views.LoginView.as_view(template_name="registration/login.html"),
-        name="login",
-    ),
+    # Login + first-run setup (Sprint 24, ADR-049): the users app owns
+    # both; its login view redirects a zero-user install to /setup/.
+    path("", include("apps.users.urls")),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", include("apps.core.urls")),
     path("organizations/", include("apps.organizations.urls")),

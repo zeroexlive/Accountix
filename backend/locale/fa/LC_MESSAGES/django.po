@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 13:57+0330\n"
+"POT-Creation-Date: 2026-11-03 18:52+0330\n"
 "PO-Revision-Date: 2026-11-03 15:11+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: Persian\n"
@@ -178,8 +178,7 @@ msgstr "برگشت‌خورده"
 
 #: apps/accounting/models.py:153
 msgid "Posted journal entries are immutable; reverse the entry instead."
-msgstr ""
-"سندهای حسابداری ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
+msgstr "سندهای حسابداری ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
 
 #: apps/accounting/models.py:159
 msgid "Posted journal entries cannot be deleted."
@@ -554,8 +553,7 @@ msgstr "واحد تبدیل متعلق به شرکت دیگری است."
 msgid ""
 "No unit conversion for product %(sku)s from %(from_code)s to %(to_code)s."
 msgstr ""
-"برای کالای %(sku)s هیچ تبدیلی از %(from_code)s به %(to_code)s وجود "
-"ندارد."
+"برای کالای %(sku)s هیچ تبدیلی از %(from_code)s به %(to_code)s وجود ندارد."
 
 #: apps/inventory/forms.py:18
 msgid "کد انبار"
@@ -719,8 +717,7 @@ msgstr "تعدیل"
 
 #: apps/inventory/models.py:136
 msgid "Posted stock documents are immutable; reverse the document instead."
-msgstr ""
-"اسناد انبار ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
+msgstr "اسناد انبار ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
 
 #: apps/inventory/models.py:142
 msgid "Posted stock documents cannot be deleted."
@@ -741,8 +738,7 @@ msgstr "گردش‌های انبار فقط افزودنی‌اند و قابل 
 #: apps/inventory/models.py:339
 msgid "Posted inventory counts are immutable; reverse the count instead."
 msgstr ""
-"انبارگردانی‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن انبارگردانی را "
-"برگشت بزنید."
+"انبارگردانی‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن انبارگردانی را برگشت بزنید."
 
 #: apps/inventory/models.py:345
 msgid "Posted inventory counts cannot be deleted."
@@ -801,8 +797,7 @@ msgstr "کالای %(sku)s غیرفعال است."
 #, python-format
 msgid ""
 "Product %(sku)s is not stockable; services cannot move through inventory."
-msgstr ""
-"کالای %(sku)s قابل انبارش نیست؛ خدمات از طریق انبار جابه‌جا نمی‌شوند."
+msgstr "کالای %(sku)s قابل انبارش نیست؛ خدمات از طریق انبار جابه‌جا نمی‌شوند."
 
 #: apps/inventory/services.py:102 apps/purchases/services.py:76
 #: apps/sales/services.py:74
@@ -832,8 +827,7 @@ msgid ""
 "Insufficient stock for %(sku)s: requested %(requested)s, available "
 "%(available)s."
 msgstr ""
-"موجودی کالای %(sku)s کافی نیست: درخواستی %(requested)s، موجود "
-"%(available)s."
+"موجودی کالای %(sku)s کافی نیست: درخواستی %(requested)s، موجود %(available)s."
 
 #: apps/inventory/services.py:225
 #, python-format
@@ -933,8 +927,8 @@ msgid ""
 "Stock of %(sku)s moved since the count was taken (snapshot %(snapshot)s, now "
 "%(current)s); recreate the count."
 msgstr ""
-"موجودی کالای %(sku)s از زمان شمارش تغییر کرده است (مقطع شمارش "
-"%(snapshot)s، اکنون %(current)s)؛ شمارش را دوباره ایجاد کنید."
+"موجودی کالای %(sku)s از زمان شمارش تغییر کرده است (مقطع شمارش %(snapshot)s، "
+"اکنون %(current)s)؛ شمارش را دوباره ایجاد کنید."
 
 #: apps/inventory/services.py:671
 msgid "gl_accounts must include 'inventory' and 'variance' accounts."
@@ -972,8 +966,7 @@ msgstr "سند هیچ گردشی ندارد و قابل برگشت‌زدن نی
 #, python-format
 msgid ""
 "Reversal would make stock of %(sku)s negative in warehouse %(warehouse)s."
-msgstr ""
-"برگشت‌زدن، موجودی کالای %(sku)s را در انبار %(warehouse)s منفی می‌کند."
+msgstr "برگشت‌زدن، موجودی کالای %(sku)s را در انبار %(warehouse)s منفی می‌کند."
 
 #: apps/inventory/views.py:62
 msgid "کالا ایجاد شد."
@@ -1441,8 +1434,8 @@ msgid ""
 "Return quantity for %(sku)s exceeds the purchased quantity minus previous "
 "returns (%(already)s already returned)."
 msgstr ""
-"مقدار برگشت کالای %(sku)s از مقدار خریداری‌شده پس از کسر برگشت‌های قبلی "
-"بیشتر است (تاکنون %(already)s برگشت خورده است)."
+"مقدار برگشت کالای %(sku)s از مقدار خریداری‌شده پس از کسر برگشت‌های قبلی بیشتر "
+"است (تاکنون %(already)s برگشت خورده است)."
 
 #: apps/purchases/services.py:539
 msgid ""
@@ -1641,8 +1634,8 @@ msgstr ""
 msgid ""
 "gl_accounts must include 'cogs' and 'inventory' accounts for stockable lines."
 msgstr ""
-"gl_accounts برای ردیف‌های قابل انبارش باید حساب‌های «cogs» و «inventory» "
-"را شامل شود."
+"gl_accounts برای ردیف‌های قابل انبارش باید حساب‌های «cogs» و «inventory» را "
+"شامل شود."
 
 #: apps/sales/services.py:528
 msgid "This sales invoice has already been reversed."
@@ -1666,8 +1659,8 @@ msgid ""
 "Return quantity for %(sku)s exceeds the sold quantity minus previous returns "
 "(%(already)s already returned)."
 msgstr ""
-"مقدار برگشت کالای %(sku)s از مقدار فروخته‌شده پس از کسر برگشت‌های قبلی "
-"بیشتر است (تاکنون %(already)s برگشت خورده است)."
+"مقدار برگشت کالای %(sku)s از مقدار فروخته‌شده پس از کسر برگشت‌های قبلی بیشتر "
+"است (تاکنون %(already)s برگشت خورده است)."
 
 #: apps/sales/services.py:651
 #, python-format
@@ -1737,8 +1730,8 @@ msgid ""
 "The first leaf number must end with digits so the following leaves can be "
 "numbered (got %(number)r)."
 msgstr ""
-"شماره اولین برگ باید با رقم پایان یابد تا برگ‌های بعدی قابل شماره‌گذاری "
-"باشند (دریافت‌شده: %(number)r)."
+"شماره اولین برگ باید با رقم پایان یابد تا برگ‌های بعدی قابل شماره‌گذاری باشند "
+"(دریافت‌شده: %(number)r)."
 
 #: apps/treasury/cheque_books.py:63 apps/treasury/reconciliation.py:129
 #: apps/treasury/services.py:83
@@ -1773,8 +1766,8 @@ msgid ""
 "Leaf number %(number)s already exists for this bank account (book %(book)s); "
 "cheque book ranges cannot overlap."
 msgstr ""
-"شماره برگ %(number)s برای این حساب بانکی از قبل وجود دارد (دفترچه "
-"%(book)s)؛ بازه‌های دفترچه چک نمی‌توانند هم‌پوشانی داشته باشند."
+"شماره برگ %(number)s برای این حساب بانکی از قبل وجود دارد (دفترچه %(book)s)؛ "
+"بازه‌های دفترچه چک نمی‌توانند هم‌پوشانی داشته باشند."
 
 #: apps/treasury/cheque_books.py:146
 #, python-format
@@ -2130,8 +2123,7 @@ msgid ""
 "Duplicate statement line (%(line_date)s, %(amount)s, %(reference)r) in the "
 "import."
 msgstr ""
-"ردیف صورت‌حساب تکراری (%(line_date)s، %(amount)s، %(reference)r) در "
-"واردسازی."
+"ردیف صورت‌حساب تکراری (%(line_date)s، %(amount)s، %(reference)r) در واردسازی."
 
 #: apps/treasury/reconciliation.py:170
 #, python-format
@@ -2139,8 +2131,8 @@ msgid ""
 "A statement line with this date, amount and reference already exists "
 "(%(line_date)s, %(amount)s, %(reference)r)."
 msgstr ""
-"ردیف صورت‌حسابی با این تاریخ، مبلغ و ارجاع از قبل وجود دارد "
-"(%(line_date)s، %(amount)s، %(reference)r)."
+"ردیف صورت‌حسابی با این تاریخ، مبلغ و ارجاع از قبل وجود دارد (%(line_date)s، "
+"%(amount)s، %(reference)r)."
 
 #: apps/treasury/reconciliation.py:187
 msgid "A statement line cannot be zero."
@@ -2191,8 +2183,8 @@ msgid ""
 "statement was created; correct the closing balance and try again."
 msgstr ""
 "جمع‌های صورت‌حساب سازگار نیستند: افتتاحیه %(opening)s + ردیف‌های واردشده "
-"%(lines_total)s = %(computed)s، نه مانده پایانی اعلام‌شده %(closing)s. "
-"هیچ صورت‌حسابی ایجاد نشد؛ مانده پایانی را اصلاح کنید و دوباره تلاش کنید."
+"%(lines_total)s = %(computed)s، نه مانده پایانی اعلام‌شده %(closing)s. هیچ "
+"صورت‌حسابی ایجاد نشد؛ مانده پایانی را اصلاح کنید و دوباره تلاش کنید."
 
 #: apps/treasury/reconciliation.py:404
 #, python-format
@@ -2201,8 +2193,7 @@ msgstr " (%(count)s ردیف فایل نیز رد شد — پیش‌نمایش �
 
 #: apps/treasury/reconciliation.py:457
 msgid "This statement line is already matched; unmatch it first."
-msgstr ""
-"این ردیف صورت‌حساب قبلاً تطبیق داده شده است؛ ابتدا تطبیق آن را لغو کنید."
+msgstr "این ردیف صورت‌حساب قبلاً تطبیق داده شده است؛ ابتدا تطبیق آن را لغو کنید."
 
 #: apps/treasury/reconciliation.py:459
 msgid "The book movement is not on this statement's bank GL account."
@@ -2223,8 +2214,7 @@ msgstr "این گردش دفتری قبلاً با ردیف صورت‌حساب 
 #: apps/treasury/reconciliation.py:468
 #, python-format
 msgid "Amounts do not agree: statement %(statement)s vs book %(book)s."
-msgstr ""
-"مبالغ سازگار نیستند: صورت‌حساب %(statement)s در برابر دفتر %(book)s."
+msgstr "مبالغ سازگار نیستند: صورت‌حساب %(statement)s در برابر دفتر %(book)s."
 
 #: apps/treasury/reconciliation.py:492
 msgid "This statement line is not matched."
@@ -2239,8 +2229,7 @@ msgid ""
 "The statement still has unmatched lines; book and match them before "
 "completing."
 msgstr ""
-"صورت‌حساب هنوز ردیف تطبیق‌نیافته دارد؛ پیش از تکمیل، آن‌ها را ثبت و "
-"تطبیق دهید."
+"صورت‌حساب هنوز ردیف تطبیق‌نیافته دارد؛ پیش از تکمیل، آن‌ها را ثبت و تطبیق دهید."
 
 #: apps/treasury/reconciliation.py:625
 #, python-format
@@ -2312,16 +2301,15 @@ msgid ""
 "Cheque book leaves are only for issued (outgoing) cheques; received cheques "
 "are the other party's paper."
 msgstr ""
-"برگ‌های دفترچه چک فقط برای چک‌های صادره (خروجی) هستند؛ چک‌های دریافتی "
-"کاغذ طرف‌حساب‌اند."
+"برگ‌های دفترچه چک فقط برای چک‌های صادره (خروجی) هستند؛ چک‌های دریافتی کاغذ "
+"طرف‌حساب‌اند."
 
 #: apps/treasury/services.py:193
 #, python-format
 msgid ""
 "The entered cheque number %(entered)s does not match the selected leaf "
 "%(leaf)s."
-msgstr ""
-"شماره چک واردشده %(entered)s با برگ انتخاب‌شده %(leaf)s مطابقت ندارد."
+msgstr "شماره چک واردشده %(entered)s با برگ انتخاب‌شده %(leaf)s مطابقت ندارد."
 
 #: apps/treasury/services.py:216
 msgid "Cheque details are only accepted for CHEQUE payments."
@@ -2434,8 +2422,7 @@ msgstr "فایل CSV به ستون «date» نیاز دارد."
 
 #: apps/treasury/statement_files.py:141
 msgid "The CSV needs an 'amount' column (or 'debit' + 'credit')."
-msgstr ""
-"فایل CSV به ستون «amount» نیاز دارد (یا ستون‌های «debit» + «credit»)."
+msgstr "فایل CSV به ستون «amount» نیاز دارد (یا ستون‌های «debit» + «credit»)."
 
 #: apps/treasury/statement_files.py:207
 #, python-format
@@ -2453,8 +2440,7 @@ msgstr "هیچ صورت‌حساب بانکی (BkToCstmrStmt) در فایل CAMT
 #: apps/treasury/statement_files.py:274
 #, python-format
 msgid "The file contains %(count)s statements; import one statement per file."
-msgstr ""
-"فایل شامل %(count)s صورت‌حساب است؛ در هر فایل یک صورت‌حساب وارد کنید."
+msgstr "فایل شامل %(count)s صورت‌حساب است؛ در هر فایل یک صورت‌حساب وارد کنید."
 
 #: apps/treasury/statement_files.py:310 apps/treasury/statement_files.py:430
 msgid "Missing amount."
@@ -2468,8 +2454,7 @@ msgstr "فهرست تراکنش‌های بانکی (BANKTRANLIST) در فایل
 #, python-format
 msgid "Unparseable closing balance (LEDGERBAL) %(balance)r in the OFX file."
 msgstr ""
-"مانده پایانی (LEDGERBAL) با مقدار %(balance)r در فایل OFX قابل خواندن "
-"نیست."
+"مانده پایانی (LEDGERBAL) با مقدار %(balance)r در فایل OFX قابل خواندن نیست."
 
 #: apps/treasury/views.py:124
 msgid "حساب خزانه ایجاد شد."
@@ -2591,6 +2576,14 @@ msgstr ""
 
 #: apps/treasury/views.py:879
 msgid "صورت‌حساب بازگشایی شد."
+msgstr ""
+
+#: apps/users/forms.py:23
+msgid "نام شرکت"
+msgstr ""
+
+#: apps/users/views.py:92
+msgid "راه‌اندازی اولیه کامل شد؛ خوش آمدید."
 msgstr ""
 
 #: templates/_company_chooser.html:6
@@ -3036,6 +3029,7 @@ msgstr ""
 
 #: templates/base.html:6 templates/base.html:22 templates/base.html:67
 #: templates/registration/lockout.html:5 templates/registration/login.html:5
+#: templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr ""
 
@@ -4189,6 +4183,25 @@ msgstr ""
 
 #: templates/registration/login.html:8
 msgid "ورود"
+msgstr ""
+
+#: templates/registration/setup.html:2
+msgid "راه‌اندازی اولیه | اکانتیکس"
+msgstr ""
+
+#: templates/registration/setup.html:6
+msgid "راه‌اندازی اولیه"
+msgstr ""
+
+#: templates/registration/setup.html:7
+msgid ""
+"هنوز هیچ کاربری ساخته نشده است. در این گام یک‌باره، مدیر سیستم و شرکت اول را "
+"می‌سازید؛ پس از آن این صفحه برای همیشه بسته می‌شود و ورود از صفحه ورود عادی "
+"انجام می‌شود."
+msgstr ""
+
+#: templates/registration/setup.html:8
+msgid "ساخت مدیر و شرکت"
 msgstr ""
 
 #: templates/sales/ar_summary.html:2

@@ -111,8 +111,14 @@ a per-user data directory, no development server, no internet needed.
 ```
 
 The launcher backs up any existing database, migrates, starts the app
-on http://127.0.0.1:8765 and opens your browser. Data lives outside the
-install directory (`~/.local/share/accountix` on Linux,
+on http://127.0.0.1:8765 and opens your browser. On the very first
+launch the browser lands on a one-time setup page where you create
+the administrator account and your first company — no source checkout
+or `createsuperuser` needed (Sprint 24, ADR-049). Management commands
+run through the launcher too: `accountix manage backup_db`,
+`accountix manage createsuperuser`, `accountix manage axes_reset`
+(same passthrough in the frozen bundle's binary). Data lives outside
+the install directory (`~/.local/share/accountix` on Linux,
 `%LOCALAPPDATA%\Accountix` on Windows; override with
 `ACCOUNTIX_DATA_DIR`). A frozen bundle can be built with
 `scripts/build_linux.sh` / `scripts/build_windows.bat`. Full details:

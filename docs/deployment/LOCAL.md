@@ -44,6 +44,43 @@ Components:
 python launcher/accountix_launcher.py            # add --no-browser / --port N as needed
 ```
 
+## First run: creating the admin and the first company (Sprint 24)
+
+On a fresh data directory there are no users yet, so the browser
+the launcher opens at `/login/` is redirected to a one-time setup
+page at `/setup/`: it creates the administrator (staff + superuser)
+and the first company (through the same CompanyForm the companies
+UI uses, with an OWNER membership) in one step and logs the admin
+in. The page exists only while the user table is empty — the
+moment the first user exists it redirects away for everyone, and
+login is the ordinary login page again. Password rules are the
+full Django validator set; nothing is created when the form is
+invalid. The window is first-come-first-served by design (see
+ADR-049): on a machine only the installer can reach, that is the
+point; for network-exposed deployments see the warning in
+PRODUCTION.md (`ACCOUNTIX_FIRST_RUN_SETUP=0` disables setup).
+
+## Management commands through the launcher (Sprint 24)
+
+The launcher binary doubles as the management entry point — this
+is how a bundle-only recipient runs `backup_db`, `restore_db`,
+`axes_reset` or `createsuperuser` without a source checkout:
+
+```bash
+accountix manage check
+accountix manage createsuperuser
+accountix manage backup_db
+accountix manage --data-dir /other/dir axes_reset   # --data-dir right after `manage` is the launcher's
+```
+
+(In source mode the same works as
+`python launcher/accountix_launcher.py manage check`.)
+The command runs against the standalone data directory with the
+standalone settings and its exit code is passed through. No server
+is started. Stop the app before state-mutating commands
+(`restore_db` above all), exactly as the next section requires
+for the direct `manage.py` route.
+
 ## Backup & restore (§19)
 
 ```bash

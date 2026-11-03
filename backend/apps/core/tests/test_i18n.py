@@ -62,7 +62,9 @@ def test_default_client_renders_persian_rtl_chrome(client, user):
     assert ">English</button>" in content
 
 
-def test_login_page_default_is_persian(client):
+def test_login_page_default_is_persian(client, user):
+    # A user must exist: with an empty user table /login/ redirects
+    # to the first-run setup instead (Sprint 24, ADR-049).
     resp = client.get(reverse("login"))
     content = resp.content.decode()
     assert '<html lang="fa" dir="rtl">' in content

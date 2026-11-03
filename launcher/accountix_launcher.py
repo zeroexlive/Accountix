@@ -33,6 +33,18 @@ Disable the browser with ``--no-browser`` or ``ACCOUNTIX_NO_BROWSER=1``.
 Port: ``--port`` or ``ACCOUNTIX_PORT`` (default 8765).
 Data dir: ``--data-dir`` or ``ACCOUNTIX_DATA_DIR`` or the per-OS default.
 All output is also appended to ``accountix.log`` in the data directory.
+
+**Management passthrough** (Sprint 24): ``accountix manage <args...>``
+runs a Django management command against the standalone data
+directory instead of starting the server — e.g. ``accountix manage
+createsuperuser``, ``accountix manage backup_db``, ``accountix
+manage axes_reset``. An optional ``--data-dir PATH`` immediately
+after ``manage`` selects the data directory (it is consumed by the
+launcher, not passed to Django); otherwise ``ACCOUNTIX_DATA_DIR`` /
+the per-OS default applies. The command's exit code becomes the
+launcher's. No server is started and no browser is opened. Stop the
+server first for state-mutating commands (restore_db and friends) —
+the passthrough takes no lock; see docs/deployment/LOCAL.md.
 """
 
 from __future__ import annotations
@@ -231,6 +243,87 @@ def prepare_database(db_path: Path, data_dir: Path, port: int, log) -> None:
 
 
 # --------------------------------------------------------------------------
+# Management passthrough (Sprint 24)
+# --------------------------------------------------------------------------
+
+
+def parse_manage_invocation(argv: list[str]) -> tuple[list[str], str | None] | None:
+    """Recognise ``accountix manage [--data-dir PATH] <command>...``.
+
+    Returns ``(manage_args, data_dir_override)`` when argv starts
+    with ``manage``, else None (a normal server launch). The
+    ``--data-dir`` flag, when present, must come immediately after
+    ``manage``; it is consumed here and never reaches Django, whose
+    own argument parser would reject it.
+    """
+    if not argv or argv[0] != "manage":
+        return None
+    rest = list(argv[1:])
+    data_dir = None
+    if rest and rest[0] == "--data-dir":
+        if len(rest) < 2:
+            return ([], None)  # dangling flag; run_manage_command reports usage
+        data_dir = rest[1]
+        rest = rest[2:]
+    elif rest and rest[0].startswith("--data-dir="):
+        data_dir = rest[0].split("=", 1)[1]
+        rest = rest[1:]
+    return (rest, data_dir)
+
+
+def run_manage_command(manage_args: list[str], data_dir_override: str | None = None) -> int:
+    """Run one Django management command against the data directory
+    and return its exit code.
+
+    Uses the standalone settings and the exact data-dir / secret
+    resolution of a normal launch (config.paths), but starts no
+    server, opens no browser and takes no instance lock — operators
+    stop the server first for state-mutating commands, as the
+    backup/restore docs already require. Source mode shells out to
+    manage.py with inherited stdio, so interactive commands
+    (createsuperuser) prompt normally; frozen mode runs
+    ``execute_from_command_line`` in-process, the same entry point
+    manage.py itself uses, and translates its SystemExit back into
+    an exit code.
+    """
+    if not manage_args:
+        print(
+            "Usage: accountix manage [--data-dir PATH] <management command> [args...]",
+            file=sys.stderr,
+        )
+        return 2
+    paths = _load_paths_module()
+    if data_dir_override:
+        os.environ["ACCOUNTIX_DATA_DIR"] = data_dir_override
+    data_dir = paths.ensure_data_dir()
+    paths.get_or_create_secret_key(data_dir)
+    env = _child_env(data_dir, paths.configured_port())
+    if is_frozen():
+        os.environ.update(env)
+        backend = str(backend_dir())
+        if backend not in sys.path:
+            sys.path.insert(0, backend)
+        from django.core.management import execute_from_command_line
+
+        try:
+            execute_from_command_line(["accountix-manage", *manage_args])
+        except SystemExit as exc:
+            if exc.code is None:
+                return 0
+            if isinstance(exc.code, int):
+                return exc.code
+            print(exc.code, file=sys.stderr)
+            return 1
+        return 0
+    result = subprocess.run(
+        [sys.executable, str(backend_dir() / "manage.py"), *manage_args],
+        cwd=str(backend_dir()),
+        env=env,
+    )
+    return result.returncode
+
+
+# --------------------------------------------------------------------------
 # Server process
 # --------------------------------------------------------------------------
 
@@ -298,6 +391,11 @@ def _install_signal_handlers() -> None:
 
 def main(argv: list[str] | None = None) -> int:
     _install_signal_handlers()
+    argv = list(sys.argv[1:] if argv is None else argv)
+    manage = parse_manage_invocation(argv)
+    if manage is not None:
+        manage_args, data_dir_override = manage
+        return run_manage_command(manage_args, data_dir_override)
     parser = argparse.ArgumentParser(prog="accountix", description="Accountix launcher")
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--data-dir", default=None)

@@ -1059,3 +1059,78 @@ numerals) — the right edge in Persian, the left edge in English.
 The Sprint 22 `num` hook coverage (111 cells across 32 templates)
 is unchanged; only the alignment edge moved. Standing rule from
 now on: numeric columns are start-aligned in both modes.
+
+## ADR-049 — First-user bootstrap: login-anchored setup redirect + launcher manage passthrough (accepted, Sprint 24)
+Sprint 23's frozen smoke surfaced a release-relevant gap that had
+existed since Sprint 09: a recipient of only the bundle could not
+create the first user — the frozen binary had no management entry
+point and no setup screen; the only path was a source checkout
+running `createsuperuser` against the data directory. This ADR
+closes it with two mechanisms.
+(1) **The trigger lives on the login view, not in middleware.**
+`SetupAwareLoginView` (users app) redirects GET and POST `/login/`
+to `/setup/` while setup is available; `first_run_setup` re-checks
+the same predicate on every request and redirects away (login for
+anonymous, dashboard for authenticated) the moment it stops being
+available, processing nothing. The funnel argument: the launcher
+opens the browser at `/login/` (`config.paths.login_url`), the
+dashboard is `login_required` with `LOGIN_URL = "login"`, and a
+zero-user install has no authenticated sessions — so every real
+first-run journey reaches the login view, and the root chain
+(dashboard → login → setup) is pinned by test. Deliberately NOT
+middleware: health, static, `set_language`, the admin and every
+other surface keep byte-identical anonymous behaviour. (Django
+admin's own `/admin/login/` is not redirected — it is not the
+product's entry point, and its user is created by the setup or by
+`createsuperuser` like any other.)
+(2) **Availability = kill switch on AND user table empty.**
+`FIRST_RUN_SETUP_ENABLED` (env `ACCOUNTIX_FIRST_RUN_SETUP`,
+default on) exists because the zero-user window is
+first-come-first-served by design: whoever reaches a fresh install
+first becomes its admin. That is safe in the bundle's world
+(loopback-only standalone, ADR-033) and in a LAN install reached
+first by its installer; a deployment exposed to a network before
+its first login must pre-create the admin or disable setup first
+(docs/deployment/PRODUCTION.md says so in those words). With the
+switch off, `/setup/` redirects to `/login/` even at zero users
+and source-mode `createsuperuser` remains the bootstrap.
+(3) **The installer is staff + superuser AND an OWNER member.**
+The first user is the person installing the product: Django-level
+superuser so nothing in the admin/ops surface (including the axes
+unlock path, ADR-043) is closed to them, and an OWNER
+`CompanyMembership` because OWNER is the product-level authority
+every company-scoped page checks. Both in one transaction with
+the company; a failed step creates nothing.
+(4) **Company creation reuses the organizations UI's own path.**
+The setup form takes the company name only, and the view creates
+the company through `CompanyForm` — the same form
+`organizations.views.company_create` saves — with the remaining
+fields at their model defaults (the values that form renders as
+initials, e.g. `default_currency="IRR"`), followed by the same
+OWNER membership creation. Nothing else is seeded: company
+creation anywhere in the product seeds no chart of accounts and
+no fiscal year (accounts and fiscal years are created per company
+in their own UIs), so setup seeds none either — the new admin's
+next steps are the product's ordinary ones.
+(5) **Passwords are never weakened for the bootstrap.**
+`FirstRunSetupForm` extends `UserCreationForm`: confirmation
+matching and the full `AUTH_PASSWORD_VALIDATORS` set (Sprint 10)
+run as form validation; an invalid POST creates no user and no
+company (pinned by test). After creation the admin is logged in
+(explicit `ModelBackend` — the just-created user was not
+authenticated, and axes' backend is for credential checks) and
+lands on the dashboard with a success flash.
+(6) **The launcher gains a management passthrough, no more.**
+`accountix manage [--data-dir PATH] <args...>` is dispatched
+before argparse in `accountix_launcher.main`: it resolves the
+data directory and secret exactly like a normal launch
+(`config.paths`), then runs the command — source mode as a
+`manage.py` subprocess with inherited stdio (interactive commands
+like `createsuperuser` prompt normally) and the command's exit
+code as the launcher's; frozen mode via
+`execute_from_command_line` in-process (manage.py's own entry
+point), translating `SystemExit` back into the exit code. It
+starts no server, opens no browser and takes no instance lock;
+state-mutating commands follow the standing operator rule from
+the backup/restore docs — stop the server first. No new locking
+or safety machinery is built here.

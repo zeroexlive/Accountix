@@ -309,7 +309,13 @@ Modular monolith, single Django project under `backend/`:
   never synced). One release-relevant finding: **the bundle alone
   cannot create its first user** (no management entry point; the
   documented path is a source checkout's `createsuperuser` against
-  the data dir) — a Sprint 24 candidate. The Windows bundle
+  the data dir) — a Sprint 24 candidate. **Update (Sprint 24):
+  that gap is closed** — a zero-user install redirects `/login/`
+  to a one-time `/setup/` page (admin + first company in one
+  transaction, kill switch `ACCOUNTIX_FIRST_RUN_SETUP`), the
+  launcher takes `accountix manage <args...>` passthrough
+  commands, and the rebuilt bundle's smoke ran the whole
+  recipient journey bundle-only (ADR-049). The Windows bundle
   remains the only NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
@@ -411,7 +417,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-367 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+384 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -458,7 +464,15 @@ sprint also migrated 29 existing assertions in 7 files to the new
 Persian renderings, count-neutral); Sprint 22:
 +3 (i18n LTR design: stylesheet ships the en font/tabular and
 flip-rtl rules, numeric `num` hook live on a real page in both
-en/LTR and fa/RTL) — see the sprint reports for exact
+en/LTR and fa/RTL); Sprint 23:
++0 (bundle rebuild + frozen smoke; the suite was the regression
+net, count-neutral); Sprint 24:
++17 (first-run setup: zero-user login/root redirects, setup form
+validation creating nothing, atomic admin+company+membership
+creation, setup death after first user, kill switch, English
+setup rendering; launcher manage passthrough: argv parsing,
+dispatch, real `manage check` exit-code propagation)
+— see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -501,6 +515,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    PyInstaller bundle~~ — done (Sprint 23; bundle current through
    Sprint 22 + follow-up, frozen smoke green; new candidate from
    that sprint: a first-user bootstrap for bundle recipients).
+   ~~First-user bootstrap for bundle recipients~~ — done
+   (Sprint 24, ADR-049: first-run setup page + launcher manage
+   passthrough; bundle rebuilt and the recipient journey
+   smoke-proven bundle-only).
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

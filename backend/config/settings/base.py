@@ -115,6 +115,21 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
 
+# First-run setup (Sprint 24, ADR-049): while the user table is empty,
+# /login/ redirects to a one-time /setup/ page that creates the first
+# admin + company, so a bundle-only recipient can bootstrap without a
+# source checkout. The zero-user window is first-come-first-served by
+# design, so a deployment exposed to a network before its first login
+# must pre-create the admin (createsuperuser) or disable setup:
+# ACCOUNTIX_FIRST_RUN_SETUP=0 turns the redirect off entirely and
+# /setup/ then redirects to /login/ even with zero users.
+FIRST_RUN_SETUP_ENABLED = os.environ.get("ACCOUNTIX_FIRST_RUN_SETUP", "1").strip().lower() not in (
+    "0",
+    "false",
+    "no",
+    "off",
+)
+
 # Authentication backends (Sprint 16, ADR-043): django-axes monitors the
 # login flow. AxesStandaloneBackend must be FIRST (axes installation
 # docs): it refuses authentication for locked-out clients and delegates

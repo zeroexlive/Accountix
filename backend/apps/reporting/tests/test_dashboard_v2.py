@@ -353,6 +353,9 @@ def test_main_pages_render_with_new_shell(client):
 
 
 def test_login_page_uses_auth_card(client):
+    # A user must exist: with an empty user table /login/ redirects
+    # to the first-run setup instead (Sprint 24, ADR-049).
+    User.objects.create_user(username="someone", password="pw-12345678")
     resp = client.get(reverse("login"))
     assert resp.status_code == 200
     assert b"auth-card" in resp.content

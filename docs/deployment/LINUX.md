@@ -20,7 +20,10 @@ bundle rebuilt and re-smoked at Sprint 23 — see
   the smoke covered an authenticated session — real login, a failed
   login recorded by axes, Jalali dates, the data-entry / cheque-book /
   statement pages, and the English UI from the bundled catalogs.
-  Known gap: creating the very first user still needs a source
-  checkout (`createsuperuser` against the data directory, see
-  LOCAL.md's management-command pattern).
+  **Sprint 24:** the first-user gap is closed — a fresh bundle
+  install opens a one-time setup page (create admin + first
+  company in the browser), and the frozen binary accepts
+  management commands via `accountix manage <args...>`
+  (see LOCAL.md). The Sprint 24 rebuild's smoke ran that whole
+  recipient journey bundle-only.
 - Smoke test from source: `scripts/smoke_standalone.sh`.

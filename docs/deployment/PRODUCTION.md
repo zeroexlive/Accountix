@@ -77,6 +77,22 @@ sure the proxy overwrites/strips the headers from clients,
 otherwise clients can spoof addresses and defeat the lockout.
 Never copy someone else's header settings without that check.
 
+## First-run setup — secure the zero-user window (Sprint 24)
+
+While the user table is empty, `/login/` redirects to a one-time
+`/setup/` page that creates the first administrator and company
+(ADR-049). That window is **first-come-first-served by design**:
+whoever reaches a fresh install first becomes its admin. On a
+loopback-only standalone install the installer is the only person
+who can reach it. Before exposing an install to any network,
+either pre-create the administrator
+(`manage.py createsuperuser`, or `accountix manage
+createsuperuser` for a bundle) **or** disable the setup page by
+setting `ACCOUNTIX_FIRST_RUN_SETUP=0` in the environment — with
+the switch off, `/setup/` redirects to `/login/` even when no
+users exist. Never leave a zero-user install reachable by anyone
+but its installer.
+
 ## PostgreSQL backup & restore (procedure verified in the Sprint 17 drill)
 
 PostgreSQL restore is an **operational procedure** (ADR-035), not an

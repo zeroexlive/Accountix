@@ -38,7 +38,9 @@ def test_login_and_dashboard(client, user):
 
 
 @pytest.mark.django_db
-def test_login_page_renders_rtl_persian(client):
+def test_login_page_renders_rtl_persian(client, user):
+    # The `user` fixture matters: with an empty user table /login/
+    # redirects to the first-run setup instead (Sprint 24, ADR-049).
     resp = client.get(reverse("login"))
     assert resp.status_code == 200
     body = resp.content.decode()

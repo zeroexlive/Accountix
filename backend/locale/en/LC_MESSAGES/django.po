@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 13:57+0330\n"
+"POT-Creation-Date: 2026-11-03 18:52+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -2597,6 +2597,14 @@ msgstr "The statement was completed and locked."
 msgid "صورت‌حساب بازگشایی شد."
 msgstr "The statement was reopened."
 
+#: apps/users/forms.py:23
+msgid "نام شرکت"
+msgstr "Company name"
+
+#: apps/users/views.py:92
+msgid "راه‌اندازی اولیه کامل شد؛ خوش آمدید."
+msgstr "First-run setup is complete; welcome."
+
 #: templates/_company_chooser.html:6
 msgid "انتخاب شرکت"
 msgstr "Select company"
@@ -3062,6 +3070,7 @@ msgstr "Balanced:"
 
 #: templates/base.html:6 templates/base.html:22 templates/base.html:67
 #: templates/registration/lockout.html:5 templates/registration/login.html:5
+#: templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr "Accountix"
 
@@ -4266,6 +4275,28 @@ msgstr "The username or password is incorrect."
 #: templates/registration/login.html:8
 msgid "ورود"
 msgstr "Sign in"
+
+#: templates/registration/setup.html:2
+msgid "راه‌اندازی اولیه | اکانتیکس"
+msgstr "First-run setup | Accountix"
+
+#: templates/registration/setup.html:6
+msgid "راه‌اندازی اولیه"
+msgstr "First-run setup"
+
+#: templates/registration/setup.html:7
+msgid ""
+"هنوز هیچ کاربری ساخته نشده است. در این گام یک‌باره، مدیر سیستم و شرکت اول را "
+"می‌سازید؛ پس از آن این صفحه برای همیشه بسته می‌شود و ورود از صفحه ورود عادی "
+"انجام می‌شود."
+msgstr ""
+"No user has been created yet. In this one-time step you create the "
+"system administrator and the first company; after that this page "
+"closes for good and sign-in happens on the regular login page."
+
+#: templates/registration/setup.html:8
+msgid "ساخت مدیر و شرکت"
+msgstr "Create administrator and company"
 
 #: templates/sales/ar_summary.html:2
 msgid "مطالبات از مشتریان (حساب‌های دریافتنی)"

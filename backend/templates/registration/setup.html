@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "راه‌اندازی اولیه | اکانتیکس" %}{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <span class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="brand-name">{% trans "اکانتیکس" %}</span></span>
+  <h1>{% trans "راه‌اندازی اولیه" %}</h1>
+  <p>{% trans "هنوز هیچ کاربری ساخته نشده است. در این گام یک‌باره، مدیر سیستم و شرکت اول را می‌سازید؛ پس از آن این صفحه برای همیشه بسته می‌شود و ورود از صفحه ورود عادی انجام می‌شود." %}</p>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">{% trans "ساخت مدیر و شرکت" %}</button></form>
+</div>
+{% endblock %}
