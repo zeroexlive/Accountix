@@ -1,0 +1,48 @@
+{% extends "base.html" %}{% block content %}
+<h1>{% if payment.direction == 'RECEIPT' %}دریافت{% else %}پرداخت{% endif %} — {{ payment.amount }}</h1>
+<div class="card">
+<p>طرف‌حساب: {{ payment.party.name }} ({{ payment.party.code }}) — حساب خزانه: {{ payment.treasury_account.name }} — روش: {{ payment.get_method_display }} — تاریخ: {{ payment.payment_date }}</p>
+<p>وضعیت: {{ payment.status }} — ارجاع: {{ payment.reference|default:"—" }} — حساب مقابل: {{ payment.counterparty_account|default:"—" }} — سند حسابداری: {{ payment.journal_entry|default:"—" }}</p>
+{% if payment.description %}<p>{{ payment.description }}</p>{% endif %}
+<p>تخصیص‌یافته: {{ allocated_total }} — تخصیص‌نیافته: {{ unallocated }}</p>
+</div>
+{% if cheque %}<div class="card"><h2>چک پیوست</h2>
+<p>شماره: {{ cheque.cheque_number }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date }} — وضعیت: {{ cheque.status }} — <a href="{% url 'cheque_detail' cheque.pk %}">مشاهده و عملیات چک</a></p></div>{% endif %}
+{% if payment.status == 'DRAFT' %}
+<div class="card action-card">
+<h2>ثبت نهایی</h2>
+<p class="empty">با ثبت نهایی، سند حسابداری این دریافت/پرداخت ایجاد می‌شود. حساب مقابل (مطالبات/بدهی) را برای همین سند انتخاب کنید.</p>
+<form method="post" action="{% url 'payment_post' payment.pk %}">{% csrf_token %}
+{{ post_form.non_field_errors }}
+{{ post_form.as_p }}
+<button type="submit">ثبت نهایی</button></form>
+</div>
+{% elif payment.status == 'POSTED' %}
+<div class="card">
+<h2>تخصیص‌ها</h2>
+{% if allocations %}<table><tr><th>فاکتور</th><th>مبلغ</th><th>وضعیت</th><th></th></tr>
+{% for a in allocations %}<tr><td>{% if a.sales_invoice %}<a href="{% url 'sales_invoice_detail' a.sales_invoice.pk %}">{{ a.sales_invoice.invoice_number }}</a>{% else %}<a href="{% url 'purchase_invoice_detail' a.purchase_invoice.pk %}">{{ a.purchase_invoice.invoice_number }}</a>{% endif %}</td><td>{{ a.amount }}</td><td>{{ a.status }}{% if a.void_reason %} — {{ a.void_reason }}{% endif %}</td><td>{% if a.status == 'ACTIVE' %}<form method="post" action="{% url 'allocation_void' payment.pk a.pk %}" onsubmit="return confirm('این تخصیص باطل می‌شود (حذف نمی‌شود). ادامه می‌دهید؟')">{% csrf_token %}<input type="hidden" name="reason" value="ابطال از رابط کاربری"><button type="submit" class="btn-ghost">ابطال</button></form>{% endif %}</td></tr>{% endfor %}
+</table>{% else %}<p class="empty">هنوز تخصیصی ثبت نشده است.</p>{% endif %}
+</div>
+<div class="card action-card">
+<h2>تخصیص به فاکتورهای باز {{ payment.party.name }}</h2>
+{% if open_items %}
+<form method="post" action="{% url 'payment_allocate' payment.pk %}">{% csrf_token %}
+{{ allocation_form.non_field_errors }}
+<table class="line-table"><thead><tr><th>فاکتور</th><th>تاریخ</th><th>مبلغ کل</th><th>تخصیص‌یافته</th><th>مانده</th><th>مبلغ تخصیص</th></tr></thead>
+<tbody>
+{% for row in allocation_rows %}<tr><td>{{ row.item.invoice.invoice_number }}</td><td>{{ row.item.invoice.invoice_date }}</td><td>{{ row.item.total }}</td><td>{{ row.item.allocated }}</td><td>{{ row.item.outstanding }}</td><td>{{ row.field }}{{ row.field.errors }}</td></tr>{% endfor %}
+</tbody></table>
+<p class="empty">سقف هر تخصیص توسط سرویس خزانه کنترل می‌شود: نه بیشتر از مانده فاکتور و نه بیشتر از مبلغ این دریافت/پرداخت.</p>
+<button type="submit">ثبت تخصیص‌ها</button></form>
+{% else %}<p class="empty">فاکتور بازی برای این طرف‌حساب وجود ندارد.</p>{% endif %}
+</div>
+<div class="card action-card">
+<h2>برگشت‌زدن</h2>
+<form method="post" action="{% url 'payment_reverse' payment.pk %}" onsubmit="return confirm('این دریافت/پرداخت برگشت می‌خورد و تخصیص‌هایش باطل می‌شود. ادامه می‌دهید؟')">{% csrf_token %}
+<p><label>دلیل (اختیاری)</label><input type="text" name="reason" maxlength="500"></p>
+<button type="submit" class="btn-danger">برگشت‌زدن دریافت/پرداخت</button></form>
+</div>
+{% endif %}
+<p><a class="btn btn-ghost" href="{% url 'payment_list' %}">بازگشت به فهرست</a></p>
+{% endblock %}
