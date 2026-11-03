@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block content %}
+<h1>دریافت / پرداخت جدید</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<form method="post" class="doc-form">{% csrf_token %}
+<div class="card">
+<p>شرکت: <strong>{{ company.name }}</strong></p>
+{{ form.company }}
+{{ form.non_field_errors }}
+<p><label for="{{ form.direction.id_for_label }}">جهت</label>{{ form.direction }}{{ form.direction.errors }}</p>
+<p><label for="{{ form.party.id_for_label }}">طرف‌حساب</label>{{ form.party }}{{ form.party.errors }}</p>
+<p><label for="{{ form.treasury_account.id_for_label }}">حساب خزانه</label>{{ form.treasury_account }}{{ form.treasury_account.errors }}</p>
+<p><label for="{{ form.method.id_for_label }}">روش</label>{{ form.method }}{{ form.method.errors }}</p>
+<p><label for="{{ form.amount.id_for_label }}">مبلغ</label>{{ form.amount }}{{ form.amount.errors }}</p>
+<p><label for="{{ form.payment_date.id_for_label }}">تاریخ</label>{{ form.payment_date }}{{ form.payment_date.errors }}</p>
+<p><label for="{{ form.reference.id_for_label }}">شماره ارجاع</label>{{ form.reference }}{{ form.reference.errors }}</p>
+<p><label for="{{ form.description.id_for_label }}">توضیحات</label>{{ form.description }}{{ form.description.errors }}</p>
+</div>
+<div class="card">
+<h2>مشخصات چک (فقط برای روش «چک»)</h2>
+<p><label for="{{ form.cheque_bank_name.id_for_label }}">بانک صادرکننده چک</label>{{ form.cheque_bank_name }}{{ form.cheque_bank_name.errors }}</p>
+<p><label for="{{ form.cheque_number.id_for_label }}">شماره چک</label>{{ form.cheque_number }}{{ form.cheque_number.errors }}</p>
+<p><label for="{{ form.sayad_id.id_for_label }}">شناسه صیاد</label>{{ form.sayad_id }}{{ form.sayad_id.errors }}</p>
+<p><label for="{{ form.cheque_issue_date.id_for_label }}">تاریخ صدور چک</label>{{ form.cheque_issue_date }}{{ form.cheque_issue_date.errors }}</p>
+<p><label for="{{ form.cheque_due_date.id_for_label }}">سررسید چک</label>{{ form.cheque_due_date }}{{ form.cheque_due_date.errors }}</p>
+<p class="empty">چک دریافتی تا زمان وصول، پول نقد/بانک محسوب نمی‌شود و در حساب «چک‌های دریافتی» می‌نشیند (ADR-026).</p>
+</div>
+<p><button type="submit">ایجاد پیش‌نویس</button> <a class="btn btn-ghost" href="{% url 'payment_list' %}">بازگشت</a></p>
+</form>
+{% endif %}
+{% endblock %}
