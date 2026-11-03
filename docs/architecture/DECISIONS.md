@@ -919,3 +919,73 @@ must reset the thread's active language afterwards (the view
 activates it in-process); the Sprint 20 crawl module carries an
 autouse `translation.deactivate_all()` teardown fixture, without
 which the default-language jalali tests fail in full-suite order.
+
+## ADR-047 — English-source vocabulary translated into Persian in fa.po (accepted, Sprint 21)
+Sprint 20 (ADR-046) catalogued the English-source UI vocabulary —
+service `ValidationError` texts and model choice labels — but left
+the rendering unchanged: the default Persian UI kept showing those
+strings in English, exactly as it had since Sprint 01. Whether to
+change that was left as a product decision. **Decision (Jason,
+2026-11-03, taken with the Sprint 20 report in front of him): the
+default UI becomes fully Persian** — the English-source msgids get
+real Persian translations in `fa.po`. No source-code string
+changes; `en.po` is byte-untouched (English keeps rendering the
+source text) and `makemessages` is not re-run (there is nothing
+new to extract). Scope, identified programmatically as the msgids
+containing no Arabic-script characters: **339 of the 1032 msgids**
+(75 referenced from models, 261 from service modules, 2 from
+templates, 2 from views, 1 from accounting reporting — the
+category counts sum to 341 because two msgids are each referenced
+from two categories). That set covers every service
+error, every choice label (account types, document/invoice/
+payment/cheque/leaf/statement statuses, roles, methods, kinds) and
+the few English format patterns. Persian-source msgids keep empty
+fa msgstrs (ADR-045 fallback: the msgid *is* the Persian text).
+Terminology follows the existing Persian UI glossary (سند حسابداری
+for journal entry, قابل ثبت for postable, قابل انبارش for
+stockable, حقوق صاحبان سرمایه for equity, سود (زیان) انباشته for
+retained earnings, حساب دفتر کل for GL account); placeholders —
+all named `%(name)s`/`%(name)r`, 45 distinct names, no positional
+or brace forms exist — are preserved character-for-character.
+Stored-data strings are not in the catalog and stay untouched:
+journal/audit descriptions and interpolated data values (status
+codes, SKUs) render as stored in both languages, as before.
+(1) **Fallback without a compiled `fa.mo` is the old behaviour.**
+If catalogs are not compiled, the 339 entries fall back to their
+English msgids — the pre-Sprint-21 UI, no breakage — while the
+693 Persian-source entries render Persian regardless (their msgid
+is Persian). Compilation is now required for **both** languages on
+a dev checkout; the launcher still compiles best-effort and the
+bundle builds compile as a hard step, so end users need nothing.
+(2) **The test suite self-compiles.** The suite asserts on
+rendered messages in both languages, so it now depends on a
+compiled `fa.mo`; a session-scoped autouse fixture in the root
+`conftest.py` runs `compilemessages` once per run, keeping the
+suite green on a fresh clone with no manual step (verified by
+deleting every `.mo` and re-running). The fixture also clears
+Django's per-process translation caches
+(`trans_real._translations` / `_default`) after compiling:
+anything that resolves the default language before the fixture
+runs (app loading, collection) otherwise caches a catalog
+*without* the project strings, English-source assertions then
+pass spuriously against the English fallback, and the Persian
+rendering is never actually exercised — found the hard way in
+this sprint, when the suite first "passed" with the translations
+silently inactive in-process. The Sprint 19/20 modules keep their
+own module-scoped compile fixtures (harmless duplicates).
+(3) **Assertion-migration note.** Test assertions on the migrated
+messages were swapped to the exact fa.po strings — same assertion
+strength throughout. One mechanical subtlety:
+`ValidationError.__str__` is the *repr* of its message list, and
+Python's repr escapes the zero-width non-joiner (a non-printable
+format character) as the literal sequence `\u200c`; a
+`pytest.raises(match=…)` pattern containing a real ZWNJ can
+therefore never match a Persian service message. Migrated
+patterns use ZWNJ-free fragments of the same messages (or assert
+on rendered page content, which carries the real character).
+Flagged, not fixed: the fa catalog header carries
+`Plural-Forms: nplurals=2; plural=(n > 1)` — a makemessages
+default — although the CLDR rule for Persian is `nplurals=1;
+plural=0`. The catalog contains no plural msgids today, so the
+header is inert; correct it in the header (and re-check both
+catalogs) if pluralized strings are ever introduced.

@@ -106,7 +106,7 @@ def test_count_ui_freeze_violation_rejects_post(client):
         follow=True,
     )
     content = resp.content.decode()
-    assert "moved since the count was taken" in content
+    assert "از زمان شمارش تغییر کرده است" in content
     count.refresh_from_db()
     assert count.status == "DRAFT"
     balance = reporting.stock_balance(w.company, w.warehouse, w.product)

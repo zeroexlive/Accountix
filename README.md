@@ -61,6 +61,13 @@ for international markets without a rewrite.
 > mode is now complete for the web UI; only the print templates
 > stay Persian, as Persian business documents. No migration in
 > either sprint.
+> Sprint 21 completed the Persian side (ADR-047): the
+> English-source vocabulary — service error messages and
+> status/choice labels, which had always rendered in English —
+> is translated into Persian in `fa.po` (339 msgids), so the
+> default UI is now fully Persian. `compilemessages` after
+> checkout is required for both languages; without it those
+> strings fall back to the English source text. No migration.
 
 ## Stack
 

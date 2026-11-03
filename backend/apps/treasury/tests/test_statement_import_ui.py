@@ -121,7 +121,7 @@ def test_create_from_file_with_tampered_closing_is_refused(client):
         _create_post(w, opening_balance="100", closing_balance="950"),
     )
     assert resp.status_code == 200
-    assert "totals do not agree" in resp.content.decode()
+    assert "جمع‌های صورت‌حساب سازگار نیستند" in resp.content.decode()
     # The refusal is atomic: no statement, no lines.
     assert BankStatement.objects.filter(company=w.company).count() == 0
     # The file preview stays on the page so the figures can be fixed.
@@ -176,7 +176,7 @@ def test_detail_import_camt_reports_broken_transaction_by_index(client):
     assert resp.status_code == 200
     assert statement.lines.count() == 2
     messages = _messages(resp)
-    assert any("تراکنش 3" in message and "Unparseable amount" in message for message in messages)
+    assert any("تراکنش 3" in message and "قابل خواندن نیست" in message for message in messages)
 
 
 def test_import_post_by_non_member_is_404(client):

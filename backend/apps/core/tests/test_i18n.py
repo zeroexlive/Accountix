@@ -125,6 +125,28 @@ def test_jalali_filter_language_branches():
         assert template.render(Context({"value": None})) == ""
 
 
+def test_english_source_vocabulary_renders_persian_in_fa_english_in_en():
+    # Sprint 21 (ADR-047): service messages and choice labels are
+    # English-source (ADR-046); fa.po now carries Persian translations
+    # for them, so the default UI renders them in Persian while
+    # English mode keeps the source text. (End-to-end rendering of
+    # these strings through real services is pinned by the migrated
+    # assertions across the app test suites.)
+    from apps.accounting.models import JournalEntry
+
+    msgid = "Journal entry is not balanced: debit %(debit)s != credit %(credit)s."
+    with translation.override("fa"):
+        assert gettext(msgid) % {"debit": 100, "credit": 50} == (
+            "سند حسابداری تراز نیست: بدهکار 100 != بستانکار 50."
+        )
+        assert str(JournalEntry.Status.POSTED.label) == "ثبت‌شده"
+    with translation.override("en"):
+        assert gettext(msgid) % {"debit": 100, "credit": 50} == (
+            "Journal entry is not balanced: debit 100 != credit 50."
+        )
+        assert str(JournalEntry.Status.POSTED.label) == "Posted"
+
+
 def test_untranslated_msgid_falls_back_to_persian_source():
     # The fa-source convention (ADR-045): a wrapped string with no
     # entry in en.po renders as its Persian msgid, never blank.

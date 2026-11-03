@@ -1,19 +1,24 @@
 # Accountix — Persian (fa) message catalog.
 #
-# The msgids in this catalog ARE the Persian source strings used in
-# the templates (Sprint 19, ADR-045): Persian is the source language.
-# Every msgstr here therefore stays EMPTY on purpose — gettext falls
+# Two source languages feed this catalog (ADR-045/046). Template,
+# form and view strings are written in Persian, so their msgids ARE
+# Persian and their msgstrs stay EMPTY on purpose — gettext falls
 # back to the msgid itself, which is exactly the Persian text to
-# render. Do not “translate” this file into Persian; if a template
-# string changes, update the msgid via makemessages and leave the
-# msgstr empty. Real translations live in the other locales (en).
+# render. Service messages and model choice labels are written in
+# English in the source; since Sprint 21 (ADR-047 — Jason's product
+# decision) those English msgids carry real Persian msgstrs here,
+# so the default UI renders them in Persian too. Without a compiled
+# fa.mo those entries fall back to the English msgid (the
+# pre-Sprint-21 behaviour), so compilemessages is required for fa
+# as well as en. Real translations into other languages live in
+# their own locales.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-11-03 13:57+0330\n"
-"PO-Revision-Date: 2026-11-03 13:31+0330\n"
+"PO-Revision-Date: 2026-11-03 15:11+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: Persian\n"
 "Language: fa\n"
@@ -117,31 +122,31 @@ msgstr ""
 
 #: apps/accounting/models.py:16
 msgid "Asset"
-msgstr ""
+msgstr "دارایی"
 
 #: apps/accounting/models.py:17
 msgid "Liability"
-msgstr ""
+msgstr "بدهی"
 
 #: apps/accounting/models.py:18
 msgid "Equity"
-msgstr ""
+msgstr "حقوق صاحبان سرمایه"
 
 #: apps/accounting/models.py:19
 msgid "Revenue"
-msgstr ""
+msgstr "درآمد"
 
 #: apps/accounting/models.py:20
 msgid "Expense"
-msgstr ""
+msgstr "هزینه"
 
 #: apps/accounting/models.py:23
 msgid "Debit"
-msgstr ""
+msgstr "بدهکار"
 
 #: apps/accounting/models.py:24
 msgid "Credit"
-msgstr ""
+msgstr "بستانکار"
 
 #: apps/accounting/models.py:82 apps/inventory/models.py:69
 #: apps/inventory/models.py:277 apps/organizations/models.py:74
@@ -150,18 +155,18 @@ msgstr ""
 #: apps/sales/models.py:208 apps/sales/models.py:384
 #: apps/treasury/models.py:100
 msgid "Draft"
-msgstr ""
+msgstr "پیش‌نویس"
 
 #: apps/accounting/models.py:83
 msgid "Validated"
-msgstr ""
+msgstr "تأییدشده"
 
 #: apps/accounting/models.py:84 apps/inventory/models.py:70
 #: apps/inventory/models.py:278 apps/purchases/models.py:150
 #: apps/purchases/models.py:320 apps/sales/models.py:209
 #: apps/sales/models.py:385 apps/treasury/models.py:101
 msgid "Posted"
-msgstr ""
+msgstr "ثبت‌شده"
 
 #: apps/accounting/models.py:85 apps/inventory/models.py:71
 #: apps/inventory/models.py:279 apps/purchases/models.py:151
@@ -169,242 +174,243 @@ msgstr ""
 #: apps/sales/models.py:386 apps/treasury/models.py:102
 #: apps/treasury/models.py:253
 msgid "Reversed"
-msgstr ""
+msgstr "برگشت‌خورده"
 
 #: apps/accounting/models.py:153
 msgid "Posted journal entries are immutable; reverse the entry instead."
 msgstr ""
+"سندهای حسابداری ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
 
 #: apps/accounting/models.py:159
 msgid "Posted journal entries cannot be deleted."
-msgstr ""
+msgstr "سندهای حسابداری ثبت‌شده قابل حذف نیستند."
 
 #: apps/accounting/models.py:202 apps/accounting/models.py:213
 msgid "Lines of a posted journal entry are immutable."
-msgstr ""
+msgstr "ردیف‌های سند حسابداری ثبت‌شده قابل تغییر نیستند."
 
 #: apps/accounting/reporting.py:216 apps/accounting/services.py:195
 #: apps/accounting/services.py:532 apps/accounting/services.py:620
 #: apps/accounting/services.py:715
 msgid "Fiscal period belongs to a different company."
-msgstr ""
+msgstr "دوره مالی متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:22
 msgid "An account cannot be its own parent."
-msgstr ""
+msgstr "یک حساب نمی‌تواند والد خودش باشد."
 
 #: apps/accounting/services.py:24
 msgid "Parent account belongs to a different company."
-msgstr ""
+msgstr "حساب والد متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:30
 msgid "Account hierarchy would contain a cycle."
-msgstr ""
+msgstr "سلسله‌مراتب حساب‌ها دچار چرخه می‌شود."
 
 #: apps/accounting/services.py:32
 msgid "Existing account hierarchy contains a cycle."
-msgstr ""
+msgstr "سلسله‌مراتب فعلی حساب‌ها دارای چرخه است."
 
 #: apps/accounting/services.py:49
 #, python-format
 msgid "%(field)s is not a valid decimal amount."
-msgstr ""
+msgstr "%(field)s یک مبلغ اعشاری معتبر نیست."
 
 #: apps/accounting/services.py:52
 #, python-format
 msgid "%(field)s is not a finite amount."
-msgstr ""
+msgstr "%(field)s یک مبلغ متناهی نیست."
 
 #: apps/accounting/services.py:72
 #, python-format
 msgid "No fiscal period of this company contains %(entry_date)s."
-msgstr ""
+msgstr "تاریخ %(entry_date)s در هیچ دوره مالی این شرکت قرار ندارد."
 
 #: apps/accounting/services.py:88
 #, python-format
 msgid "Line %(line)s: party not found."
-msgstr ""
+msgstr "ردیف %(line)s: طرف‌حساب یافت نشد."
 
 #: apps/accounting/services.py:91
 #, python-format
 msgid "Line %(line)s: party belongs to a different company."
-msgstr ""
+msgstr "ردیف %(line)s: طرف‌حساب متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:101
 msgid "A journal entry needs at least two lines."
-msgstr ""
+msgstr "سند حسابداری دست‌کم به دو ردیف نیاز دارد."
 
 #: apps/accounting/services.py:111
 #, python-format
 msgid "Line %(line)s: account not found."
-msgstr ""
+msgstr "ردیف %(line)s: حساب یافت نشد."
 
 #: apps/accounting/services.py:114
 #, python-format
 msgid "Line %(line)s: account belongs to a different company."
-msgstr ""
+msgstr "ردیف %(line)s: حساب متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:118
 #, python-format
 msgid "Line %(line)s: account %(code)s is not postable."
-msgstr ""
+msgstr "ردیف %(line)s: حساب %(code)s قابل ثبت نیست."
 
 #: apps/accounting/services.py:123
 #, python-format
 msgid "Line %(line)s: account %(code)s is inactive."
-msgstr ""
+msgstr "ردیف %(line)s: حساب %(code)s غیرفعال است."
 
 #: apps/accounting/services.py:130
 #, python-format
 msgid "Line %(line)s: amounts cannot be negative."
-msgstr ""
+msgstr "ردیف %(line)s: مبالغ نمی‌توانند منفی باشند."
 
 #: apps/accounting/services.py:134
 #, python-format
 msgid "Line %(line)s: a line is either debit or credit, not both."
-msgstr ""
+msgstr "ردیف %(line)s: هر ردیف یا بدهکار است یا بستانکار، نه هر دو."
 
 #: apps/accounting/services.py:138
 #, python-format
 msgid "Line %(line)s: a line cannot be zero on both sides."
-msgstr ""
+msgstr "ردیف %(line)s: ردیف نمی‌تواند در هر دو طرف صفر باشد."
 
 #: apps/accounting/services.py:146
 #, python-format
 msgid "Journal entry is not balanced: debit %(debit)s != credit %(credit)s."
-msgstr ""
+msgstr "سند حسابداری تراز نیست: بدهکار %(debit)s != بستانکار %(credit)s."
 
 #: apps/accounting/services.py:150
 msgid "Journal entry total cannot be zero."
-msgstr ""
+msgstr "جمع سند حسابداری نمی‌تواند صفر باشد."
 
 #: apps/accounting/services.py:193 apps/accounting/services.py:416
 msgid "Fiscal period is closed; posting is not allowed."
-msgstr ""
+msgstr "دوره مالی بسته است؛ ثبت سند مجاز نیست."
 
 #: apps/accounting/services.py:266
 msgid "A reversal entry cannot itself be reversed."
-msgstr ""
+msgstr "سند برگشتی خود قابل برگشت‌زدن نیست."
 
 #: apps/accounting/services.py:268 apps/accounting/services.py:272
 msgid "This entry has already been reversed."
-msgstr ""
+msgstr "این سند قبلاً برگشت خورده است."
 
 #: apps/accounting/services.py:270
 msgid "Only a POSTED entry can be reversed."
-msgstr ""
+msgstr "فقط سند ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/accounting/services.py:277
 msgid "Fiscal period for the reversal date is closed."
-msgstr ""
+msgstr "دوره مالی تاریخ برگشت بسته است."
 
 #: apps/accounting/services.py:281
 msgid "Entry has fewer than two lines and cannot be reversed."
-msgstr ""
+msgstr "سند کمتر از دو ردیف دارد و قابل برگشت‌زدن نیست."
 
 #: apps/accounting/services.py:362
 msgid "An entry with this idempotency key already exists for this company."
-msgstr ""
+msgstr "سندی با این کلید یکتایی برای این شرکت از قبل وجود دارد."
 
 #: apps/accounting/services.py:413
 msgid "Only a DRAFT journal entry can be posted."
-msgstr ""
+msgstr "فقط سند حسابداری پیش‌نویس قابل ثبت است."
 
 #: apps/accounting/services.py:466
 #, python-format
 msgid "Opening line %(line)s: expected a dict or tuple."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: باید دیکشنری یا تاپل باشد."
 
 #: apps/accounting/services.py:472
 #, python-format
 msgid "Opening line %(line)s: account not found."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: حساب یافت نشد."
 
 #: apps/accounting/services.py:476
 #, python-format
 msgid "Opening line %(line)s: account belongs to a different company."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: حساب متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:480
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is not postable."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: حساب %(code)s قابل ثبت نیست."
 
 #: apps/accounting/services.py:485
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is inactive."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: حساب %(code)s غیرفعال است."
 
 #: apps/accounting/services.py:492
 #, python-format
 msgid "Opening line %(line)s: amounts cannot be negative."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: مبالغ نمی‌توانند منفی باشند."
 
 #: apps/accounting/services.py:496
 #, python-format
 msgid "Opening line %(line)s: a line is either debit or credit."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: هر ردیف یا بدهکار است یا بستانکار."
 
 #: apps/accounting/services.py:500
 #, python-format
 msgid "Opening line %(line)s: a line cannot be zero on both sides."
-msgstr ""
+msgstr "ردیف افتتاحیه %(line)s: ردیف نمی‌تواند در هر دو طرف صفر باشد."
 
 #: apps/accounting/services.py:527 apps/accounting/services.py:753
 msgid "Fiscal year belongs to a different company."
-msgstr ""
+msgstr "سال مالی متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:530
 msgid "The fiscal year has no periods."
-msgstr ""
+msgstr "سال مالی هیچ دوره‌ای ندارد."
 
 #: apps/accounting/services.py:535
 msgid "The first fiscal period is closed; opening balance cannot be posted."
-msgstr ""
+msgstr "اولین دوره مالی بسته است؛ تراز افتتاحیه قابل ثبت نیست."
 
 #: apps/accounting/services.py:541
 msgid "Offset account not found."
-msgstr ""
+msgstr "حساب مقابل یافت نشد."
 
 #: apps/accounting/services.py:543
 msgid "Offset account belongs to a different company."
-msgstr ""
+msgstr "حساب مقابل متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:545
 msgid "Offset account is not postable/active."
-msgstr ""
+msgstr "حساب مقابل قابل ثبت یا فعال نیست."
 
 #: apps/accounting/services.py:548
 msgid "An opening balance needs at least one line."
-msgstr ""
+msgstr "تراز افتتاحیه دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/accounting/services.py:563
 msgid "An opening balance needs at least two journal lines."
-msgstr ""
+msgstr "تراز افتتاحیه دست‌کم به دو ردیف سند حسابداری نیاز دارد."
 
 #: apps/accounting/services.py:622
 msgid "This fiscal period is already closed."
-msgstr ""
+msgstr "این دوره مالی قبلاً بسته شده است."
 
 #: apps/accounting/services.py:624
 msgid "This fiscal period already has an active closing entry."
-msgstr ""
+msgstr "این دوره مالی از قبل یک سند اختتامیه فعال دارد."
 
 #: apps/accounting/services.py:629
 msgid "Retained earnings account not found."
-msgstr ""
+msgstr "حساب سود (زیان) انباشته یافت نشد."
 
 #: apps/accounting/services.py:631
 msgid "Retained earnings account belongs to a different company."
-msgstr ""
+msgstr "حساب سود (زیان) انباشته متعلق به شرکت دیگری است."
 
 #: apps/accounting/services.py:633
 msgid "Retained earnings account is not postable/active."
-msgstr ""
+msgstr "حساب سود (زیان) انباشته قابل ثبت یا فعال نیست."
 
 #: apps/accounting/services.py:717
 msgid "Only a CLOSED fiscal period can be reopened."
-msgstr ""
+msgstr "فقط دوره مالی بسته قابل بازگشایی است."
 
 #: apps/accounting/views.py:196
 msgid "سند دستی به‌صورت پیش‌نویس ایجاد شد."
@@ -493,61 +499,63 @@ msgstr ""
 
 #: apps/catalog/models.py:96
 msgid "Product category belongs to a different company."
-msgstr ""
+msgstr "دسته‌بندی کالا متعلق به شرکت دیگری است."
 
 #: apps/catalog/models.py:98
 msgid "Base unit belongs to a different company."
-msgstr ""
+msgstr "واحد پایه متعلق به شرکت دیگری است."
 
 #: apps/catalog/services.py:15 apps/inventory/services.py:48
 #: apps/purchases/services.py:55 apps/sales/services.py:53
 #, python-format
 msgid "%(field)s is not a valid decimal."
-msgstr ""
+msgstr "%(field)s یک عدد اعشاری معتبر نیست."
 
 #: apps/catalog/services.py:17 apps/inventory/services.py:50
 #: apps/purchases/services.py:57 apps/sales/services.py:55
 #, python-format
 msgid "%(field)s is not finite."
-msgstr ""
+msgstr "%(field)s متناهی نیست."
 
 #: apps/catalog/services.py:26
 msgid "A category cannot be its own parent."
-msgstr ""
+msgstr "یک دسته‌بندی نمی‌تواند والد خودش باشد."
 
 #: apps/catalog/services.py:28
 msgid "Parent category belongs to a different company."
-msgstr ""
+msgstr "دسته‌بندی والد متعلق به شرکت دیگری است."
 
 #: apps/catalog/services.py:33
 msgid "Category hierarchy would contain a cycle."
-msgstr ""
+msgstr "سلسله‌مراتب دسته‌بندی‌ها دچار چرخه می‌شود."
 
 #: apps/catalog/services.py:35
 msgid "Existing category hierarchy contains a cycle."
-msgstr ""
+msgstr "سلسله‌مراتب فعلی دسته‌بندی‌ها دارای چرخه است."
 
 #: apps/catalog/services.py:42
 msgid "Conversion source and target units must differ."
-msgstr ""
+msgstr "واحد مبدأ و مقصد تبدیل باید متفاوت باشند."
 
 #: apps/catalog/services.py:44
 msgid "Conversion factor must be positive."
-msgstr ""
+msgstr "ضریب تبدیل باید مثبت باشد."
 
 #: apps/catalog/services.py:46
 msgid "Conversion product belongs to a different company."
-msgstr ""
+msgstr "کالای مورد تبدیل متعلق به شرکت دیگری است."
 
 #: apps/catalog/services.py:49
 msgid "Conversion unit belongs to a different company."
-msgstr ""
+msgstr "واحد تبدیل متعلق به شرکت دیگری است."
 
 #: apps/catalog/services.py:75
 #, python-format
 msgid ""
 "No unit conversion for product %(sku)s from %(from_code)s to %(to_code)s."
 msgstr ""
+"برای کالای %(sku)s هیچ تبدیلی از %(from_code)s به %(to_code)s وجود "
+"ندارد."
 
 #: apps/inventory/forms.py:18
 msgid "کد انبار"
@@ -695,124 +703,128 @@ msgstr ""
 
 #: apps/inventory/models.py:63 apps/treasury/models.py:91
 msgid "Receipt"
-msgstr ""
+msgstr "رسید"
 
 #: apps/inventory/models.py:64
 msgid "Issue"
-msgstr ""
+msgstr "حواله"
 
 #: apps/inventory/models.py:65
 msgid "Transfer"
-msgstr ""
+msgstr "انتقال"
 
 #: apps/inventory/models.py:66
 msgid "Adjustment"
-msgstr ""
+msgstr "تعدیل"
 
 #: apps/inventory/models.py:136
 msgid "Posted stock documents are immutable; reverse the document instead."
 msgstr ""
+"اسناد انبار ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
 
 #: apps/inventory/models.py:142
 msgid "Posted stock documents cannot be deleted."
-msgstr ""
+msgstr "اسناد انبار ثبت‌شده قابل حذف نیستند."
 
 #: apps/inventory/models.py:184
 msgid "Lines of a posted stock document are immutable."
-msgstr ""
+msgstr "ردیف‌های سند انبار ثبت‌شده قابل تغییر نیستند."
 
 #: apps/inventory/models.py:239
 msgid "Stock movements are append-only and cannot be modified."
-msgstr ""
+msgstr "گردش‌های انبار فقط افزودنی‌اند و قابل تغییر نیستند."
 
 #: apps/inventory/models.py:243
 msgid "Stock movements are append-only and cannot be deleted."
-msgstr ""
+msgstr "گردش‌های انبار فقط افزودنی‌اند و قابل حذف نیستند."
 
 #: apps/inventory/models.py:339
 msgid "Posted inventory counts are immutable; reverse the count instead."
 msgstr ""
+"انبارگردانی‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن انبارگردانی را "
+"برگشت بزنید."
 
 #: apps/inventory/models.py:345
 msgid "Posted inventory counts cannot be deleted."
-msgstr ""
+msgstr "انبارگردانی‌های ثبت‌شده قابل حذف نیستند."
 
 #: apps/inventory/models.py:391
 msgid "Lines of a posted inventory count are immutable."
-msgstr ""
+msgstr "ردیف‌های انبارگردانی ثبت‌شده قابل تغییر نیستند."
 
 #: apps/inventory/services.py:68
 #, python-format
 msgid "Unknown stock document type: %(doc_type)s."
-msgstr ""
+msgstr "نوع سند انبار نامشخص: %(doc_type)s."
 
 #: apps/inventory/services.py:71 apps/inventory/services.py:508
 #: apps/purchases/services.py:158 apps/purchases/services.py:305
 #: apps/sales/services.py:145 apps/sales/services.py:386
 msgid "Warehouse belongs to a different company."
-msgstr ""
+msgstr "انبار متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:73 apps/inventory/services.py:83
 #: apps/inventory/services.py:510 apps/purchases/services.py:160
 #: apps/sales/services.py:147
 #, python-format
 msgid "Warehouse %(code)s is inactive."
-msgstr ""
+msgstr "انبار %(code)s غیرفعال است."
 
 #: apps/inventory/services.py:76
 msgid "A transfer needs a destination warehouse."
-msgstr ""
+msgstr "انتقال به انبار مقصد نیاز دارد."
 
 #: apps/inventory/services.py:78
 msgid "Transfer source and destination must differ."
-msgstr ""
+msgstr "انبار مبدأ و مقصد انتقال باید متفاوت باشند."
 
 #: apps/inventory/services.py:80
 msgid "Destination warehouse belongs to a different company."
-msgstr ""
+msgstr "انبار مقصد متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:86
 msgid "Only transfers take a destination warehouse."
-msgstr ""
+msgstr "فقط برای انتقال انبار مقصد تعیین می‌شود."
 
 #: apps/inventory/services.py:92 apps/purchases/services.py:72
 #: apps/sales/services.py:70
 msgid "Line product belongs to a different company (or is missing)."
-msgstr ""
+msgstr "کالای ردیف متعلق به شرکت دیگری است (یا یافت نشد)."
 
 #: apps/inventory/services.py:94 apps/inventory/services.py:526
 #: apps/purchases/services.py:74 apps/sales/services.py:72
 #, python-format
 msgid "Product %(sku)s is inactive."
-msgstr ""
+msgstr "کالای %(sku)s غیرفعال است."
 
 #: apps/inventory/services.py:97
 #, python-format
 msgid ""
 "Product %(sku)s is not stockable; services cannot move through inventory."
 msgstr ""
+"کالای %(sku)s قابل انبارش نیست؛ خدمات از طریق انبار جابه‌جا نمی‌شوند."
 
 #: apps/inventory/services.py:102 apps/purchases/services.py:76
 #: apps/sales/services.py:74
 msgid "Line unit belongs to a different company."
-msgstr ""
+msgstr "واحد ردیف متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:105
 msgid "Line quantity cannot be zero."
-msgstr ""
+msgstr "مقدار ردیف نمی‌تواند صفر باشد."
 
 #: apps/inventory/services.py:107
 msgid "Line quantity must be positive for this document type."
-msgstr ""
+msgstr "مقدار ردیف برای این نوع سند باید مثبت باشد."
 
 #: apps/inventory/services.py:112 apps/inventory/services.py:543
 #: apps/inventory/services.py:595
 msgid "Unit cost cannot be negative."
-msgstr ""
+msgstr "بهای واحد نمی‌تواند منفی باشد."
 
 #: apps/inventory/services.py:134
 msgid "A stock document needs at least one line."
-msgstr ""
+msgstr "سند انبار دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/inventory/services.py:186
 #, python-format
@@ -820,98 +832,100 @@ msgid ""
 "Insufficient stock for %(sku)s: requested %(requested)s, available "
 "%(available)s."
 msgstr ""
+"موجودی کالای %(sku)s کافی نیست: درخواستی %(requested)s، موجود "
+"%(available)s."
 
 #: apps/inventory/services.py:225
 #, python-format
 msgid "Receipt of %(sku)s needs a unit cost."
-msgstr ""
+msgstr "رسید کالای %(sku)s به بهای واحد نیاز دارد."
 
 #: apps/inventory/services.py:252
 #, python-format
 msgid ""
 "Positive adjustment of %(sku)s with no existing stock needs a unit cost."
-msgstr ""
+msgstr "تعدیل مثبت کالای %(sku)s بدون موجودی فعلی به بهای واحد نیاز دارد."
 
 #: apps/inventory/services.py:265
 #, python-format
 msgid "Unsupported document type %(doc_type)s."
-msgstr ""
+msgstr "نوع سند %(doc_type)s پشتیبانی نمی‌شود."
 
 #: apps/inventory/services.py:277
 msgid "GL account not found."
-msgstr ""
+msgstr "حساب دفتر کل یافت نشد."
 
 #: apps/inventory/services.py:279
 msgid "GL account belongs to a different company."
-msgstr ""
+msgstr "حساب دفتر کل متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:292
 msgid "Only a DRAFT stock document can be posted."
-msgstr ""
+msgstr "فقط سند انبار پیش‌نویس قابل ثبت است."
 
 #: apps/inventory/services.py:314
 msgid "GL posting is supported only for RECEIPT and ISSUE documents."
-msgstr ""
+msgstr "ثبت سند دفتر کل فقط برای اسناد رسید و حواله پشتیبانی می‌شود."
 
 #: apps/inventory/services.py:317
 msgid "gl_accounts must be (inventory_account, offset_account)."
-msgstr ""
+msgstr "gl_accounts باید (inventory_account, offset_account) باشد."
 
 #: apps/inventory/services.py:512 apps/inventory/services.py:653
 msgid "An inventory count needs at least one line."
-msgstr ""
+msgstr "انبارگردانی دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/inventory/services.py:524
 msgid "Count line product belongs to a different company."
-msgstr ""
+msgstr "کالای ردیف شمارش متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:529
 #, python-format
 msgid "Product %(sku)s is not stockable and cannot be counted."
-msgstr ""
+msgstr "کالای %(sku)s قابل انبارش نیست و قابل شمارش نیست."
 
 #: apps/inventory/services.py:533
 #, python-format
 msgid "Product %(sku)s appears twice in this count."
-msgstr ""
+msgstr "کالای %(sku)s دو بار در این شمارش آمده است."
 
 #: apps/inventory/services.py:538 apps/inventory/services.py:589
 msgid "Counted quantity cannot be negative."
-msgstr ""
+msgstr "مقدار شمارش‌شده نمی‌تواند منفی باشد."
 
 #: apps/inventory/services.py:574
 msgid "Only a DRAFT inventory count can be edited."
-msgstr ""
+msgstr "فقط انبارگردانی پیش‌نویس قابل ویرایش است."
 
 #: apps/inventory/services.py:583
 msgid "Count line product is not part of this count."
-msgstr ""
+msgstr "کالای ردیف شمارش در این شمارش وجود ندارد."
 
 #: apps/inventory/services.py:585
 #, python-format
 msgid "Product %(sku)s appears twice."
-msgstr ""
+msgstr "کالای %(sku)s دو بار آمده است."
 
 #: apps/inventory/services.py:617 apps/purchases/services.py:132
 #: apps/sales/services.py:135
 #, python-format
 msgid "GL account '%(key)s' not found."
-msgstr ""
+msgstr "حساب دفتر کل «%(key)s» یافت نشد."
 
 #: apps/inventory/services.py:620 apps/purchases/services.py:135
 #: apps/sales/services.py:138
 #, python-format
 msgid "GL account '%(key)s' belongs to a different company."
-msgstr ""
+msgstr "حساب دفتر کل «%(key)s» متعلق به شرکت دیگری است."
 
 #: apps/inventory/services.py:623
 #, python-format
 msgid "GL account '%(key)s' is not postable/active."
-msgstr ""
+msgstr "حساب دفتر کل «%(key)s» قابل ثبت یا فعال نیست."
 
 #: apps/inventory/services.py:649
 msgid "Only a DRAFT inventory count can be posted."
-msgstr ""
+msgstr "فقط انبارگردانی پیش‌نویس قابل ثبت است."
 
 #: apps/inventory/services.py:659
 #, python-format
@@ -919,44 +933,47 @@ msgid ""
 "Stock of %(sku)s moved since the count was taken (snapshot %(snapshot)s, now "
 "%(current)s); recreate the count."
 msgstr ""
+"موجودی کالای %(sku)s از زمان شمارش تغییر کرده است (مقطع شمارش "
+"%(snapshot)s، اکنون %(current)s)؛ شمارش را دوباره ایجاد کنید."
 
 #: apps/inventory/services.py:671
 msgid "gl_accounts must include 'inventory' and 'variance' accounts."
-msgstr ""
+msgstr "gl_accounts باید حساب‌های «inventory» و «variance» را شامل شود."
 
 #: apps/inventory/services.py:754
 msgid "A reversal count cannot itself be reversed."
-msgstr ""
+msgstr "انبارگردانی برگشتی خود قابل برگشت‌زدن نیست."
 
 #: apps/inventory/services.py:756
 msgid "This inventory count has already been reversed."
-msgstr ""
+msgstr "این انبارگردانی قبلاً برگشت خورده است."
 
 #: apps/inventory/services.py:758
 msgid "Only a POSTED inventory count can be reversed."
-msgstr ""
+msgstr "فقط انبارگردانی ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/inventory/services.py:840
 msgid "A reversal document cannot itself be reversed."
-msgstr ""
+msgstr "سند برگشتی خود قابل برگشت‌زدن نیست."
 
 #: apps/inventory/services.py:842 apps/inventory/services.py:846
 msgid "This document has already been reversed."
-msgstr ""
+msgstr "این سند قبلاً برگشت خورده است."
 
 #: apps/inventory/services.py:844
 msgid "Only a POSTED stock document can be reversed."
-msgstr ""
+msgstr "فقط سند انبار ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/inventory/services.py:850
 msgid "Document has no movements and cannot be reversed."
-msgstr ""
+msgstr "سند هیچ گردشی ندارد و قابل برگشت‌زدن نیست."
 
 #: apps/inventory/services.py:858
 #, python-format
 msgid ""
 "Reversal would make stock of %(sku)s negative in warehouse %(warehouse)s."
 msgstr ""
+"برگشت‌زدن، موجودی کالای %(sku)s را در انبار %(warehouse)s منفی می‌کند."
 
 #: apps/inventory/views.py:62
 msgid "کالا ایجاد شد."
@@ -1021,70 +1038,70 @@ msgstr ""
 
 #: apps/organizations/models.py:41
 msgid "Owner"
-msgstr ""
+msgstr "مالک"
 
 #: apps/organizations/models.py:42
 msgid "Admin"
-msgstr ""
+msgstr "مدیر"
 
 #: apps/organizations/models.py:43
 msgid "Accountant"
-msgstr ""
+msgstr "حسابدار"
 
 #: apps/organizations/models.py:44
 msgid "Sales operator"
-msgstr ""
+msgstr "اپراتور فروش"
 
 #: apps/organizations/models.py:45
 msgid "Purchasing operator"
-msgstr ""
+msgstr "اپراتور خرید"
 
 #: apps/organizations/models.py:46
 msgid "Warehouse manager"
-msgstr ""
+msgstr "مدیر انبار"
 
 #: apps/organizations/models.py:47
 msgid "Cashier"
-msgstr ""
+msgstr "صندوقدار"
 
 #: apps/organizations/models.py:48
 msgid "Viewer"
-msgstr ""
+msgstr "مشاهده‌کننده"
 
 #: apps/organizations/models.py:75 apps/organizations/models.py:103
 #: apps/treasury/models.py:319
 msgid "Open"
-msgstr ""
+msgstr "باز"
 
 #: apps/organizations/models.py:76 apps/organizations/models.py:104
 #: apps/purchases/models.py:39
 msgid "Closed"
-msgstr ""
+msgstr "بسته"
 
 #: apps/organizations/services.py:14
 #, python-format
 msgid "%(start_label)s must be on or before %(end_label)s."
-msgstr ""
+msgstr "%(start_label)s باید در تاریخ %(end_label)s یا قبل از آن باشد."
 
 #: apps/organizations/services.py:48
 msgid "Fiscal year overlaps an existing fiscal year for this company."
-msgstr ""
+msgstr "سال مالی با یک سال مالی موجود برای این شرکت هم‌پوشانی دارد."
 
 #: apps/organizations/services.py:56
 msgid "Fiscal period company does not match its fiscal year."
-msgstr ""
+msgstr "شرکت دوره مالی با سال مالی آن مطابقت ندارد."
 
 #: apps/organizations/services.py:58
 msgid "Fiscal period starts before its fiscal year."
-msgstr ""
+msgstr "دوره مالی قبل از سال مالی خود شروع می‌شود."
 
 #: apps/organizations/services.py:60
 msgid "Fiscal period ends after its fiscal year."
-msgstr ""
+msgstr "دوره مالی بعد از سال مالی خود پایان می‌یابد."
 
 #: apps/organizations/services.py:71
 msgid "Fiscal period overlaps another period in this fiscal year."
-msgstr ""
+msgstr "دوره مالی با دوره دیگری در این سال مالی هم‌پوشانی دارد."
 
 #: apps/organizations/views.py:114
 msgid "این دوره قبلاً بسته شده است."
@@ -1154,56 +1171,56 @@ msgstr ""
 
 #: apps/parties/models.py:21
 msgid "Supplier"
-msgstr ""
+msgstr "تأمین‌کننده"
 
 #: apps/parties/models.py:22
 msgid "Customer"
-msgstr ""
+msgstr "مشتری"
 
 #: apps/parties/models.py:23
 msgid "Supplier and customer"
-msgstr ""
+msgstr "تأمین‌کننده و مشتری"
 
 #: apps/parties/services.py:11
 #, python-format
 msgid "Unknown party kind: %(kind)s."
-msgstr ""
+msgstr "نوع طرف‌حساب نامشخص: %(kind)s."
 
 #: apps/parties/services.py:13
 msgid "Party code cannot be blank."
-msgstr ""
+msgstr "کد طرف‌حساب نمی‌تواند خالی باشد."
 
 #: apps/parties/services.py:15
 msgid "Party name cannot be blank."
-msgstr ""
+msgstr "نام طرف‌حساب نمی‌تواند خالی باشد."
 
 #: apps/parties/services.py:23
 msgid "Supplier belongs to a different company (or is missing)."
-msgstr ""
+msgstr "تأمین‌کننده متعلق به شرکت دیگری است (یا یافت نشد)."
 
 #: apps/parties/services.py:25
 #, python-format
 msgid "Supplier %(code)s is inactive."
-msgstr ""
+msgstr "تأمین‌کننده %(code)s غیرفعال است."
 
 #: apps/parties/services.py:27
 #, python-format
 msgid "Party %(code)s is not a supplier."
-msgstr ""
+msgstr "طرف‌حساب %(code)s تأمین‌کننده نیست."
 
 #: apps/parties/services.py:34
 msgid "Customer belongs to a different company (or is missing)."
-msgstr ""
+msgstr "مشتری متعلق به شرکت دیگری است (یا یافت نشد)."
 
 #: apps/parties/services.py:36
 #, python-format
 msgid "Customer %(code)s is inactive."
-msgstr ""
+msgstr "مشتری %(code)s غیرفعال است."
 
 #: apps/parties/services.py:38
 #, python-format
 msgid "Party %(code)s is not a customer."
-msgstr ""
+msgstr "طرف‌حساب %(code)s مشتری نیست."
 
 #: apps/parties/views.py:58
 msgid "طرف‌حساب ذخیره شد."
@@ -1286,137 +1303,137 @@ msgstr ""
 
 #: apps/purchases/models.py:38
 msgid "Approved"
-msgstr ""
+msgstr "تأییدشده"
 
 #: apps/purchases/models.py:40 apps/sales/models.py:118
 msgid "Cancelled"
-msgstr ""
+msgstr "لغوشده"
 
 #: apps/purchases/models.py:143 apps/sales/models.py:70
 #, python-format
 msgid "Posted %(label)s are immutable; reverse instead."
-msgstr ""
+msgstr "%(label)s ثبت‌شده قابل تغییر نیست؛ به‌جای آن برگشت بزنید."
 
 #: apps/purchases/models.py:154 apps/sales/models.py:213
 msgid "Unpaid"
-msgstr ""
+msgstr "پرداخت‌نشده"
 
 #: apps/purchases/models.py:155 apps/sales/models.py:214
 msgid "Partially paid"
-msgstr ""
+msgstr "پرداخت جزئی"
 
 #: apps/purchases/models.py:156 apps/sales/models.py:215
 msgid "Paid"
-msgstr ""
+msgstr "پرداخت‌شده"
 
 #: apps/purchases/models.py:219
 msgid "Posted purchase invoices cannot be deleted."
-msgstr ""
+msgstr "فاکتورهای خرید ثبت‌شده قابل حذف نیستند."
 
 #: apps/purchases/models.py:278
 msgid "Lines of a posted purchase invoice are immutable."
-msgstr ""
+msgstr "ردیف‌های فاکتور خرید ثبت‌شده قابل تغییر نیستند."
 
 #: apps/purchases/models.py:373
 msgid "Posted purchase returns cannot be deleted."
-msgstr ""
+msgstr "برگشت‌های خرید ثبت‌شده قابل حذف نیستند."
 
 #: apps/purchases/models.py:415
 msgid "Lines of a posted purchase return are immutable."
-msgstr ""
+msgstr "ردیف‌های برگشت خرید ثبت‌شده قابل تغییر نیستند."
 
 #: apps/purchases/services.py:78 apps/sales/services.py:76
 msgid "Line quantity must be positive."
-msgstr ""
+msgstr "مقدار ردیف باید مثبت باشد."
 
 #: apps/purchases/services.py:81 apps/sales/services.py:79
 #, python-format
 msgid "Line %(price_field)s cannot be negative."
-msgstr ""
+msgstr "%(price_field)s ردیف نمی‌تواند منفی باشد."
 
 #: apps/purchases/services.py:100 apps/sales/services.py:103
 msgid "Line discount cannot be negative."
-msgstr ""
+msgstr "تخفیف ردیف نمی‌تواند منفی باشد."
 
 #: apps/purchases/services.py:102 apps/sales/services.py:105
 msgid "Line discount cannot exceed the line gross amount."
-msgstr ""
+msgstr "تخفیف ردیف نمی‌تواند از مبلغ ناخالص ردیف بیشتر باشد."
 
 #: apps/purchases/services.py:104 apps/sales/services.py:107
 msgid "Line tax rate cannot be negative."
-msgstr ""
+msgstr "نرخ مالیات ردیف نمی‌تواند منفی باشد."
 
 #: apps/purchases/services.py:112 apps/sales/services.py:115
 msgid "Return line references a line of a different invoice."
-msgstr ""
+msgstr "ردیف برگشت به ردیفی از فاکتور دیگری ارجاع می‌دهد."
 
 #: apps/purchases/services.py:114 apps/sales/services.py:117
 msgid "Return line product does not match the invoice line product."
-msgstr ""
+msgstr "کالای ردیف برگشت با کالای ردیف فاکتور مطابقت ندارد."
 
 #: apps/purchases/services.py:116 apps/sales/services.py:119
 msgid "Return line quantity must be positive."
-msgstr ""
+msgstr "مقدار ردیف برگشت باید مثبت باشد."
 
 #: apps/purchases/services.py:163
 msgid "Purchase order belongs to a different company."
-msgstr ""
+msgstr "سفارش خرید متعلق به شرکت دیگری است."
 
 #: apps/purchases/services.py:165
 msgid "Purchase order supplier does not match the invoice supplier."
-msgstr ""
+msgstr "تأمین‌کننده سفارش خرید با تأمین‌کننده فاکتور مطابقت ندارد."
 
 #: apps/purchases/services.py:167 apps/purchases/services.py:309
 msgid "A purchase invoice needs at least one line."
-msgstr ""
+msgstr "فاکتور خرید دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/purchases/services.py:203 apps/sales/services.py:283
 msgid "Original invoice belongs to a different company."
-msgstr ""
+msgstr "فاکتور اصلی متعلق به شرکت دیگری است."
 
 #: apps/purchases/services.py:205
 msgid "Returns can only be created against a POSTED purchase invoice."
-msgstr ""
+msgstr "برگشت فقط در برابر فاکتور خرید ثبت‌شده قابل ایجاد است."
 
 #: apps/purchases/services.py:207 apps/purchases/services.py:501
 msgid "A purchase return needs at least one line."
-msgstr ""
+msgstr "برگشت خرید دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/purchases/services.py:299
 msgid "Only a DRAFT purchase invoice can be posted."
-msgstr ""
+msgstr "فقط فاکتور خرید پیش‌نویس قابل ثبت است."
 
 #: apps/purchases/services.py:318
 msgid "gl_accounts must include a 'payables' account."
-msgstr ""
+msgstr "gl_accounts باید یک حساب «payables» را شامل شود."
 
 #: apps/purchases/services.py:322
 msgid "gl_accounts must include an 'inventory' account."
-msgstr ""
+msgstr "gl_accounts باید یک حساب «inventory» را شامل شود."
 
 #: apps/purchases/services.py:324
 msgid "gl_accounts must include an 'expense' account."
-msgstr ""
+msgstr "gl_accounts باید یک حساب «expense» را شامل شود."
 
 #: apps/purchases/services.py:327
 msgid "gl_accounts must include a 'tax' account when tax is charged."
-msgstr ""
+msgstr "gl_accounts باید هنگام اعمال مالیات، یک حساب «tax» را شامل شود."
 
 #: apps/purchases/services.py:432
 msgid "This purchase invoice has already been reversed."
-msgstr ""
+msgstr "این فاکتور خرید قبلاً برگشت خورده است."
 
 #: apps/purchases/services.py:434
 msgid "Only a POSTED purchase invoice can be reversed."
-msgstr ""
+msgstr "فقط فاکتور خرید ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/purchases/services.py:493
 msgid "Only a DRAFT purchase return can be posted."
-msgstr ""
+msgstr "فقط برگشت خرید پیش‌نویس قابل ثبت است."
 
 #: apps/purchases/services.py:497
 msgid "The original purchase invoice is not POSTED."
-msgstr ""
+msgstr "فاکتور خرید اصلی ثبت‌شده نیست."
 
 #: apps/purchases/services.py:508
 #, python-format
@@ -1424,20 +1441,24 @@ msgid ""
 "Return quantity for %(sku)s exceeds the purchased quantity minus previous "
 "returns (%(already)s already returned)."
 msgstr ""
+"مقدار برگشت کالای %(sku)s از مقدار خریداری‌شده پس از کسر برگشت‌های قبلی "
+"بیشتر است (تاکنون %(already)s برگشت خورده است)."
 
 #: apps/purchases/services.py:539
 msgid ""
 "gl_accounts must include 'inventory' and 'payables' for a return against a "
 "GL-posted invoice."
 msgstr ""
+"gl_accounts برای برگشت در برابر فاکتوری که سند دفتر کل خورده است باید "
+"«inventory» و «payables» را شامل شود."
 
 #: apps/purchases/services.py:591
 msgid "This purchase return has already been reversed."
-msgstr ""
+msgstr "این برگشت خرید قبلاً برگشت خورده است."
 
 #: apps/purchases/services.py:593
 msgid "Only a POSTED purchase return can be reversed."
-msgstr ""
+msgstr "فقط برگشت خرید ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/purchases/views.py:124
 msgid "فاکتور خرید به‌صورت پیش‌نویس ایجاد شد."
@@ -1553,88 +1574,91 @@ msgstr ""
 #: apps/sales/models.py:96
 #, python-format
 msgid "Lines of a posted %(label)s are immutable."
-msgstr ""
+msgstr "ردیف‌های %(label)s ثبت‌شده قابل تغییر نیستند."
 
 #: apps/sales/models.py:116
 msgid "Sent"
-msgstr ""
+msgstr "ارسال‌شده"
 
 #: apps/sales/models.py:117
 msgid "Converted"
-msgstr ""
+msgstr "تبدیل‌شده"
 
 #: apps/sales/models.py:287
 msgid "Posted sales invoices cannot be deleted."
-msgstr ""
+msgstr "فاکتورهای فروش ثبت‌شده قابل حذف نیستند."
 
 #: apps/sales/models.py:448
 msgid "Posted sales returns cannot be deleted."
-msgstr ""
+msgstr "برگشت‌های فروش ثبت‌شده قابل حذف نیستند."
 
 #: apps/sales/services.py:160 apps/sales/services.py:259
 msgid "A sales quotation needs at least one line."
-msgstr ""
+msgstr "پیش‌فاکتور فروش دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/sales/services.py:204
 msgid "Quotation belongs to a different company."
-msgstr ""
+msgstr "پیش‌فاکتور متعلق به شرکت دیگری است."
 
 #: apps/sales/services.py:206
 msgid "Quotation customer does not match the invoice customer."
-msgstr ""
+msgstr "مشتری پیش‌فاکتور با مشتری فاکتور مطابقت ندارد."
 
 #: apps/sales/services.py:208 apps/sales/services.py:390
 msgid "A sales invoice needs at least one line."
-msgstr ""
+msgstr "فاکتور فروش دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/sales/services.py:248
 msgid "Only a DRAFT or SENT quotation can be converted to an invoice."
-msgstr ""
+msgstr "فقط پیش‌فاکتور پیش‌نویس یا ارسال‌شده قابل تبدیل به فاکتور است."
 
 #: apps/sales/services.py:285
 msgid "Returns can only be created against a POSTED sales invoice."
-msgstr ""
+msgstr "برگشت فقط در برابر فاکتور فروش ثبت‌شده قابل ایجاد است."
 
 #: apps/sales/services.py:287 apps/sales/services.py:626
 msgid "A sales return needs at least one line."
-msgstr ""
+msgstr "برگشت فروش دست‌کم به یک ردیف نیاز دارد."
 
 #: apps/sales/services.py:380
 msgid "Only a DRAFT sales invoice can be posted."
-msgstr ""
+msgstr "فقط فاکتور فروش پیش‌نویس قابل ثبت است."
 
 #: apps/sales/services.py:400
 msgid "gl_accounts must include a 'receivables' account."
-msgstr ""
+msgstr "gl_accounts باید یک حساب «receivables» را شامل شود."
 
 #: apps/sales/services.py:402
 msgid "gl_accounts must include a 'revenue' account."
-msgstr ""
+msgstr "gl_accounts باید یک حساب «revenue» را شامل شود."
 
 #: apps/sales/services.py:405
 msgid "gl_accounts must include a 'tax_payable' account when tax is charged."
 msgstr ""
+"gl_accounts باید هنگام اعمال مالیات، یک حساب «tax_payable» را شامل شود."
 
 #: apps/sales/services.py:411
 msgid ""
 "gl_accounts must include 'cogs' and 'inventory' accounts for stockable lines."
 msgstr ""
+"gl_accounts برای ردیف‌های قابل انبارش باید حساب‌های «cogs» و «inventory» "
+"را شامل شود."
 
 #: apps/sales/services.py:528
 msgid "This sales invoice has already been reversed."
-msgstr ""
+msgstr "این فاکتور فروش قبلاً برگشت خورده است."
 
 #: apps/sales/services.py:530
 msgid "Only a POSTED sales invoice can be reversed."
-msgstr ""
+msgstr "فقط فاکتور فروش ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/sales/services.py:618
 msgid "Only a DRAFT sales return can be posted."
-msgstr ""
+msgstr "فقط برگشت فروش پیش‌نویس قابل ثبت است."
 
 #: apps/sales/services.py:622
 msgid "The original sales invoice is not POSTED."
-msgstr ""
+msgstr "فاکتور فروش اصلی ثبت‌شده نیست."
 
 #: apps/sales/services.py:637
 #, python-format
@@ -1642,35 +1666,42 @@ msgid ""
 "Return quantity for %(sku)s exceeds the sold quantity minus previous returns "
 "(%(already)s already returned)."
 msgstr ""
+"مقدار برگشت کالای %(sku)s از مقدار فروخته‌شده پس از کسر برگشت‌های قبلی "
+"بیشتر است (تاکنون %(already)s برگشت خورده است)."
 
 #: apps/sales/services.py:651
 #, python-format
 msgid "No issue movement found for %(sku)s on the original invoice."
-msgstr ""
+msgstr "هیچ گردش حواله‌ای برای کالای %(sku)s روی فاکتور اصلی یافت نشد."
 
 #: apps/sales/services.py:699
 msgid ""
 "gl_accounts must include 'receivables' and 'revenue' for a return against a "
 "GL-posted invoice."
 msgstr ""
+"gl_accounts برای برگشت در برابر فاکتوری که سند دفتر کل خورده است باید "
+"«receivables» و «revenue» را شامل شود."
 
 #: apps/sales/services.py:705
 msgid "gl_accounts must include a 'tax_payable' account when tax is reversed."
 msgstr ""
+"gl_accounts باید هنگام برگشت مالیات، یک حساب «tax_payable» را شامل شود."
 
 #: apps/sales/services.py:731
 msgid ""
 "gl_accounts must include 'inventory' and 'cogs' for a return against a GL-"
 "posted invoice."
 msgstr ""
+"gl_accounts برای برگشت در برابر فاکتوری که سند دفتر کل خورده است باید "
+"«inventory» و «cogs» را شامل شود."
 
 #: apps/sales/services.py:789
 msgid "This sales return has already been reversed."
-msgstr ""
+msgstr "این برگشت فروش قبلاً برگشت خورده است."
 
 #: apps/sales/services.py:791
 msgid "Only a POSTED sales return can be reversed."
-msgstr ""
+msgstr "فقط برگشت فروش ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/sales/views.py:125
 msgid "فاکتور فروش به‌صورت پیش‌نویس ایجاد شد."
@@ -1698,7 +1729,7 @@ msgstr ""
 
 #: apps/treasury/cheque_books.py:41
 msgid "A cheque book needs a first leaf number."
-msgstr ""
+msgstr "دفترچه چک به شماره اولین برگ نیاز دارد."
 
 #: apps/treasury/cheque_books.py:48
 #, python-format
@@ -1706,33 +1737,35 @@ msgid ""
 "The first leaf number must end with digits so the following leaves can be "
 "numbered (got %(number)r)."
 msgstr ""
+"شماره اولین برگ باید با رقم پایان یابد تا برگ‌های بعدی قابل شماره‌گذاری "
+"باشند (دریافت‌شده: %(number)r)."
 
 #: apps/treasury/cheque_books.py:63 apps/treasury/reconciliation.py:129
 #: apps/treasury/services.py:83
 msgid "Treasury account belongs to a different company (or is missing)."
-msgstr ""
+msgstr "حساب خزانه متعلق به شرکت دیگری است (یا یافت نشد)."
 
 #: apps/treasury/cheque_books.py:65
 msgid "Cheque books belong to BANK treasury accounts only."
-msgstr ""
+msgstr "دفترچه‌های چک فقط برای حساب‌های خزانه بانکی هستند."
 
 #: apps/treasury/cheque_books.py:67 apps/treasury/reconciliation.py:133
 #: apps/treasury/services.py:85
 msgid "Treasury account is inactive."
-msgstr ""
+msgstr "حساب خزانه غیرفعال است."
 
 #: apps/treasury/cheque_books.py:84
 msgid "Leaf count must be a whole number."
-msgstr ""
+msgstr "تعداد برگ‌ها باید عدد صحیح باشد."
 
 #: apps/treasury/cheque_books.py:86
 msgid "A cheque book needs at least one leaf."
-msgstr ""
+msgstr "دفترچه چک دست‌کم به یک برگ نیاز دارد."
 
 #: apps/treasury/cheque_books.py:89
 #, python-format
 msgid "A cheque book cannot have more than %(max)s leaves."
-msgstr ""
+msgstr "دفترچه چک نمی‌تواند بیش از %(max)s برگ داشته باشد."
 
 #: apps/treasury/cheque_books.py:100
 #, python-format
@@ -1740,24 +1773,26 @@ msgid ""
 "Leaf number %(number)s already exists for this bank account (book %(book)s); "
 "cheque book ranges cannot overlap."
 msgstr ""
+"شماره برگ %(number)s برای این حساب بانکی از قبل وجود دارد (دفترچه "
+"%(book)s)؛ بازه‌های دفترچه چک نمی‌توانند هم‌پوشانی داشته باشند."
 
 #: apps/treasury/cheque_books.py:146
 #, python-format
 msgid "Only an UNUSED leaf can be voided (this leaf is %(status)s)."
-msgstr ""
+msgstr "فقط برگ استفاده‌نشده قابل ابطال است (وضعیت این برگ: %(status)s)."
 
 #: apps/treasury/cheque_books.py:171
 msgid "The cheque leaf belongs to a different company."
-msgstr ""
+msgstr "برگ چک متعلق به شرکت دیگری است."
 
 #: apps/treasury/cheque_books.py:174
 msgid "The cheque leaf belongs to a different bank account than the payment's."
-msgstr ""
+msgstr "برگ چک متعلق به حساب بانکی دیگری غیر از حساب پرداخت است."
 
 #: apps/treasury/cheque_books.py:178
 #, python-format
 msgid "Cheque leaf %(number)s is %(status)s, not UNUSED."
-msgstr ""
+msgstr "برگ چک %(number)s ‏%(status)s است، نه استفاده‌نشده."
 
 #: apps/treasury/forms.py:27
 msgid "نوع حساب"
@@ -2003,91 +2038,91 @@ msgstr ""
 
 #: apps/treasury/models.py:42 apps/treasury/models.py:95
 msgid "Cash"
-msgstr ""
+msgstr "نقد"
 
 #: apps/treasury/models.py:43
 msgid "Bank"
-msgstr ""
+msgstr "بانک"
 
 #: apps/treasury/models.py:92
 msgid "Payment"
-msgstr ""
+msgstr "پرداخت"
 
 #: apps/treasury/models.py:96
 msgid "Bank transfer"
-msgstr ""
+msgstr "انتقال بانکی"
 
 #: apps/treasury/models.py:97
 msgid "Cheque"
-msgstr ""
+msgstr "چک"
 
 #: apps/treasury/models.py:161
 msgid "Posted payments are immutable; reverse instead."
-msgstr ""
+msgstr "پرداخت‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن برگشت بزنید."
 
 #: apps/treasury/models.py:168
 msgid "Posted payments cannot be deleted; reverse instead."
-msgstr ""
+msgstr "پرداخت‌های ثبت‌شده قابل حذف نیستند؛ به‌جای آن برگشت بزنید."
 
 #: apps/treasury/models.py:184
 msgid "Active"
-msgstr ""
+msgstr "فعال"
 
 #: apps/treasury/models.py:185 apps/treasury/models.py:437
 msgid "Void"
-msgstr ""
+msgstr "باطل‌شده"
 
 #: apps/treasury/models.py:243 apps/treasury/models.py:247
 msgid "Received"
-msgstr ""
+msgstr "دریافت‌شده"
 
 #: apps/treasury/models.py:244
 msgid "Issued"
-msgstr ""
+msgstr "صادرشده"
 
 #: apps/treasury/models.py:248
 msgid "Deposited"
-msgstr ""
+msgstr "واگذارشده"
 
 #: apps/treasury/models.py:249
 msgid "Delivered"
-msgstr ""
+msgstr "تحویل‌شده"
 
 #: apps/treasury/models.py:250
 msgid "Cleared"
-msgstr ""
+msgstr "وصول‌شده"
 
 #: apps/treasury/models.py:251
 msgid "Bounced"
-msgstr ""
+msgstr "برگشتی"
 
 #: apps/treasury/models.py:252
 msgid "Returned"
-msgstr ""
+msgstr "عودت‌داده‌شده"
 
 #: apps/treasury/models.py:320
 msgid "Completed"
-msgstr ""
+msgstr "تکمیل‌شده"
 
 #: apps/treasury/models.py:435
 msgid "Unused"
-msgstr ""
+msgstr "استفاده‌نشده"
 
 #: apps/treasury/models.py:436
 msgid "Used"
-msgstr ""
+msgstr "استفاده‌شده"
 
 #: apps/treasury/reconciliation.py:110
 msgid "The statement is completed; reopen it before changing matches."
-msgstr ""
+msgstr "صورت‌حساب تکمیل شده است؛ قبل از تغییر تطبیق‌ها آن را بازگشایی کنید."
 
 #: apps/treasury/reconciliation.py:131
 msgid "Bank reconciliation needs a BANK treasury account."
-msgstr ""
+msgstr "تطبیق بانکی به یک حساب خزانه بانکی نیاز دارد."
 
 #: apps/treasury/reconciliation.py:135
 msgid "Statement end date is before its start date."
-msgstr ""
+msgstr "تاریخ پایان صورت‌حساب قبل از تاریخ شروع آن است."
 
 #: apps/treasury/reconciliation.py:162
 #, python-format
@@ -2095,6 +2130,8 @@ msgid ""
 "Duplicate statement line (%(line_date)s, %(amount)s, %(reference)r) in the "
 "import."
 msgstr ""
+"ردیف صورت‌حساب تکراری (%(line_date)s، %(amount)s، %(reference)r) در "
+"واردسازی."
 
 #: apps/treasury/reconciliation.py:170
 #, python-format
@@ -2102,47 +2139,49 @@ msgid ""
 "A statement line with this date, amount and reference already exists "
 "(%(line_date)s, %(amount)s, %(reference)r)."
 msgstr ""
+"ردیف صورت‌حسابی با این تاریخ، مبلغ و ارجاع از قبل وجود دارد "
+"(%(line_date)s، %(amount)s، %(reference)r)."
 
 #: apps/treasury/reconciliation.py:187
 msgid "A statement line cannot be zero."
-msgstr ""
+msgstr "ردیف صورت‌حساب نمی‌تواند صفر باشد."
 
 #: apps/treasury/reconciliation.py:189
 msgid "The line date is outside the statement period."
-msgstr ""
+msgstr "تاریخ ردیف خارج از دوره صورت‌حساب است."
 
 #: apps/treasury/reconciliation.py:217
 msgid "Amount is zero."
-msgstr ""
+msgstr "مبلغ صفر است."
 
 #: apps/treasury/reconciliation.py:219
 msgid "Line date is outside the statement period."
-msgstr ""
+msgstr "تاریخ ردیف خارج از بازه صورت‌حساب است."
 
 #: apps/treasury/reconciliation.py:221
 msgid "Reference is longer than 64 characters."
-msgstr ""
+msgstr "ارجاع طولانی‌تر از 64 نویسه است."
 
 #: apps/treasury/reconciliation.py:223
 msgid "Description is longer than 500 characters."
-msgstr ""
+msgstr "شرح طولانی‌تر از 500 نویسه است."
 
 #: apps/treasury/reconciliation.py:245 apps/treasury/statement_files.py:302
 #: apps/treasury/statement_files.py:423
 #, python-format
 msgid "Unparseable date %(date)r (expected YYYY-MM-DD)."
-msgstr ""
+msgstr "تاریخ %(date)r قابل خواندن نیست (قالب مورد انتظار: YYYY-MM-DD)."
 
 #: apps/treasury/reconciliation.py:250 apps/treasury/statement_files.py:319
 #: apps/treasury/statement_files.py:438
 #, python-format
 msgid "Unparseable amount %(amount)r."
-msgstr ""
+msgstr "مبلغ %(amount)r قابل خواندن نیست."
 
 #: apps/treasury/reconciliation.py:261
 #, python-format
 msgid "Unparseable %(name)s %(value)r."
-msgstr ""
+msgstr "%(name)s با مقدار %(value)r قابل خواندن نیست."
 
 #: apps/treasury/reconciliation.py:393
 #, python-format
@@ -2151,50 +2190,57 @@ msgid ""
 "%(lines_total)s = %(computed)s, not the stated closing %(closing)s. No "
 "statement was created; correct the closing balance and try again."
 msgstr ""
+"جمع‌های صورت‌حساب سازگار نیستند: افتتاحیه %(opening)s + ردیف‌های واردشده "
+"%(lines_total)s = %(computed)s، نه مانده پایانی اعلام‌شده %(closing)s. "
+"هیچ صورت‌حسابی ایجاد نشد؛ مانده پایانی را اصلاح کنید و دوباره تلاش کنید."
 
 #: apps/treasury/reconciliation.py:404
 #, python-format
 msgid " (%(count)s file row(s) were also rejected — see the file preview.)"
-msgstr ""
+msgstr " (%(count)s ردیف فایل نیز رد شد — پیش‌نمایش فایل را ببینید.)"
 
 #: apps/treasury/reconciliation.py:457
 msgid "This statement line is already matched; unmatch it first."
 msgstr ""
+"این ردیف صورت‌حساب قبلاً تطبیق داده شده است؛ ابتدا تطبیق آن را لغو کنید."
 
 #: apps/treasury/reconciliation.py:459
 msgid "The book movement is not on this statement's bank GL account."
-msgstr ""
+msgstr "گردش دفتری روی حساب دفتر کل بانکِ این صورت‌حساب نیست."
 
 #: apps/treasury/reconciliation.py:461
 msgid "The book movement belongs to a different company."
-msgstr ""
+msgstr "گردش دفتری متعلق به شرکت دیگری است."
 
 #: apps/treasury/reconciliation.py:463
 msgid "Only posted journal lines can be matched."
-msgstr ""
+msgstr "فقط ردیف‌های سند حسابداری ثبت‌شده قابل تطبیق هستند."
 
 #: apps/treasury/reconciliation.py:465
 msgid "This book movement is already matched to another statement line."
-msgstr ""
+msgstr "این گردش دفتری قبلاً با ردیف صورت‌حساب دیگری تطبیق داده شده است."
 
 #: apps/treasury/reconciliation.py:468
 #, python-format
 msgid "Amounts do not agree: statement %(statement)s vs book %(book)s."
 msgstr ""
+"مبالغ سازگار نیستند: صورت‌حساب %(statement)s در برابر دفتر %(book)s."
 
 #: apps/treasury/reconciliation.py:492
 msgid "This statement line is not matched."
-msgstr ""
+msgstr "این ردیف صورت‌حساب تطبیق داده نشده است."
 
 #: apps/treasury/reconciliation.py:616
 msgid "This statement is already completed."
-msgstr ""
+msgstr "این صورت‌حساب قبلاً تکمیل شده است."
 
 #: apps/treasury/reconciliation.py:620
 msgid ""
 "The statement still has unmatched lines; book and match them before "
 "completing."
 msgstr ""
+"صورت‌حساب هنوز ردیف تطبیق‌نیافته دارد؛ پیش از تکمیل، آن‌ها را ثبت و "
+"تطبیق دهید."
 
 #: apps/treasury/reconciliation.py:625
 #, python-format
@@ -2202,68 +2248,72 @@ msgid ""
 "Reconciliation difference is %(difference)s, not zero; match the outstanding "
 "book movements before completing."
 msgstr ""
+"مغایرت تطبیق %(difference)s است، نه صفر؛ پیش از تکمیل، گردش‌های دفتری "
+"تطبیق‌نیافته را تطبیق دهید."
 
 #: apps/treasury/reconciliation.py:649
 msgid "Only a completed statement can be reopened."
-msgstr ""
+msgstr "فقط صورت‌حساب تکمیل‌شده قابل بازگشایی است."
 
 #: apps/treasury/services.py:52
 #, python-format
 msgid "Cheque cannot move from %(status)s to %(target)s."
-msgstr ""
+msgstr "وضعیت چک نمی‌تواند از %(status)s به %(target)s تغییر کند."
 
 #: apps/treasury/services.py:66
 msgid "GL account belongs to a different company (or is missing)."
-msgstr ""
+msgstr "حساب دفتر کل متعلق به شرکت دیگری است (یا یافت نشد)."
 
 #: apps/treasury/services.py:68
 msgid "GL account must be active and postable."
-msgstr ""
+msgstr "حساب دفتر کل باید فعال و قابل ثبت باشد."
 
 #: apps/treasury/services.py:70
 msgid "A bank treasury account needs a bank name."
-msgstr ""
+msgstr "حساب خزانه بانکی به نام بانک نیاز دارد."
 
 #: apps/treasury/services.py:88
 msgid "Treasury account's GL account is not postable for this company."
-msgstr ""
+msgstr "حساب دفتر کل حساب خزانه برای این شرکت قابل ثبت نیست."
 
 #: apps/treasury/services.py:94
 #, python-format
 msgid "A %(label)s GL account is required for this payment."
-msgstr ""
+msgstr "برای این پرداخت، یک حساب دفتر کل %(label)s لازم است."
 
 #: apps/treasury/services.py:98
 #, python-format
 msgid "The %(label)s account belongs to a different company."
-msgstr ""
+msgstr "حساب %(label)s متعلق به شرکت دیگری است."
 
 #: apps/treasury/services.py:102
 #, python-format
 msgid "The %(label)s account must be active and postable."
-msgstr ""
+msgstr "حساب %(label)s باید فعال و قابل ثبت باشد."
 
 #: apps/treasury/services.py:143
 msgid "Payment amount must be positive."
-msgstr ""
+msgstr "مبلغ پرداخت باید مثبت باشد."
 
 #: apps/treasury/services.py:146
 msgid "A cheque book leaf can only be used for a CHEQUE payment."
-msgstr ""
+msgstr "برگ دفترچه چک فقط برای پرداخت با چک قابل استفاده است."
 
 #: apps/treasury/services.py:160
 msgid "A CHEQUE payment needs cheque details."
-msgstr ""
+msgstr "پرداخت با چک به مشخصات چک نیاز دارد."
 
 #: apps/treasury/services.py:163
 msgid "Cheque amount must equal the payment amount."
-msgstr ""
+msgstr "مبلغ چک باید برابر مبلغ پرداخت باشد."
 
 #: apps/treasury/services.py:180
 msgid ""
 "Cheque book leaves are only for issued (outgoing) cheques; received cheques "
 "are the other party's paper."
 msgstr ""
+"برگ‌های دفترچه چک فقط برای چک‌های صادره (خروجی) هستند؛ چک‌های دریافتی "
+"کاغذ طرف‌حساب‌اند."
 
 #: apps/treasury/services.py:193
 #, python-format
@@ -2271,150 +2321,155 @@ msgid ""
 "The entered cheque number %(entered)s does not match the selected leaf "
 "%(leaf)s."
 msgstr ""
+"شماره چک واردشده %(entered)s با برگ انتخاب‌شده %(leaf)s مطابقت ندارد."
 
 #: apps/treasury/services.py:216
 msgid "Cheque details are only accepted for CHEQUE payments."
-msgstr ""
+msgstr "مشخصات چک فقط برای پرداخت‌های با چک پذیرفته می‌شود."
 
 #: apps/treasury/services.py:237
 msgid "Only a DRAFT payment can be posted."
-msgstr ""
+msgstr "فقط پرداخت پیش‌نویس قابل ثبت است."
 
 #: apps/treasury/services.py:251
 msgid "CHEQUE payment has no cheque attached."
-msgstr ""
+msgstr "به پرداخت با چک، چکی متصل نیست."
 
 #: apps/treasury/services.py:358
 msgid "Allocation amount must be positive."
-msgstr ""
+msgstr "مبلغ تخصیص باید مثبت باشد."
 
 #: apps/treasury/services.py:361
 msgid "Allocations are only allowed on POSTED payments (ADR-023)."
-msgstr ""
+msgstr "تخصیص فقط روی پرداخت‌های ثبت‌شده مجاز است (ADR-023)."
 
 #: apps/treasury/services.py:366
 msgid "Allocation target must be a sales or purchase invoice."
-msgstr ""
+msgstr "هدف تخصیص باید فاکتور فروش یا فاکتور خرید باشد."
 
 #: apps/treasury/services.py:368
 msgid "Only a RECEIPT can be allocated to a sales invoice."
-msgstr ""
+msgstr "فقط دریافت قابل تخصیص به فاکتور فروش است."
 
 #: apps/treasury/services.py:370
 msgid "Only a PAYMENT can be allocated to a purchase invoice."
-msgstr ""
+msgstr "فقط پرداخت قابل تخصیص به فاکتور خرید است."
 
 #: apps/treasury/services.py:374
 msgid "Invoice belongs to a different company."
-msgstr ""
+msgstr "فاکتور متعلق به شرکت دیگری است."
 
 #: apps/treasury/services.py:376
 msgid "Allocations target only POSTED invoices."
-msgstr ""
+msgstr "هدف تخصیص فقط می‌تواند فاکتور ثبت‌شده باشد."
 
 #: apps/treasury/services.py:379
 msgid "Invoice party does not match the payment party."
-msgstr ""
+msgstr "طرف‌حساب فاکتور با طرف‌حساب پرداخت مطابقت ندارد."
 
 #: apps/treasury/services.py:382
 msgid "Allocations would exceed the payment amount."
-msgstr ""
+msgstr "تخصیص‌ها از مبلغ پرداخت بیشتر می‌شوند."
 
 #: apps/treasury/services.py:384
 msgid "Allocations would exceed the invoice grand total."
-msgstr ""
+msgstr "تخصیص‌ها از جمع کل فاکتور بیشتر می‌شوند."
 
 #: apps/treasury/services.py:415
 msgid "Only an ACTIVE allocation can be voided."
-msgstr ""
+msgstr "فقط تخصیص فعال قابل ابطال است."
 
 #: apps/treasury/services.py:466
 msgid "This payment has already been reversed."
-msgstr ""
+msgstr "این پرداخت قبلاً برگشت خورده است."
 
 #: apps/treasury/services.py:468
 msgid "Only a POSTED payment can be reversed."
-msgstr ""
+msgstr "فقط پرداخت ثبت‌شده قابل برگشت‌زدن است."
 
 #: apps/treasury/services.py:472
 #, python-format
 msgid "A payment whose cheque is %(status)s cannot be reversed."
-msgstr ""
+msgstr "پرداختی که چکش %(status)s است قابل برگشت‌زدن نیست."
 
 #: apps/treasury/services.py:514
 msgid "Only a received cheque can be deposited."
-msgstr ""
+msgstr "فقط چک دریافتی قابل واگذاری است."
 
 #: apps/treasury/services.py:537
 msgid "Cheque has no holding account; its payment is not posted."
-msgstr ""
+msgstr "چک حساب واسط ندارد؛ پرداخت آن ثبت نشده است."
 
 #: apps/treasury/services.py:541
 msgid "Clearing a received cheque needs a bank treasury account."
-msgstr ""
+msgstr "وصول چک دریافتی به یک حساب خزانه بانکی نیاز دارد."
 
 #: apps/treasury/services.py:544
 msgid "Received cheques clear into a BANK treasury account."
-msgstr ""
+msgstr "چک‌های دریافتی در یک حساب خزانه بانکی وصول می‌شوند."
 
 #: apps/treasury/services.py:553
 msgid "Issued cheque has no payment."
-msgstr ""
+msgstr "برای چک صادره پرداختی وجود ندارد."
 
 #: apps/treasury/services.py:589
 msgid "Cheque payment is not posted; nothing to reverse."
-msgstr ""
+msgstr "پرداخت چک ثبت نشده است؛ چیزی برای برگشت‌زدن نیست."
 
 #: apps/treasury/services.py:656
 msgid "Only a received cheque can be returned."
-msgstr ""
+msgstr "فقط چک دریافتی قابل عودت است."
 
 #: apps/treasury/statement_files.py:123
 msgid "The statement file is not valid UTF-8 text."
-msgstr ""
+msgstr "فایل صورت‌حساب متن معتبر UTF-8 نیست."
 
 #: apps/treasury/statement_files.py:135
 msgid "The CSV file is empty or has no header row."
-msgstr ""
+msgstr "فایل CSV خالی است یا ردیف سربرگ ندارد."
 
 #: apps/treasury/statement_files.py:139
 msgid "The CSV needs a 'date' column."
-msgstr ""
+msgstr "فایل CSV به ستون «date» نیاز دارد."
 
 #: apps/treasury/statement_files.py:141
 msgid "The CSV needs an 'amount' column (or 'debit' + 'credit')."
 msgstr ""
+"فایل CSV به ستون «amount» نیاز دارد (یا ستون‌های «debit» + «credit»)."
 
 #: apps/treasury/statement_files.py:207
 #, python-format
 msgid "Unparseable balance amount %(amount)r in the CAMT file."
-msgstr ""
+msgstr "مبلغ مانده %(amount)r در فایل CAMT قابل خواندن نیست."
 
 #: apps/treasury/statement_files.py:266
 msgid "The CAMT file is not well-formed XML."
-msgstr ""
+msgstr "ساختار XML فایل CAMT معتبر نیست."
 
 #: apps/treasury/statement_files.py:271
 msgid "No bank statement (BkToCstmrStmt) found in the CAMT file."
-msgstr ""
+msgstr "هیچ صورت‌حساب بانکی (BkToCstmrStmt) در فایل CAMT یافت نشد."
 
 #: apps/treasury/statement_files.py:274
 #, python-format
 msgid "The file contains %(count)s statements; import one statement per file."
 msgstr ""
+"فایل شامل %(count)s صورت‌حساب است؛ در هر فایل یک صورت‌حساب وارد کنید."
 
 #: apps/treasury/statement_files.py:310 apps/treasury/statement_files.py:430
 msgid "Missing amount."
-msgstr ""
+msgstr "مبلغ وجود ندارد."
 
 #: apps/treasury/statement_files.py:390
 msgid "No bank transaction list (BANKTRANLIST) found in the OFX file."
-msgstr ""
+msgstr "فهرست تراکنش‌های بانکی (BANKTRANLIST) در فایل OFX یافت نشد."
 
 #: apps/treasury/statement_files.py:405
 #, python-format
 msgid "Unparseable closing balance (LEDGERBAL) %(balance)r in the OFX file."
 msgstr ""
+"مانده پایانی (LEDGERBAL) با مقدار %(balance)r در فایل OFX قابل خواندن "
+"نیست."
 
 #: apps/treasury/views.py:124
 msgid "حساب خزانه ایجاد شد."
@@ -2435,7 +2490,7 @@ msgstr ""
 #: apps/treasury/views.py:269
 #, python-format
 msgid "%(invoice_number)s: %(message)s"
-msgstr ""
+msgstr "%(invoice_number)s: %(message)s"
 
 #: apps/treasury/views.py:273
 msgid "تخصیص‌ها ثبت شد و وضعیت پرداخت فاکتورها به‌روز شد."
@@ -2502,7 +2557,7 @@ msgstr ""
 #: templates/treasury/statement_form.html:26
 #, python-format
 msgid "%(noun)s %(row)s: %(reason)s"
-msgstr ""
+msgstr "%(noun)s %(row)s: %(reason)s"
 
 #: apps/treasury/views.py:665
 msgid "دفترچه چک ایجاد شد."
@@ -4824,7 +4879,7 @@ msgstr ""
 #: templates/treasury/statement_form.html:25
 #, python-format
 msgid "— %(count)s %(noun)s"
-msgstr ""
+msgstr "— %(count)s %(noun)s"
 
 #: templates/treasury/statement_form.html:25
 #, python-format

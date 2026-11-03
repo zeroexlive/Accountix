@@ -73,7 +73,7 @@ def test_camt_golden_rows_and_metadata():
     ]
     # The broken amount is a per-transaction rejection at its index;
     # the other two entries still parse.
-    assert parsed.rejected == [{"row": 3, "reason": "Unparseable amount 'not-a-number'."}]
+    assert parsed.rejected == [{"row": 3, "reason": "مبلغ 'not-a-number' قابل خواندن نیست."}]
     assert parsed.metadata == {
         "opening_balance": D("0.00"),
         "closing_balance": D("800.00"),
@@ -116,7 +116,7 @@ def test_camt_without_namespace_still_parses():
 
 
 def test_camt_file_with_two_statements_is_refused():
-    with pytest.raises(ValidationError, match="2 statements"):
+    with pytest.raises(ValidationError, match="در هر فایل یک"):
         statement_files.parse_statement_file(CAMT_TWO_STMTS.encode())
 
 
@@ -186,13 +186,13 @@ def test_ofx2_xml_golden_rows():
 def test_ofx_broken_amount_is_a_per_transaction_rejection():
     parsed = statement_files.parse_statement_file(OFX_BROKEN.encode())
     assert [locator for locator, _ in parsed.rows] == [1, 3]
-    assert parsed.rejected == [{"row": 2, "reason": "Unparseable amount 'not-a-number'."}]
+    assert parsed.rejected == [{"row": 2, "reason": "مبلغ 'not-a-number' قابل خواندن نیست."}]
 
 
 def test_garbage_files_get_clean_file_level_refusals():
     # Well-formed text that matches no parser falls through to the
     # CSV contract and is refused exactly like a bad CSV header.
-    with pytest.raises(ValidationError, match="needs a 'date' column"):
+    with pytest.raises(ValidationError, match="به ستون «date» نیاز دارد"):
         statement_files.parse_statement_file(GARBAGE_HTML.encode())
     # Not text at all: the undecodable refusal class.
     with pytest.raises(statement_files.UndecodableStatementFile):
@@ -221,7 +221,7 @@ def test_import_camt_into_existing_statement_partial():
     report = recon.import_statement_file(statement, content=CAMT_BROKEN.encode())
     assert report["format"] == "camt053"
     assert report["imported"] == 2
-    assert report["rejected"] == [{"row": 3, "reason": "Unparseable amount 'not-a-number'."}]
+    assert report["rejected"] == [{"row": 3, "reason": "مبلغ 'not-a-number' قابل خواندن نیست."}]
     lines = sorted(statement.lines.all(), key=lambda line: line.amount, reverse=True)
     assert [(line.amount, line.reference) for line in lines] == [
         (D("1100"), "REF-A"),
@@ -238,7 +238,7 @@ def test_import_ofx_reimport_is_all_duplicates():
     second = recon.import_statement_file(statement, content=OFX1.encode())
     assert second["imported"] == 0
     assert [item["row"] for item in second["rejected"]] == [1, 2, 3]
-    assert all("already exists" in item["reason"] for item in second["rejected"])
+    assert all("از قبل وجود دارد" in item["reason"] for item in second["rejected"])
     assert statement.lines.count() == 3
 
 
@@ -261,7 +261,7 @@ def test_create_statement_from_upload_enforces_totals_identity():
 
     # Tampered closing: opening + lines != closing -> refused, and
     # the rollback leaves no statement behind.
-    with pytest.raises(ValidationError, match="totals do not agree"):
+    with pytest.raises(ValidationError, match="سازگار نیستند: افتتاحیه"):
         recon.create_statement_from_upload(
             company=w.company,
             treasury_account=w.bank_treasury,

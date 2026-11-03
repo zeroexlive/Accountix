@@ -155,7 +155,7 @@ def test_stock_document_ui_oversell_issue_rejected(client):
     assert resp.status_code == 200
     issue.refresh_from_db()
     assert issue.status == "DRAFT"
-    assert "Insufficient stock" in resp.content.decode()
+    assert "کافی نیست: درخواستی" in resp.content.decode()
     assert _balance(w, w.warehouse)["quantity"] == D("6")
 
 

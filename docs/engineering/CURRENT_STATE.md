@@ -260,6 +260,21 @@ Modular monolith, single Django project under `backend/`:
   crawl-tested per app (labels present, Persian originals
   absent) plus English form-error and flash rendering.
   Suite: 363 passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 21): the English-source vocabulary is now
+  Persian in the default UI — see `SPRINT_21_REPORT.md` and
+  ADR-047 (Jason's product decision). The 339 English-source
+  msgids (all service `ValidationError` texts + all model choice
+  labels + 3 format patterns) carry Persian translations in
+  `fa.po`; the 693 Persian-source msgids keep empty fa msgstrs
+  (ADR-045 fallback). No source string changed, `en.po` is
+  byte-untouched, no migration. Without a compiled `fa.mo` those
+  339 entries fall back to English (the pre-Sprint-21 rendering),
+  so `compilemessages` is now required for both languages on a
+  dev checkout; the suite self-compiles via a session fixture in
+  the root `conftest.py` (which also clears Django's translation
+  caches — see ADR-047 for the spurious-pass trap it closes).
+  29 test assertions in 7 files migrated to the Persian strings.
+  Suite: 364 passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -360,7 +375,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-354 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+364 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -400,7 +415,11 @@ language branches, untranslated-msgid fallback, production/
 standalone i18n settings wiring); Sprint 20:
 +9 (i18n sweep: English-mode crawl of list/detail/form pages for
 every app, English service form error, English success/info
-flashes) — see the sprint reports for exact
+flashes); Sprint 21:
++1 (i18n: pinning test — an English-source service error and a
+choice label render Persian under fa, English under en; the
+sprint also migrated 29 existing assertions in 7 files to the new
+Persian renderings, count-neutral) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -435,10 +454,11 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    import~~ — done (Sprint 18, ADR-044). ~~i18n groundwork (.po
    translations)~~ — done (Sprint 19, ADR-045). ~~i18n wrapping
    sweep (English mode complete)~~ — done (Sprint 20, ADR-046).
+   ~~Translating service/choice strings into Persian in fa.po~~
+   — done (Sprint 21, ADR-047; Jason took the product decision —
+   the default UI's status/error vocabulary is now Persian).
    Post-v1.0 candidates: Windows verification, an LTR design
-   pass, optionally translating service/choice strings into
-   Persian in fa.po (a product decision — it would change the
-   default UI's status/error vocabulary).
+   pass, rebuilding the PyInstaller bundle.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

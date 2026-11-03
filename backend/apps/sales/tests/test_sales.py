@@ -260,7 +260,7 @@ def test_insufficient_stock_rejected_atomically(company, period, customer, wareh
     seed_stock(company, warehouse, product, qty="2", cost="100")
     invoice = make_invoice(company, customer, warehouse, [line(product, "5", "200")])
     entries_before = JournalEntry.objects.filter(company=company).count()
-    with pytest.raises(ValidationError, match="Insufficient stock"):
+    with pytest.raises(ValidationError, match="کافی نیست: درخواستی"):
         services.post_sales_invoice(invoice, gl_accounts=gl)
     invoice.refresh_from_db()
     assert invoice.status == "DRAFT"
@@ -275,22 +275,22 @@ def test_cross_company_rejected(db, company, other_company, period, warehouse, p
         company=other_company, code="C-9", name="Foreign", kind="CUSTOMER"
     )
     customer = Party.objects.create(company=company, code="C-1", name="Local", kind="CUSTOMER")
-    with pytest.raises(ValidationError, match="different company"):
+    with pytest.raises(ValidationError, match="متعلق به شرکت دیگری است"):
         make_invoice(company, other_customer, warehouse, [line(product, "1", "10")])
     other_product = Product.objects.create(
         company=other_company, sku="X-1", name="Foreign widget", base_unit=pcs
     )
-    with pytest.raises(ValidationError, match="different company"):
+    with pytest.raises(ValidationError, match="متعلق به شرکت دیگری است"):
         make_invoice(company, customer, warehouse, [line(other_product, "1", "10")])
     other_warehouse = Warehouse.objects.create(company=other_company, code="WH9", name="Far")
-    with pytest.raises(ValidationError, match="different company"):
+    with pytest.raises(ValidationError, match="متعلق به شرکت دیگری است"):
         make_invoice(company, customer, other_warehouse, [line(product, "1", "10")])
 
 
 @pytest.mark.django_db
 def test_supplier_is_not_a_customer(company, period, warehouse, product):
     supplier = Party.objects.create(company=company, code="SUP-1", name="Sup", kind="SUPPLIER")
-    with pytest.raises(ValidationError, match="not a customer"):
+    with pytest.raises(ValidationError, match="مشتری نیست"):
         make_invoice(company, supplier, warehouse, [line(product, "1", "10")])
 
 
@@ -347,7 +347,7 @@ def test_reversal_restores_stock_and_zeroes_balances(
     assert reporting.customer_balance(company, gl["receivables"], customer) == D("0")
     assert acct_reporting.account_balance(company, gl["revenue"]) == D("0")
     assert acct_reporting.account_balance(company, gl["cogs"]) == D("0")
-    with pytest.raises(ValidationError, match="already been reversed"):
+    with pytest.raises(ValidationError, match="قبلاً برگشت خورده است"):
         services.reverse_sales_invoice(invoice)
 
 
@@ -390,7 +390,7 @@ def test_sales_return_partial(company, period, customer, warehouse, product, gl)
         return_date=DAY,
         lines=[{"invoice_line": invoice.lines.get(), "quantity": D("8")}],
     )
-    with pytest.raises(ValidationError, match="exceeds the sold"):
+    with pytest.raises(ValidationError, match="مقدار برگشت کالای"):
         services.post_sales_return(ret2, gl_accounts=gl)
 
 
@@ -447,7 +447,7 @@ def test_quotation_conversion(company, period, customer, warehouse, product, ser
     assert rows[0].quantity == D("2") and rows[0].unit_price == D("300")
     quotation.refresh_from_db()
     assert quotation.status == "CONVERTED"
-    with pytest.raises(ValidationError, match="DRAFT or SENT"):
+    with pytest.raises(ValidationError, match="قابل تبدیل به فاکتور است"):
         services.convert_quotation_to_invoice(
             quotation, invoice_number="SINV-Q2", invoice_date=DAY, warehouse=warehouse
         )

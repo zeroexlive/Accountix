@@ -11,9 +11,13 @@
   (a plain `apt-get update` first; on very slow mirrors a scoped update —
   `main` component only, `Acquire::Languages=none` — is enough). Only the
   `.po` catalogs are committed; after checkout, compile them once (below)
-  or non-Persian languages silently fall back to the Persian source
-  strings. The standalone launcher compiles best-effort at startup and
+  or translations silently fall back to the source strings — English
+  mode falls back to the Persian source strings, and (since Sprint 21,
+  ADR-047) Persian mode falls back to the English source strings for
+  service messages and choice labels, whose Persian lives only in
+  `fa.po`. The standalone launcher compiles best-effort at startup and
   the bundle builds compile as a hard step, so end users need nothing.
+  The test suite compiles the catalogs itself (root `conftest.py`).
 
 ```bash
 python3 -m venv .venv

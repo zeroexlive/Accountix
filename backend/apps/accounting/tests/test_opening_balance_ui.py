@@ -107,7 +107,7 @@ def test_opening_balance_two_sided_line_renders_service_error(client):
     assert resp.status_code == 200
     assert not JournalEntry.objects.filter(company=w.company).exists()
     errors = resp.context["form"].non_field_errors()
-    assert any("either debit or credit" in e for e in errors)
+    assert any("یا بدهکار است یا بستانکار" in e for e in errors)
 
 
 def test_opening_balance_non_member_cannot_post(client):

@@ -83,13 +83,13 @@ def test_overlapping_book_is_rejected_and_names_the_collision():
 
 def test_book_creation_validation():
     w = build_world()
-    with pytest.raises(ValidationError, match="BANK"):
+    with pytest.raises(ValidationError, match="خزانه بانکی هستند"):
         _book(w, account=w.cash_treasury)
-    with pytest.raises(ValidationError, match="at least one leaf"):
+    with pytest.raises(ValidationError, match="به یک برگ نیاز دارد"):
         _book(w, count=0)
     with pytest.raises(ValidationError, match="1000"):
         _book(w, count=1001)
-    with pytest.raises(ValidationError, match="end with digits"):
+    with pytest.raises(ValidationError, match="با رقم پایان یابد"):
         _book(w, first="ABC", count=2)
     # A digit-less first number is fine for a one-leaf book.
     single = _book(w, first="ABC", count=1, label="تکی")
@@ -124,7 +124,7 @@ def test_entered_number_matching_the_leaf_is_accepted_conflict_rejected():
     assert payment.cheques.get().cheque_number == "1001"
 
     leaf = _leaf(book, "1002")
-    with pytest.raises(ValidationError, match="does not match"):
+    with pytest.raises(ValidationError, match="مطابقت ندارد"):
         _issue_payment(w, leaf=leaf, cheque_number="9999")
     leaf.refresh_from_db()
     assert leaf.status == ChequeLeaf.Status.UNUSED
@@ -151,7 +151,7 @@ def test_leaf_of_another_account_is_rejected():
     )
     book = _book(w, account=other_bank)
     leaf = _leaf(book, "1001")
-    with pytest.raises(ValidationError, match="different bank account"):
+    with pytest.raises(ValidationError, match="حساب بانکی دیگری"):
         _issue_payment(w, leaf=leaf)  # payment draws on w.bank_treasury
     assert Cheque.objects.filter(company=w.company).count() == 0
 
@@ -160,7 +160,7 @@ def test_leaf_is_rejected_for_receipts_and_non_cheque_methods():
     w = build_world()
     book = _book(w)
     leaf = _leaf(book, "1001")
-    with pytest.raises(ValidationError, match="issued"):
+    with pytest.raises(ValidationError, match="دریافتی کاغذ"):
         services.create_payment(
             company=w.company,
             direction="RECEIPT",
@@ -172,7 +172,7 @@ def test_leaf_is_rejected_for_receipts_and_non_cheque_methods():
             cheque={"bank_name": "Melli", "cheque_number": "1001", "due_date": DAY},
             leaf=leaf,
         )
-    with pytest.raises(ValidationError, match="CHEQUE payment"):
+    with pytest.raises(ValidationError, match="پرداخت با چک"):
         services.create_payment(
             company=w.company,
             direction="PAYMENT",
@@ -210,11 +210,11 @@ def test_void_leaf_rules():
     leaf.refresh_from_db()
     assert leaf.status == ChequeLeaf.Status.VOID
     assert cheque_books.book_counts(book) == (24, 0, 1)
-    with pytest.raises(ValidationError, match="UNUSED"):
+    with pytest.raises(ValidationError, match="قابل ابطال است"):
         cheque_books.void_leaf(leaf)
     used = _leaf(book, "1002")
     _issue_payment(w, leaf=used)
-    with pytest.raises(ValidationError, match="UNUSED"):
+    with pytest.raises(ValidationError, match="قابل ابطال است"):
         cheque_books.void_leaf(used)
 
 
