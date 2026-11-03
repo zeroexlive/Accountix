@@ -116,6 +116,13 @@ h3{font-size:.98rem;font-weight:700;color:var(--ink)}
 .side-user .who .uname{font-weight:700;color:var(--ink);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .side-user .who .urole{font-size:.72rem;color:var(--muted);margin-top:-.3rem}
 .side-user form{margin:0;margin-inline-start:auto}
+/* self-service account links + version stamp (Sprint 27, ADR-052) */
+.side-account{display:flex;gap:1rem;padding:.45rem .25rem 0;font-size:.8rem}
+.side-account a{color:var(--muted);text-decoration:none}
+.side-account a:hover{color:var(--ink)}
+.side-account a.active{color:var(--ink);font-weight:700}
+.side-version{padding:.3rem .25rem 0;font-size:.72rem;color:var(--muted)}
+.app-version{text-align:center;font-size:.75rem;color:var(--muted);margin-top:1rem}
 .icon-btn{
   background:transparent;border:1px solid var(--line);color:var(--text-2);
   width:34px;height:34px;border-radius:10px;padding:0;
@@ -130,6 +137,7 @@ h3{font-size:.98rem;font-weight:700;color:var(--ink)}
   border:1px solid var(--line);border-radius:999px;
   padding-block:.25rem;padding-inline-start:.8rem;padding-inline-end:.3rem;
   font-size:.85rem;color:var(--text-2);box-shadow:var(--shadow);
+  text-decoration:none;
 }
 .user-chip .avatar{width:28px;height:28px;flex-basis:28px;font-size:.8rem}
 

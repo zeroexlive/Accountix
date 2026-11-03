@@ -28,3 +28,26 @@ class FirstRunSetupForm(UserCreationForm):
         model = User
         fields = ("username",)
         field_classes = {"username": UsernameField}
+
+
+class ProfileForm(forms.ModelForm):
+    """Self-service profile (Sprint 27, ADR-052): the signed-in user
+    edits their OWN display fields — first name, last name, email.
+
+    The username is deliberately NOT a field: it is the login
+    identity, the axes lockout key, and the name audit trails refer
+    to, so it is shown read-only in the template and can never be
+    changed through this form (a POST smuggling a ``username`` value
+    is simply ignored — the form has no such field). Email is safe
+    to edit: authentication and axes key on the username alone, and
+    nothing else treats email as identity (it is not unique on the
+    model and no flow reads it).
+    """
+
+    first_name = forms.CharField(label=_("نام"), max_length=150, required=False)
+    last_name = forms.CharField(label=_("نام خانوادگی"), max_length=150, required=False)
+    email = forms.EmailField(label=_("ایمیل"), required=False)
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email")

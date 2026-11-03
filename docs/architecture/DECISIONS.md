@@ -1280,3 +1280,66 @@ profile editing is a separate future surface. No model changes
 were needed — `CompanyMembership.created_at` (from the shared
 timestamp base) is the roster's "joined" date — so this sprint
 ships no migration.
+
+## ADR-052 — Self-service account surface: self-only by construction, the username is immutable here, version 1.0.0 gets one home (accepted, Sprint 27)
+
+ADR-051 (5) left password resets as an operator task and profile
+editing as a future surface. This ADR builds that surface in the
+users app (the auth-owning app): `/profile/` and
+`/profile/password/`, linked from the shell's user-identity area
+for every signed-in user regardless of role or company.
+
+(1) **Self-only by construction.** Neither URL carries a user id
+and neither view accepts one: the subject is always
+`request.user`. There is therefore nothing to scope, nothing to
+404, and no way to render or modify another user's data through
+this surface — isolation is a property of the route shape, not of
+a check that could be forgotten. Both pages are login-required
+(anonymous → the standard login redirect) and role-independent:
+a VIEWER edits their own profile exactly like an OWNER.
+
+(2) **The username is not editable.** It is the login identity,
+the django-axes lockout key (ADR-043 keys on username+IP), and
+the identifier audit trails refer to. The profile form
+(`ProfileForm`) simply has no username field — the template shows
+it read-only — so a POST smuggling a `username` value is ignored
+by construction (proven by test). Editable: first name, last
+name, email. Email is safe to edit because nothing treats it as
+identity: authentication and axes key on the username alone, the
+model's email is non-unique, and no flow reads it.
+
+(3) **Password change is Django's built-in machinery.**
+`AccountPasswordChangeView` subclasses the stock
+`PasswordChangeView` (+ `LoginRequiredMixin`,
+`SuccessMessageMixin`): the current password is required, the
+new password passes the full `AUTH_PASSWORD_VALIDATORS` set,
+and on success `update_session_auth_hash` keeps THIS session
+signed in while every other session's stored hash goes stale —
+other devices/browsers must sign in again with the new password.
+Failed attempts here do NOT interact with the axes lockout:
+`PasswordChangeForm` verifies the current password via
+`user.check_password()` directly — no `authenticate()` call, no
+`user_login_failed` signal, and axes counts failures exclusively
+from that signal. Proven two ways in Sprint 27: source inspection
+(`django/contrib/auth/forms.py`, `axes/signals.py`) and a test
+that fails the change six times (past the limit of 5) and then
+logs in successfully. Axes behaviour is unchanged either way —
+the lockout remains a login-surface control.
+
+(4) **The product version has one home.** `config/version.py`
+holds `__version__ = "1.0.0"` — the first release-grade state
+(all Linux gates closed, see `docs/engineering/RELEASE_STATUS.md`).
+A context processor exposes it to templates; it renders subtly
+in the sidebar footer and on the login page. The module ships
+inside the application package tree, so source runs and the
+frozen PyInstaller bundle read the same value (verified in the
+Sprint 27 frozen smoke). `pyproject.toml`'s `[project] version`
+mirrors it for packaging metadata only.
+
+(5) **Scope kept.** No model changes, no migration. An operator
+can still reset a member's password via the launcher's `manage
+changepassword` passthrough (unchanged); this surface is for a
+signed-in user changing their OWN credentials with knowledge of
+the current password — it is not a recovery flow, and a
+forgotten-password flow remains out of scope for the offline
+product (the operator path covers it).

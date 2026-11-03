@@ -366,6 +366,35 @@ def test_action_buttons_hidden_for_viewer_shown_for_owner(client):
     assert reverse("sales_invoice_create") in listing.content.decode()
 
 
+def test_edit_links_hidden_for_viewer_product_list_and_party_detail(client):
+    """Sprint 27 VIEWER audit: the crawl found two visible-but-dead
+    controls Sprint 25's pass missed — the per-row product edit link
+    (cross-company list, so the check is per product's company) and
+    the party detail edit button. Both now hide for a VIEWER."""
+    from apps.catalog.models import Product
+
+    w = build_world()
+    product = Product.objects.filter(company=w.company).first()
+    party = Party.objects.filter(company=w.company).first()
+    edit_url = reverse("product_edit", args=[product.pk])
+    party_edit_url = reverse("party_edit", args=[party.pk])
+
+    viewer = _user_with_role(w.company, "VIEWER", "audit-viewer")
+    client.force_login(viewer)
+    assert edit_url not in client.get(reverse("product_list")).content.decode()
+    party_page = client.get(reverse("party_detail", args=[party.pk]))
+    assert party_page.status_code == 200
+    assert party_edit_url not in party_page.content.decode()
+    # The server gate behind the (previously visible) links is unchanged.
+    assert client.get(edit_url).status_code == 403
+    assert client.get(party_edit_url).status_code == 403
+
+    owner = _user_with_role(w.company, "OWNER", "audit-owner")
+    client.force_login(owner)
+    assert edit_url in client.get(reverse("product_list")).content.decode()
+    assert party_edit_url in client.get(reverse("party_detail", args=[party.pk])).content.decode()
+
+
 def test_shell_shows_company_and_role_label(client):
     w = build_world()
     owner = _user_with_role(w.company, "OWNER", "shell-owner")

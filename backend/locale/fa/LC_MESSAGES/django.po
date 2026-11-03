@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 19:45+0330\n"
+"POT-Creation-Date: 2026-11-03 21:10+0330\n"
 "PO-Revision-Date: 2026-11-03 15:11+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: Persian\n"
@@ -1031,11 +1031,11 @@ msgstr ""
 msgid "حساب سود (زیان) انباشته"
 msgstr ""
 
-#: apps/organizations/forms.py:42
+#: apps/organizations/forms.py:42 templates/users/profile.html:7
 msgid "نام کاربری"
 msgstr ""
 
-#: apps/organizations/forms.py:43 apps/organizations/forms.py:75
+#: apps/organizations/forms.py:43 apps/organizations/forms.py:76
 #: templates/organizations/company_members.html:4
 #: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "نقش"
@@ -1045,12 +1045,12 @@ msgstr ""
 msgid "کاربری با این نام کاربری یافت نشد."
 msgstr ""
 
-#: apps/organizations/forms.py:59
+#: apps/organizations/forms.py:60
 msgid "این کاربر از قبل عضو این شرکت است."
 msgstr ""
 
-#: apps/organizations/forms.py:73 apps/parties/forms.py:20
-#: templates/accounting/account_list.html:3
+#: apps/organizations/forms.py:74 apps/parties/forms.py:20
+#: apps/users/forms.py:47 templates/accounting/account_list.html:3
 #: templates/inventory/product_list.html:4
 #: templates/organizations/company_list.html:3
 #: templates/organizations/fiscal_year_list.html:3
@@ -1058,7 +1058,7 @@ msgstr ""
 msgid "نام"
 msgstr ""
 
-#: apps/organizations/forms.py:74
+#: apps/organizations/forms.py:75 apps/users/forms.py:48
 msgid "نام خانوادگی"
 msgstr ""
 
@@ -1213,8 +1213,8 @@ msgstr ""
 msgid "شماره ثبت"
 msgstr ""
 
-#: apps/parties/forms.py:24 templates/parties/party_detail.html:9
-#: templates/parties/party_form.html:12
+#: apps/parties/forms.py:24 apps/users/forms.py:49
+#: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "ایمیل"
 msgstr ""
 
@@ -2643,8 +2643,16 @@ msgstr ""
 msgid "نام شرکت"
 msgstr ""
 
-#: apps/users/views.py:92
+#: apps/users/views.py:96
 msgid "راه‌اندازی اولیه کامل شد؛ خوش آمدید."
+msgstr ""
+
+#: apps/users/views.py:125
+msgid "پروفایل شما به‌روزرسانی شد."
+msgstr ""
+
+#: apps/users/views.py:143
+msgid "گذرواژه شما تغییر کرد."
 msgstr ""
 
 #: templates/403.html:2 templates/403.html:3 templates/403.html:6
@@ -2652,7 +2660,7 @@ msgid "دسترسی مجاز نیست"
 msgstr ""
 
 #: templates/403.html:2 templates/base.html:6 templates/base.html:22
-#: templates/base.html:67 templates/registration/lockout.html:5
+#: templates/base.html:72 templates/registration/lockout.html:5
 #: templates/registration/login.html:5 templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr ""
@@ -2698,6 +2706,7 @@ msgstr ""
 #: templates/accounting/account_form.html:2
 #: templates/organizations/company_form.html:2
 #: templates/organizations/fiscal_year_form.html:2
+#: templates/users/profile.html:9
 msgid "ذخیره"
 msgstr ""
 
@@ -3220,6 +3229,21 @@ msgstr ""
 
 #: templates/base.html:61
 msgid "خروج"
+msgstr ""
+
+#: templates/base.html:64 templates/users/profile.html:3
+#: templates/users/profile.html:5
+msgid "پروفایل من"
+msgstr ""
+
+#: templates/base.html:65 templates/users/password_change.html:3
+#: templates/users/password_change.html:5
+#: templates/users/password_change.html:7 templates/users/profile.html:14
+msgid "تغییر گذرواژه"
+msgstr ""
+
+#: templates/base.html:68 templates/registration/login.html:9
+msgid "نسخه"
 msgstr ""
 
 #: templates/core/dashboard.html:2
@@ -5063,4 +5087,30 @@ msgstr ""
 
 #: templates/treasury/statement_list.html:12
 msgid "صورت‌حساب بانکی‌ای ثبت نشده است."
+msgstr ""
+
+#: templates/users/password_change.html:2
+msgid "تغییر گذرواژه | اکانتیکس"
+msgstr ""
+
+#: templates/users/password_change.html:8
+msgid "بازگشت به پروفایل"
+msgstr ""
+
+#: templates/users/profile.html:2
+msgid "پروفایل من | اکانتیکس"
+msgstr ""
+
+#: templates/users/profile.html:8
+msgid "نام کاربری، شناسه ورود شماست و از این صفحه قابل تغییر نیست."
+msgstr ""
+
+#: templates/users/profile.html:12
+msgid "گذرواژه"
+msgstr ""
+
+#: templates/users/profile.html:13
+msgid ""
+"برای تغییر گذرواژه، گذرواژه فعلی لازم است؛ پس از تغییر، همین نشست باز می‌ماند "
+"و نشست‌های دیگر باید دوباره وارد شوند."
 msgstr ""

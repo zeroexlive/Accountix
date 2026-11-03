@@ -153,6 +153,8 @@ cd backend && ../.venv/bin/python manage.py makemigrations --check --dry-run
 - Architecture: `docs/architecture/ARCHITECTURE.md`, `ERD.md`, `DECISIONS.md`
 - Engineering: `docs/engineering/CURRENT_STATE.md`, `DEVELOPMENT.md`,
   `TESTING.md`, `SPRINT_01_REPORT.md`, `SPRINT_01_BACKLOG.md`
+- Release status (current gate picture): `docs/engineering/RELEASE_STATUS.md`
+  (Sprint 10's `RELEASE_READINESS.md` remains the historical gate record)
 - Domain rules: `docs/accounting/ACCOUNTING_RULES.md`,
   `docs/inventory/INVENTORY_RULES.md`
 - Deployment & user guide: `docs/deployment/`, `docs/user-guide/`

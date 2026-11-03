@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "پروفایل من | اکانتیکس" %}{% endblock %}
+{% block page_title %}{% trans "پروفایل من" %}{% endblock %}
+{% block content %}
+<h1>{% trans "پروفایل من" %}</h1>
+<div class="card">
+  <p><span class="kpi-sub">{% trans "نام کاربری" %}</span><br><strong>{{ user.username }}</strong></p>
+  <p class="empty">{% trans "نام کاربری، شناسه ورود شماست و از این صفحه قابل تغییر نیست." %}</p>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">{% trans "ذخیره" %}</button></form>
+</div>
+<div class="card">
+  <h2>{% trans "گذرواژه" %}</h2>
+  <p class="empty">{% trans "برای تغییر گذرواژه، گذرواژه فعلی لازم است؛ پس از تغییر، همین نشست باز می‌ماند و نشست‌های دیگر باید دوباره وارد شوند." %}</p>
+  <p><a class="btn btn-ghost" href="{% url 'password_change' %}">{% trans "تغییر گذرواژه" %}</a></p>
+</div>
+{% endblock %}

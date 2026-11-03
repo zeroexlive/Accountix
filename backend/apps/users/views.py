@@ -13,14 +13,18 @@ real first-run journey reaches the login view and is handed to
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, PasswordChangeView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 from apps.organizations.forms import CompanyForm
 from apps.organizations.models import Company, CompanyMembership
-from apps.users.forms import FirstRunSetupForm
+from apps.users.forms import FirstRunSetupForm, ProfileForm
 
 User = get_user_model()
 
@@ -98,3 +102,42 @@ def first_run_setup(request):
             for error in errors:
                 form.add_error("company_name" if field_name == "name" else None, error)
     return render(request, "registration/setup.html", {"form": form})
+
+
+# ---------------------------------------------------------------------------
+# Sprint 27 — self-service account surface (ADR-052)
+#
+# These routes are deliberately NOT company-scoped and carry NO user
+# id: the subject is always ``request.user`` themself, so one user
+# can never reach another's page — there is nothing to scope or to
+# leak. Available to every signed-in user regardless of role.
+# ---------------------------------------------------------------------------
+
+
+@login_required
+def profile(request):
+    """Edit your own first/last name and email. The username is
+    displayed read-only in the template and is not a form field
+    (ADR-052), so it cannot change here."""
+    form = ProfileForm(request.POST or None, instance=request.user)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, _("پروفایل شما به‌روزرسانی شد."))
+        return redirect("profile")
+    return render(request, "users/profile.html", {"form": form})
+
+
+class AccountPasswordChangeView(LoginRequiredMixin, SuccessMessageMixin, PasswordChangeView):
+    """Change your own password with Django's built-in machinery:
+    PasswordChangeForm requires the current password and runs the
+    new one through the full AUTH_PASSWORD_VALIDATORS set, and the
+    view calls update_session_auth_hash on success so THIS session
+    stays signed in while every other session's hash goes stale
+    (ADR-052). Failed attempts here never touch django-axes: the
+    form verifies the current password via user.check_password()
+    directly — no authenticate() call, no user_login_failed signal,
+    so nothing is recorded toward the login lockout."""
+
+    template_name = "users/password_change.html"
+    success_url = reverse_lazy("profile")
+    success_message = _("گذرواژه شما تغییر کرد.")

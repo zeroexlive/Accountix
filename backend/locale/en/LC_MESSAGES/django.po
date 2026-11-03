@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 19:45+0330\n"
+"POT-Creation-Date: 2026-11-03 21:10+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -1032,11 +1032,11 @@ msgstr "Inventory count reversed."
 msgid "حساب سود (زیان) انباشته"
 msgstr "Retained earnings account"
 
-#: apps/organizations/forms.py:42
+#: apps/organizations/forms.py:42 templates/users/profile.html:7
 msgid "نام کاربری"
 msgstr "Username"
 
-#: apps/organizations/forms.py:43 apps/organizations/forms.py:75
+#: apps/organizations/forms.py:43 apps/organizations/forms.py:76
 #: templates/organizations/company_members.html:4
 #: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "نقش"
@@ -1046,12 +1046,12 @@ msgstr "Role"
 msgid "کاربری با این نام کاربری یافت نشد."
 msgstr "No user with this username was found."
 
-#: apps/organizations/forms.py:59
+#: apps/organizations/forms.py:60
 msgid "این کاربر از قبل عضو این شرکت است."
 msgstr "This user is already a member of this company."
 
-#: apps/organizations/forms.py:73 apps/parties/forms.py:20
-#: templates/accounting/account_list.html:3
+#: apps/organizations/forms.py:74 apps/parties/forms.py:20
+#: apps/users/forms.py:47 templates/accounting/account_list.html:3
 #: templates/inventory/product_list.html:4
 #: templates/organizations/company_list.html:3
 #: templates/organizations/fiscal_year_list.html:3
@@ -1059,7 +1059,7 @@ msgstr "This user is already a member of this company."
 msgid "نام"
 msgstr "Name"
 
-#: apps/organizations/forms.py:74
+#: apps/organizations/forms.py:75 apps/users/forms.py:48
 msgid "نام خانوادگی"
 msgstr "Last name"
 
@@ -1214,8 +1214,8 @@ msgstr "Tax ID"
 msgid "شماره ثبت"
 msgstr "Registration number"
 
-#: apps/parties/forms.py:24 templates/parties/party_detail.html:9
-#: templates/parties/party_form.html:12
+#: apps/parties/forms.py:24 apps/users/forms.py:49
+#: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "ایمیل"
 msgstr "Email"
 
@@ -2662,16 +2662,24 @@ msgstr "The statement was reopened."
 msgid "نام شرکت"
 msgstr "Company name"
 
-#: apps/users/views.py:92
+#: apps/users/views.py:96
 msgid "راه‌اندازی اولیه کامل شد؛ خوش آمدید."
 msgstr "First-run setup is complete; welcome."
+
+#: apps/users/views.py:125
+msgid "پروفایل شما به‌روزرسانی شد."
+msgstr "Your profile has been updated."
+
+#: apps/users/views.py:143
+msgid "گذرواژه شما تغییر کرد."
+msgstr "Your password has been changed."
 
 #: templates/403.html:2 templates/403.html:3 templates/403.html:6
 msgid "دسترسی مجاز نیست"
 msgstr "Access denied"
 
 #: templates/403.html:2 templates/base.html:6 templates/base.html:22
-#: templates/base.html:67 templates/registration/lockout.html:5
+#: templates/base.html:72 templates/registration/lockout.html:5
 #: templates/registration/login.html:5 templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr "Accountix"
@@ -2721,6 +2729,7 @@ msgstr "New account"
 #: templates/accounting/account_form.html:2
 #: templates/organizations/company_form.html:2
 #: templates/organizations/fiscal_year_form.html:2
+#: templates/users/profile.html:9
 msgid "ذخیره"
 msgstr "Save"
 
@@ -3264,6 +3273,21 @@ msgstr "System user"
 #: templates/base.html:61
 msgid "خروج"
 msgstr "Log out"
+
+#: templates/base.html:64 templates/users/profile.html:3
+#: templates/users/profile.html:5
+msgid "پروفایل من"
+msgstr "My profile"
+
+#: templates/base.html:65 templates/users/password_change.html:3
+#: templates/users/password_change.html:5
+#: templates/users/password_change.html:7 templates/users/profile.html:14
+msgid "تغییر گذرواژه"
+msgstr "Change password"
+
+#: templates/base.html:68 templates/registration/login.html:9
+msgid "نسخه"
+msgstr "Version"
 
 #: templates/core/dashboard.html:2
 msgid "داشبورد | اکانتیکس"
@@ -3858,7 +3882,8 @@ msgstr "Change role"
 
 #: templates/organizations/company_members.html:12
 msgid "این عضویت غیرفعال شود؟ دسترسی کاربر به شرکت بلافاصله قطع می‌شود."
-msgstr "Deactivate this membership? The user loses access to the company immediately."
+msgstr ""
+"Deactivate this membership? The user loses access to the company immediately."
 
 #: templates/organizations/company_members.html:12
 msgid "غیرفعال‌کردن"
@@ -3880,7 +3905,9 @@ msgstr "Add an existing member"
 msgid ""
 "اگر کاربر از قبل در سیستم حساب دارد، با نام کاربری دقیق او را به این شرکت "
 "اضافه کنید."
-msgstr "If the user already has an account on this system, add them to this company by their exact username."
+msgstr ""
+"If the user already has an account on this system, add them to this company "
+"by their exact username."
 
 #: templates/organizations/company_members.html:20
 msgid "افزودن عضو"
@@ -3893,7 +3920,9 @@ msgstr "Create a new user"
 #: templates/organizations/company_members.html:24
 msgid ""
 "برای فردی که هنوز حساب ندارد، همین‌جا کاربر بسازید؛ می‌تواند بلافاصله وارد شود."
-msgstr "For someone who does not have an account yet, create the user right here; they can log in immediately."
+msgstr ""
+"For someone who does not have an account yet, create the user right here; "
+"they can log in immediately."
 
 #: templates/organizations/company_members.html:25
 msgid "ساخت و افزودن"
@@ -5221,3 +5250,32 @@ msgstr "Closing balance (bank)"
 #: templates/treasury/statement_list.html:12
 msgid "صورت‌حساب بانکی‌ای ثبت نشده است."
 msgstr "No bank statement recorded."
+
+#: templates/users/password_change.html:2
+msgid "تغییر گذرواژه | اکانتیکس"
+msgstr "Change password | Accountix"
+
+#: templates/users/password_change.html:8
+msgid "بازگشت به پروفایل"
+msgstr "Back to profile"
+
+#: templates/users/profile.html:2
+msgid "پروفایل من | اکانتیکس"
+msgstr "My profile | Accountix"
+
+#: templates/users/profile.html:8
+msgid "نام کاربری، شناسه ورود شماست و از این صفحه قابل تغییر نیست."
+msgstr ""
+"Your username is your sign-in identity and cannot be changed from this page."
+
+#: templates/users/profile.html:12
+msgid "گذرواژه"
+msgstr "Password"
+
+#: templates/users/profile.html:13
+msgid ""
+"برای تغییر گذرواژه، گذرواژه فعلی لازم است؛ پس از تغییر، همین نشست باز می‌ماند "
+"و نشست‌های دیگر باید دوباره وارد شوند."
+msgstr ""
+"Changing your password requires your current password; after the change, "
+"this session stays signed in and other sessions must sign in again."

@@ -4,7 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "accountix"
-version = "0.1.0"
+# Packaging metadata only — the runtime source of truth for the
+# product version is backend/config/version.py (Sprint 27, ADR-052).
+version = "1.0.0"
 description = "Accountix — accounting and inventory management for SMEs (initial market: Iran)"
 readme = "README.md"
 requires-python = ">=3.12"

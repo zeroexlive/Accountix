@@ -60,13 +60,18 @@
       <span class="who"><span class="uname">{{ user.username }}</span><span class="urole">{% if primary_membership %}{{ primary_membership.company.name }} · {{ primary_membership.get_role_display }}{% else %}{% trans "کاربر سیستم" %}{% endif %}</span></span>
       <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="icon-btn" title="{% trans 'خروج' %}" aria-label="{% trans 'خروج' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form>
     </div>
+    <div class="side-account">
+      <a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>{% trans "پروفایل من" %}</a>
+      <a href="{% url 'password_change' %}" {% if request.resolver_match.url_name == 'password_change' %}class="active"{% endif %}>{% trans "تغییر گذرواژه" %}</a>
+    </div>
     <div class="side-lang">{% include "_language_switcher.html" %}</div>
+    <div class="side-version">{% trans "نسخه" %} {{ app_version }}</div>
   </aside>
   <div class="main">
     <header class="topbar">
       <h1 class="page-title">{% block page_title %}{% trans "اکانتیکس" %}{% endblock %}</h1>
       <div class="top-actions">
-        <span class="user-chip"><span class="avatar">{{ user.username|first|upper }}</span>{{ user.username }}</span>
+        <a class="user-chip" href="{% url 'profile' %}"><span class="avatar">{{ user.username|first|upper }}</span>{{ user.username }}</a>
       </div>
     </header>
     <main class="content">

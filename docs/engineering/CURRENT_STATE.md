@@ -353,6 +353,30 @@ Modular monolith, single Django project under `backend/`:
   logs in, reads, and is 403-denied on an OPERATE POST), so the
   bundle is current through Sprint 26; the Windows bundle
   remains the only NOT VERIFIED release-gate item.
+- Update (Sprint 27): the self-service account surface is real
+  (ADR-052) — `/profile/` + `/profile/password/` in the users app,
+  self-only by construction (no user id in any URL), linked from
+  the shell's identity area for every signed-in user. First/last
+  name and email are editable (email keys nothing — auth + axes
+  key on the username); the username is read-only and not a form
+  field, so it cannot be smuggled into a change. Password change
+  is Django's built-in view: current password required, full
+  validators, this session kept alive via
+  `update_session_auth_hash`; failed attempts provably do not
+  feed the axes lockout (the form uses `check_password`, never
+  `authenticate()`). A two-level VIEWER crawl audit of the
+  dashboard + shell found and fixed two visible-but-dead controls
+  Sprint 25 missed (product-list per-row edit link, party-detail
+  edit button — both now hidden per role). The product version
+  has one home, `config/version.py` = "1.0.0", rendered in the
+  sidebar footer + login page; `docs/engineering/RELEASE_STATUS.md`
+  now carries the current gate picture (RELEASE_READINESS.md
+  untouched, historical). No model changes, no migration. The
+  bundle was rebuilt and its frozen smoke ran the whole account
+  journey bundle-only (setup → profile rename → password change →
+  old password rejected, new password in), so the bundle is
+  current through Sprint 27; the Windows bundle remains the only
+  NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -524,7 +548,20 @@ change governing the member's very next request, last-owner
 demote + deactivate refused with two-owner lift, deactivation
 cutting access to 404 and reactivation restoring it,
 cross-company membership id 404, service-layer GOVERN assertion
-and guard)
+and guard); Sprint 27:
++16 (account surface: anonymous redirects to login, profile GET
+shows current values with no username input, POST persists
+name/email and the shell links render, username-smuggle POST is
+a no-op, invalid email rejected, profile rename reflects on the
+members roster, self-only by construction (a second user's data
+never renders), VIEWER uses both pages; password change: wrong
+current rejected + unchanged, weak new rejected by the
+validators, success keeps the session while a real old-password
+login fails and a real new-password login succeeds, six failed
+changes do not trip the axes lockout; version stamp on the login
+page + shell; VIEWER-audit fixes: product-list + party-detail
+edit links hidden for VIEWER, shown for OWNER, server gates
+unchanged)
 — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
@@ -576,4 +613,4 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
 4. Generate `uv.lock`; add coverage measurement to CI.
-5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; ~~the follow-up is a GOVERN-gated members UI with the last-OWNER guard~~ — done, Sprint 26, ADR-051).
+5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; ~~the follow-up is a GOVERN-gated members UI with the last-OWNER guard~~ — done, Sprint 26, ADR-051). ~~Self-service profile + password change~~ — done (Sprint 27, ADR-052; current release picture in RELEASE_STATUS.md — the only open gate left is Windows bundle verification).
