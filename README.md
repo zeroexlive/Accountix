@@ -14,7 +14,7 @@ for international markets without a rewrite.
 > closing, opening balances, a reporting dashboard with CSV/XLSX
 > exports and print templates, a standalone launcher with
 > backup/restore, and a PostgreSQL-verified, type-checked codebase
-> (326 tests on SQLite).
+> (346 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -26,7 +26,8 @@ for international markets without a rewrite.
 > stock counts, fiscal closing/reopening from the fiscal-year pages)
 > and made every displayed date Jalali (ADR-040; storage and inputs
 > stay Gregorian). Sprint 14 added bank reconciliation at the GL
-> level (ADR-041: CSV/manual statement entry, unambiguous-only
+> level (ADR-041: statement entry from CSV/CAMT.053/OFX files or
+> manually, unambiguous-only
 > auto-match, link-only matching, completion locked at zero
 > difference) and stock document forms (receipt/issue/transfer with
 > the ADR-013 GL opt-in and an opening-stock purpose) — see
@@ -43,6 +44,12 @@ for international markets without a rewrite.
 > one-hour cooloff and a Persian lockout page (ADR-043); the axes
 > package brings its own migrations, so run `manage.py migrate`
 > after pulling this sprint too.
+> Sprint 18 generalized statement import (ADR-044): one parser
+> pipeline now reads CSV, CAMT.053 and OFX bank files (detected by
+> content), and the statement-create page can build a statement
+> straight from a bank file — header prefilled for review, rows
+> imported on confirm, totals identity enforced. No migration and
+> no new dependency in this sprint.
 
 ## Stack
 

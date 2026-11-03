@@ -231,13 +231,44 @@ class BankStatementLineForm(forms.Form):
 
 
 class StatementImportForm(forms.Form):
-    """CSV upload for statement lines — the column contract lives in
-    ``treasury.reconciliation.import_statement_lines``."""
+    """Statement-file upload for statement lines (Sprint 18,
+    ADR-044): CSV, CAMT.053 and OFX are detected by file content in
+    ``treasury.statement_files``; the row contract lives in
+    ``treasury.reconciliation``."""
 
     file = forms.FileField(
-        label="فایل CSV صورت‌حساب",
-        help_text="ستون‌ها: date, description, reference, amount (یا debit و credit). تاریخ‌ها میلادی (YYYY-MM-DD) و مبلغ با علامت بانک است.",
+        label="فایل صورت‌حساب",
+        help_text="قالب‌های پشتیبانی‌شده: CSV (ستون‌های date, description, reference, amount یا debit و credit)، CAMT.053 و OFX/QFX. قالب از روی محتوای فایل تشخیص داده می‌شود و هر فایل فقط یک صورت‌حساب است. تاریخ‌ها میلادی و مبلغ با علامت بانک است.",
+        widget=forms.FileInput(attrs={"accept": ".csv,.ofx,.qfx,.xml"}),
     )
+
+
+class StatementFilePreviewForm(forms.Form):
+    """Upload a statement file on the create page (Sprint 18): the
+    file is parsed and its header (period, opening/closing balances)
+    prefills the create form as editable values; confirming the
+    create form then builds the statement and imports the rows."""
+
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+    )
+    treasury_account = forms.ModelChoiceField(
+        queryset=TreasuryAccount.objects.none(), label="حساب بانکی"
+    )
+    statement_file = forms.FileField(
+        label="فایل صورت‌حساب",
+        help_text="CSV یا CAMT.053 یا OFX/QFX؛ قالب از روی محتوا تشخیص داده می‌شود و هر فایل یک صورت‌حساب است.",
+        widget=forms.FileInput(attrs={"accept": ".csv,.ofx,.qfx,.xml"}),
+    )
+
+    def __init__(self, *args, company=None, companies=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if companies is not None:
+            self.fields["company"].queryset = companies
+        if company is not None:
+            self.fields["treasury_account"].queryset = TreasuryAccount.objects.filter(
+                company=company, is_active=True, kind=TreasuryAccount.Kind.BANK
+            ).order_by("name")
 
 
 class ChequeBookForm(forms.Form):

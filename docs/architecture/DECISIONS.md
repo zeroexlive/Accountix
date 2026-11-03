@@ -694,3 +694,97 @@ refuses by design; the two pre-existing `test_auth.py` tests that
 used it now POST real credentials through the login view instead —
 the rest of the suite already used `force_login()` and is
 unaffected.
+
+## ADR-044 — Statement import: one pipeline, many parsers; CAMT.053 + OFX; create-from-file with totals identity (accepted, Sprint 18)
+Sprint 14's statement import spoke exactly one format (CSV), and
+banks mostly do not hand out Accountix-shaped CSVs. This ADR adds
+the two standard bank formats — CAMT.053 (ISO 20022) and OFX — by
+generalizing the importer rather than bolting on two more.
+(1) **One pipeline, many parsers.** A parser (new module
+`treasury/statement_files.py`) turns a file into the normalized
+shape the CSV importer already embodied: raw row dicts in the CSV
+contract shape (`date`/`description`/`reference`/`amount` strings,
+amount signed from the bank's perspective, + = money in) in file
+order, each tagged with a **locator** used in error reports — for
+CSV the physical line number, for the XML formats the 1-based
+transaction index. The downstream logic is shared verbatim:
+`reconciliation._import_validated_rows` validates (date/amount
+parsing, zero amount, period bounds, field lengths, the
+(date, amount, reference) duplicate triple) and imports valid rows
+in one transaction, reporting rejected rows with their locators —
+never silently dropped. The Sprint 14 CSV entry point
+(`import_statement_lines(statement, csv_text=...)`) keeps its
+signature and byte-identical behaviour (its header validation
+moved, messages unchanged, into `statement_files.parse_csv_text`);
+the whole Sprint 14 test module passes untouched.
+(2) **Detection is by content, never by extension.** OFX markers
+(`OFXHEADER` / `<OFX`) first, then an XML root check for CAMT
+(`Document` + camt.053 namespace or a `BkToCstmrStmt` element);
+anything else falls through to CSV, whose header validation is the
+clean file-level refusal garbage files get. Undecodable bytes get
+the dedicated refusal the UI already rendered in Persian.
+(3) **CAMT.053** is parsed with stdlib ElementTree matching on
+local names, so any camt.053.001.0x namespace (or none) parses.
+One file = one statement: several `<Stmt>` elements are a
+file-level refusal (consistent with the CSV shape). Balances:
+OPBD → opening, CLBD → closing, signed by `CdtDbtInd`. Period:
+`<FrToDt>` when present, else the min/max entry booking dates.
+Per entry: amount = `<Amt>` signed by `<CdtDbtInd>` (CRDT +, DBIT
+−); date = `<BookgDt>` (`<Dt>` or the date part of `<DtTm>`);
+reference = entry `<AcctSvcrRef>`, else the first TxDtls
+`Refs/AcctSvcrRef`, else `Refs/EndToEndId` — with the literal
+`NOTPROVIDED` treated as no reference, since honouring it would
+make unrelated entries false duplicates; description =
+`RmtInf/Ustrd` texts joined, else `AddtlNtryInf`, else the
+BkTxCd domain/family codes. An entry with an unparseable amount
+or date is a per-transaction rejection at its index; the rest
+still import — the CSV partial-import semantics.
+(4) **OFX: hand parser; `ofxparse` evaluated and rejected.** The
+standard library was installed and run against crafted 1.x SGML
+and 2.x XML fixtures. It parses both and returns Decimals, but it
+fails two pinned requirements: it converts `DTPOSTED` timestamps
+to UTC (`20260601103000[3:IRST]` → 07:30 UTC), so a posting near
+midnight would silently land on the previous calendar day — this
+product takes the calendar date **as written**, ignoring the
+offset for the date; and it aborts the whole file on the first bad
+`TRNAMT`/`DTPOSTED` (`OfxParserException`), where the pipeline
+requires per-transaction rejections. The hand parser therefore
+covers the bank-statement subset directly (it works unchanged on
+1.x SGML and 2.x XML because OFX leaf values follow `<TAG>value`
+in both, and `STMTTRN` aggregates are closed in both):
+`TRNAMT` signed as-is → amount; `DTPOSTED` → the written date;
+`FITID` → reference (bank-grade duplicate detection, unlike CSV's
+free-text references); `NAME`/`MEMO` → description
+(`NAME — MEMO` when both present). Header: `LEDGERBAL/BALAMT` →
+closing balance, the `BANKTRANLIST` `DTSTART`/`DTEND` window →
+period (`DTASOF` as period-end fallback). **OFX carries no
+opening balance** — the chaining prefill or the user supplies it,
+exactly as with CSV. No new dependency was adopted; the venv and
+`pyproject.toml` are unchanged.
+(5) **Header metadata composition.** Parsers also yield header
+metadata (opening/closing balances, period) where the format has
+it. The statement-create page gained a two-phase create-from-file
+flow: uploading a file parses it, stashes the rows in the session,
+and re-renders the create form with header initials composed as —
+Sprint 15 chaining suggestion first, file metadata overlaid where
+the file carries it (file wins), and the user's edits always last.
+Confirming the form calls `create_statement_from_upload`, which
+creates the statement and imports the rows in ONE transaction and
+enforces the **totals identity at save**: opening + Σ imported
+lines must equal the stated closing, otherwise everything rolls
+back and the refusal names the three figures (with the file's
+numbers still visible in the form) — a file whose closing
+disagrees with its own lines is refused, never silently adjusted.
+The detail-page import also accepts all formats now (lines only;
+an existing statement's header is never rewritten by a file), and
+its per-row error messages are labelled by physical line for CSV
+(unchanged) and by transaction index for the XML formats.
+(6) **Money integrity.** Amounts are `Decimal` end to end — CAMT
+and OFX amounts are decimal strings in the files and are never
+floated; row-level amount acceptance is exactly Sprint 14's shared
+validation (no new 2-dp rule was invented here).
+Known limits: multi-statement CAMT files are refused (one file =
+one statement); OFX credit-card (`CCSTMTRS`) and investment
+statements are out of scope (bank accounts only, like the rest of
+reconciliation); the first `BANKTRANLIST`/`LEDGERBAL` wins in a
+multi-account OFX file.

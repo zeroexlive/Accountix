@@ -9,7 +9,7 @@ from apps.accounting.models import JournalLine
 from apps.core.access import resolve_scoped_company, user_company_ids
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
-from apps.treasury import cheque_books, reconciliation, reporting, services
+from apps.treasury import cheque_books, reconciliation, reporting, services, statement_files
 from apps.treasury.forms import (
     AllocationForm,
     BankStatementForm,
@@ -18,6 +18,7 @@ from apps.treasury.forms import (
     ChequeClearForm,
     PaymentForm,
     PaymentPostForm,
+    StatementFilePreviewForm,
     StatementImportForm,
     StatementMatchForm,
     TreasuryAccountForm,
@@ -434,46 +435,173 @@ def bank_statement_list(request):
     )
 
 
+STATEMENT_FILE_STASH_KEY = "statement_file_import"
+
+
+def _row_noun(file_format):
+    """Rejected rows are reported by physical line for CSV and by
+    transaction index for the XML formats (Sprint 18)."""
+    return "ردیف" if file_format == "csv" else "تراکنش"
+
+
+def _file_preview_context(parsed, filename):
+    return {
+        "filename": filename,
+        "format": parsed.format,
+        "row_count": len(parsed.rows) + len(parsed.rejected),
+        "imported_count": len(parsed.rows),
+        "rejected": parsed.rejected,
+        "row_noun": _row_noun(parsed.format),
+        "metadata": parsed.metadata,
+    }
+
+
+def _file_initial(account, parsed):
+    """Header initials for the create form: the Sprint 15 chaining
+    suggestion first, then the file's own header metadata on top —
+    file metadata wins where the file carries it (e.g. OFX has no
+    opening balance, so the chaining value stands there). Everything
+    stays an editable initial; the user's edits win last."""
+    initial = {"treasury_account": account}
+    suggestion = reconciliation.suggested_statement_opening(account)
+    if suggestion is not None:
+        initial["start_date"], initial["opening_balance"] = suggestion
+    metadata = parsed.metadata
+    if metadata.get("period_start") is not None:
+        initial["start_date"] = metadata["period_start"]
+    if metadata.get("period_end") is not None:
+        initial["end_date"] = metadata["period_end"]
+    if metadata.get("opening_balance") is not None:
+        initial["opening_balance"] = metadata["opening_balance"]
+    if metadata.get("closing_balance") is not None:
+        initial["closing_balance"] = metadata["closing_balance"]
+    return initial
+
+
 @login_required
 def bank_statement_create(request):
     companies, company = resolve_scoped_company(request)
     initial = {}
     prefill_account = None
-    if request.method == "GET" and company is not None and request.GET.get("account"):
-        prefill_account = TreasuryAccount.objects.filter(
-            pk=request.GET["account"], company=company, kind=TreasuryAccount.Kind.BANK
-        ).first()
-        if prefill_account is not None:
-            initial["treasury_account"] = prefill_account
-            suggestion = reconciliation.suggested_statement_opening(prefill_account)
-            if suggestion is not None:
-                initial["start_date"], initial["opening_balance"] = suggestion
-    form = BankStatementForm(
-        request.POST or None, company=company, companies=companies, initial=initial
+    file_preview = None
+    file_form = StatementFilePreviewForm(
+        company=company,
+        companies=companies,
+        initial={"company": company} if company is not None else None,
     )
-    if request.method == "POST" and company is not None and form.is_valid():
-        data = form.cleaned_data
-        try:
-            statement = reconciliation.create_statement(
-                company=company,
-                treasury_account=data["treasury_account"],
-                start_date=data["start_date"],
-                end_date=data["end_date"],
-                opening_balance=data["opening_balance"],
-                closing_balance=data["closing_balance"],
-                source_note=data["source_note"],
-                user=request.user,
+    form = None
+
+    if request.method == "POST" and "statement_file" in request.FILES:
+        # Phase 1 of the create-from-file flow: parse the upload,
+        # stash the rows, and re-render the create form prefilled
+        # with the file's header for review/editing.
+        file_form = StatementFilePreviewForm(
+            request.POST, request.FILES, company=company, companies=companies
+        )
+        if company is not None and file_form.is_valid():
+            account = file_form.cleaned_data["treasury_account"]
+            upload = file_form.cleaned_data["statement_file"]
+            try:
+                parsed = reconciliation.parse_statement_upload(upload.read())
+            except statement_files.UndecodableStatementFile:
+                messages.error(request, "فایل باید با کدگذاری UTF-8 باشد.")
+            except ValidationError as exc:
+                messages.error(request, " ".join(exc.messages))
+            else:
+                request.session[STATEMENT_FILE_STASH_KEY] = statement_files.parsed_to_stash(
+                    parsed,
+                    filename=upload.name,
+                    account_id=str(account.pk),
+                    company_id=str(company.pk),
+                )
+                initial = _file_initial(account, parsed)
+                prefill_account = account
+                file_preview = _file_preview_context(parsed, upload.name)
+        form = BankStatementForm(company=company, companies=companies, initial=initial)
+    elif request.method == "POST":
+        form = BankStatementForm(request.POST, company=company, companies=companies)
+        if company is not None and form.is_valid():
+            data = form.cleaned_data
+            stash = request.session.get(STATEMENT_FILE_STASH_KEY)
+            use_stash = (
+                stash is not None
+                and stash.get("company_id") == str(company.pk)
+                and stash.get("account_id") == str(data["treasury_account"].pk)
             )
-        except ValidationError as exc:
-            add_service_errors(form, exc)
-        else:
-            messages.success(request, "صورت‌حساب بانکی ایجاد شد.")
-            return redirect("bank_statement_detail", pk=statement.pk)
+            try:
+                if use_stash:
+                    parsed = statement_files.parsed_from_stash(stash)
+                    statement, report = reconciliation.create_statement_from_upload(
+                        company=company,
+                        treasury_account=data["treasury_account"],
+                        start_date=data["start_date"],
+                        end_date=data["end_date"],
+                        opening_balance=data["opening_balance"],
+                        closing_balance=data["closing_balance"],
+                        source_note=data["source_note"],
+                        parsed=parsed,
+                        user=request.user,
+                    )
+                else:
+                    statement = reconciliation.create_statement(
+                        company=company,
+                        treasury_account=data["treasury_account"],
+                        start_date=data["start_date"],
+                        end_date=data["end_date"],
+                        opening_balance=data["opening_balance"],
+                        closing_balance=data["closing_balance"],
+                        source_note=data["source_note"],
+                        user=request.user,
+                    )
+            except ValidationError as exc:
+                add_service_errors(form, exc)
+                if use_stash:
+                    # Keep the file's figures visible next to the
+                    # (editable) form so the refusal can be fixed.
+                    file_preview = _file_preview_context(
+                        statement_files.parsed_from_stash(stash), stash.get("filename", "")
+                    )
+            else:
+                request.session.pop(STATEMENT_FILE_STASH_KEY, None)
+                messages.success(request, "صورت‌حساب بانکی ایجاد شد.")
+                if use_stash:
+                    messages.success(request, f"{report['imported']} ردیف از فایل وارد شد.")
+                    for rejected in report["rejected"]:
+                        messages.error(
+                            request,
+                            f"{_row_noun(parsed.format)} {rejected['row']}: {rejected['reason']}",
+                        )
+                return redirect("bank_statement_detail", pk=statement.pk)
+    else:  # GET
+        if company is not None and request.GET.get("account"):
+            prefill_account = TreasuryAccount.objects.filter(
+                pk=request.GET["account"], company=company, kind=TreasuryAccount.Kind.BANK
+            ).first()
+            if prefill_account is not None:
+                initial["treasury_account"] = prefill_account
+                suggestion = reconciliation.suggested_statement_opening(prefill_account)
+                if suggestion is not None:
+                    initial["start_date"], initial["opening_balance"] = suggestion
+        stash = request.session.get(STATEMENT_FILE_STASH_KEY) if company is not None else None
+        if stash is not None and stash.get("company_id") == str(company.pk):
+            account = TreasuryAccount.objects.filter(
+                pk=stash.get("account_id"), company=company, kind=TreasuryAccount.Kind.BANK
+            ).first()
+            if account is not None and (
+                prefill_account is None or prefill_account.pk == account.pk
+            ):
+                parsed = statement_files.parsed_from_stash(stash)
+                initial = _file_initial(account, parsed)
+                prefill_account = account
+                file_preview = _file_preview_context(parsed, stash.get("filename", ""))
+        form = BankStatementForm(company=company, companies=companies, initial=initial)
     return render(
         request,
         "treasury/statement_form.html",
         {
             "form": form,
+            "file_form": file_form,
+            "file_preview": file_preview,
             "companies": companies,
             "company": company,
             "prefill_account": prefill_account,
@@ -635,20 +763,20 @@ def bank_statement_import(request, pk):
         return redirect("bank_statement_detail", pk=statement.pk)
     upload = form.cleaned_data["file"]
     try:
-        csv_text = upload.read().decode("utf-8-sig")
-    except UnicodeDecodeError:
+        report = reconciliation.import_statement_file(
+            statement, content=upload.read(), user=request.user
+        )
+    except statement_files.UndecodableStatementFile:
         messages.error(request, "فایل باید با کدگذاری UTF-8 باشد.")
         return redirect("bank_statement_detail", pk=statement.pk)
-    try:
-        report = reconciliation.import_statement_lines(
-            statement, csv_text=csv_text, user=request.user
-        )
     except ValidationError as exc:
         messages.error(request, " ".join(exc.messages))
         return redirect("bank_statement_detail", pk=statement.pk)
     messages.success(request, f"{report['imported']} ردیف از فایل وارد شد.")
     for rejected in report["rejected"]:
-        messages.error(request, f"ردیف {rejected['row']}: {rejected['reason']}")
+        messages.error(
+            request, f"{_row_noun(report['format'])} {rejected['row']}: {rejected['reason']}"
+        )
     return redirect("bank_statement_detail", pk=statement.pk)
 
 

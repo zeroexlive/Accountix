@@ -23,7 +23,7 @@
 {% for line in lines %}<tr><td>{{ line.line_date|jalali }}</td><td>{{ line.description|default:"—" }}</td><td>{{ line.reference|default:"—" }}</td><td>{{ line.amount }}</td>
 <td>{% if line.is_matched %}<span class="pill pill-paid">تطبیق‌شده</span> <a href="{% url 'journal_detail' line.matched_journal_line.entry.pk %}">سند حسابداری</a>{% else %}<span class="pill pill-neutral">تطبیق‌نشده</span>{% endif %}</td>
 <td>{% if line.is_matched and statement.status == 'OPEN' %}<form method="post" action="{% url 'bank_statement_unmatch' statement.pk line.pk %}">{% csrf_token %}<button type="submit" class="btn-ghost">لغو تطبیق</button></form>{% endif %}</td></tr>{% endfor %}
-</tbody></table>{% else %}<p class="empty">هنوز ردیفی وارد نشده است؛ از فرم ورود دستی یا بارگذاری CSV استفاده کنید.</p>{% endif %}
+</tbody></table>{% else %}<p class="empty">هنوز ردیفی وارد نشده است؛ از فرم ورود دستی یا بارگذاری فایل (CSV / CAMT.053 / OFX) استفاده کنید.</p>{% endif %}
 </div>
 
 {% if statement.status == 'OPEN' %}
@@ -35,7 +35,7 @@
 <button type="submit">افزودن ردیف</button></form>
 </div>
 <div class="card action-card">
-<h2>بارگذاری از فایل CSV</h2>
+<h2>بارگذاری از فایل صورت‌حساب</h2>
 <form method="post" enctype="multipart/form-data" action="{% url 'bank_statement_import' statement.pk %}">{% csrf_token %}
 {{ import_form.as_p }}
 <button type="submit">بارگذاری و ورود ردیف‌ها</button></form>

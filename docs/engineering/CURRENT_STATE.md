@@ -207,6 +207,25 @@ Modular monolith, single Django project under `backend/`:
   binary custom-format archive — now `.dump`, pinned by a test.
   Suite: 327 passed + 3 skipped on SQLite, mypy clean. Remaining
   NOT VERIFIED release item: the Windows bundle only.
+- Update (Sprint 18): CAMT.053 + OFX statement import — see
+  `SPRINT_18_REPORT.md` and ADR-044. The Sprint 14 importer is now
+  one pipeline with many parsers (`treasury/statement_files.py`):
+  CSV (byte-identical behaviour; Sprint 14 tests untouched),
+  CAMT.053 (stdlib XML, namespace-agnostic, one statement per
+  file) and OFX 1.x/2.x (a tolerant hand parser — `ofxparse` was
+  evaluated and rejected: it UTC-shifts posting dates and aborts
+  the whole file on one bad transaction). Formats are detected by
+  content, never by extension; rows from every format go through
+  the same validation, with rejected rows reported by physical
+  line (CSV) or transaction index (XML formats). Files also yield
+  header metadata: the create page has a create-from-file flow
+  (upload → editable prefilled header — chaining suggestion first,
+  file metadata over it — → create + import in one transaction
+  with the totals identity opening + Σ lines == closing enforced
+  at save), and the detail-page import accepts all formats for
+  lines. OFX carries no opening balance (chaining/user supplies
+  it, as with CSV). No migration, no new dependency. Suite: 346
+  passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -307,7 +326,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-327 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+346 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -336,7 +355,11 @@ chaining helper, cheque-book UI + prefill); Sprint 16:
 +8 (login throttling: below-limit behaviour + reset-on-success,
 lockout at the limit incl. correct-password refusal, cooloff
 expiry, (username, IP) scoping, axes admin registration,
-production/standalone settings wiring incl. env override) — see the sprint reports for exact
+production/standalone settings wiring incl. env override); Sprint 17:
++1 (PG backup default filename `.dump` pin); Sprint 18:
++19 (statement-file parsers: CAMT.053/OFX golden rows + metadata,
+per-transaction rejections, garbage refusals, generalized import
+service, create-from-file totals identity + UI) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -367,7 +390,8 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    ~~Login rate limiting~~ — done (Sprint 16, ADR-043; release
    gate #20 closed). ~~PG restore drill~~ — done (Sprint 17;
    release gate #15 VERIFIED, and the restore procedure is now
-   actually written in PRODUCTION.md). Post-v1.0 candidates:
+   actually written in PRODUCTION.md). ~~CAMT.053/OFX statement
+   import~~ — done (Sprint 18, ADR-044). Post-v1.0 candidates:
    Windows verification, .po translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.

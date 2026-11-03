@@ -32,17 +32,17 @@ payment or the cheque behind it. A journal line can be matched at
 most once across all statements (a database OneToOne enforces it).
 """
 
-import csv
-import io
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Sum
 from django.utils import timezone
 
 from apps.accounting import reporting as accounting_reporting
 from apps.accounting.models import JournalEntry, JournalLine
+from apps.treasury import statement_files
 
 ZERO = Decimal("0")
 AUTO_MATCH_WINDOW_DAYS = 7
@@ -203,8 +203,36 @@ def add_statement_line(statement, *, line_date, amount, description="", referenc
     return line
 
 
+def _validate_import_values(values, *, statement, seen):
+    """Validate one normalized import row (any file format, Sprint
+    18): zero amount, period bounds, field lengths, and the
+    (date, amount, reference) duplicate triple. Returns
+    (values, error_reason)."""
+    if values["amount"] == ZERO:
+        return None, "Amount is zero."
+    if not (statement.start_date <= values["line_date"] <= statement.end_date):
+        return None, "Line date is outside the statement period."
+    if len(values["reference"]) > 64:
+        return None, "Reference is longer than 64 characters."
+    if len(values["description"]) > 500:
+        return None, "Description is longer than 500 characters."
+    try:
+        _assert_not_duplicate(
+            statement,
+            line_date=values["line_date"],
+            amount=values["amount"],
+            reference=values["reference"],
+            seen=seen,
+        )
+    except ValidationError as exc:
+        return None, " ".join(exc.messages)
+    return values, None
+
+
 def _parse_import_row(row, *, statement, seen):
-    """Validate one CSV data row; returns (values, error_reason)."""
+    """Parse + validate one raw import row (the CSV contract shape:
+    string ``date``/``amount`` — or a ``debit`` + ``credit`` pair —
+    plus ``description``/``reference``); returns (values, reason)."""
     raw_date = (row.get("date") or "").strip()
     try:
         line_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
@@ -230,28 +258,52 @@ def _parse_import_row(row, *, statement, seen):
             amount = _col("credit") - _col("debit")
         except ValueError as exc:
             return None, str(exc)
-    if amount == ZERO:
-        return None, "Amount is zero."
-    if not (statement.start_date <= line_date <= statement.end_date):
-        return None, "Line date is outside the statement period."
-    description = (row.get("description") or "").strip()
-    reference = (row.get("reference") or "").strip()
-    if len(reference) > 64:
-        return None, "Reference is longer than 64 characters."
-    if len(description) > 500:
-        return None, "Description is longer than 500 characters."
-    try:
-        _assert_not_duplicate(
-            statement, line_date=line_date, amount=amount, reference=reference, seen=seen
-        )
-    except ValidationError as exc:
-        return None, " ".join(exc.messages)
-    return {
+    values = {
         "line_date": line_date,
         "amount": amount,
-        "description": description,
-        "reference": reference,
-    }, None
+        "description": (row.get("description") or "").strip(),
+        "reference": (row.get("reference") or "").strip(),
+    }
+    return _validate_import_values(values, statement=statement, seen=seen)
+
+
+def _locked_open_statement(statement):
+    locked = type(statement).objects.select_for_update().get(pk=statement.pk)
+    _require_open(locked)
+    return locked
+
+
+def _import_validated_rows(statement, parsed, *, user=None):
+    """Validate + insert the rows of a ParsedStatementFile into an
+    OPEN statement (the caller holds the lock/transaction). Valid
+    rows import together; invalid rows are skipped and reported
+    with their locators — nothing is silently dropped."""
+    from apps.audit.services import record_event
+    from apps.treasury.models import BankStatementLine
+
+    seen = set()
+    valid = []
+    rejected = list(parsed.rejected)
+    for locator, row in parsed.rows:
+        values, reason = _parse_import_row(row, statement=statement, seen=seen)
+        if reason is not None:
+            rejected.append({"row": locator, "reason": reason})
+        else:
+            seen.add((values["line_date"], values["amount"], values["reference"]))
+            valid.append(values)
+    rejected.sort(key=lambda item: item["row"])
+    for values in valid:
+        BankStatementLine.objects.create(company=statement.company, statement=statement, **values)
+    record_event(
+        action="bank_statement.lines_imported",
+        entity_type="BankStatement",
+        company=statement.company,
+        user=user,
+        entity_id=statement.id,
+        imported=str(len(valid)),
+        rejected=str(len(rejected)),
+    )
+    return {"imported": len(valid), "rejected": rejected}
 
 
 @transaction.atomic
@@ -269,47 +321,80 @@ def import_statement_lines(statement, *, csv_text, user=None):
     ``row`` numbers are the file's physical line numbers (the header
     is line 1, so the first data row is line 2).
     """
-    from apps.audit.services import record_event
-    from apps.treasury.models import BankStatementLine
+    statement = _locked_open_statement(statement)
+    parsed = statement_files.parse_csv_text(csv_text)
+    return _import_validated_rows(statement, parsed, user=user)
 
-    statement = type(statement).objects.select_for_update().get(pk=statement.pk)
-    _require_open(statement)
-    reader = csv.DictReader(io.StringIO(csv_text))
-    if reader.fieldnames is None:
-        raise ValidationError("The CSV file is empty or has no header row.")
-    reader.fieldnames = [name.strip().lower() for name in reader.fieldnames]
-    fields = set(reader.fieldnames)
-    if "date" not in fields:
-        raise ValidationError("The CSV needs a 'date' column.")
-    if "amount" not in fields and not {"debit", "credit"} <= fields:
-        raise ValidationError("The CSV needs an 'amount' column (or 'debit' + 'credit').")
 
-    seen = set()
-    valid = []
-    rejected = []
-    for row in reader:
-        values, reason = _parse_import_row(
-            {key.strip().lower(): value for key, value in row.items() if key},
-            statement=statement,
-            seen=seen,
-        )
-        if reason is not None:
-            rejected.append({"row": reader.line_num, "reason": reason})
-        else:
-            seen.add((values["line_date"], values["amount"], values["reference"]))
-            valid.append(values)
-    for values in valid:
-        BankStatementLine.objects.create(company=statement.company, statement=statement, **values)
-    record_event(
-        action="bank_statement.lines_imported",
-        entity_type="BankStatement",
-        company=statement.company,
+@transaction.atomic
+def import_statement_file(statement, *, content, user=None):
+    """Import statement lines from an uploaded file of ANY supported
+    format (CSV, CAMT.053, OFX — detected by content, Sprint 18 /
+    ADR-044). Same report as :func:`import_statement_lines`, plus
+    the detected ``format`` and the file's header ``metadata``; the
+    ``row`` numbers of rejected rows are physical line numbers for
+    CSV and 1-based transaction indexes for the XML formats."""
+    parsed = statement_files.parse_statement_file(content)
+    statement = _locked_open_statement(statement)
+    result = _import_validated_rows(statement, parsed, user=user)
+    return {**result, "format": parsed.format, "metadata": parsed.metadata}
+
+
+def parse_statement_upload(content):
+    """Parse an uploaded statement file without touching the
+    database: normalized rows + header metadata for the
+    create-from-file flow (see :func:`create_statement_from_upload`)."""
+    return statement_files.parse_statement_file(content)
+
+
+@transaction.atomic
+def create_statement_from_upload(
+    *,
+    company,
+    treasury_account,
+    start_date,
+    end_date,
+    opening_balance,
+    closing_balance,
+    source_note="",
+    parsed,
+    user=None,
+):
+    """Create a statement from a parsed file AND import its rows, in
+    one transaction (Sprint 18). The totals identity is enforced at
+    save: the (possibly user-edited) opening plus the imported
+    lines must equal the stated closing — otherwise everything
+    rolls back and the caller sees the three figures, so a file
+    whose closing disagrees with its own lines is refused rather
+    than silently adjusted. Returns (statement, import_report)."""
+    statement = create_statement(
+        company=company,
+        treasury_account=treasury_account,
+        start_date=start_date,
+        end_date=end_date,
+        opening_balance=opening_balance,
+        closing_balance=closing_balance,
+        source_note=source_note,
         user=user,
-        entity_id=statement.id,
-        imported=str(len(valid)),
-        rejected=str(len(rejected)),
     )
-    return {"imported": len(valid), "rejected": rejected}
+    result = _import_validated_rows(statement, parsed, user=user)
+    lines_total = statement.lines.aggregate(total=Sum("amount"))["total"] or ZERO
+    opening = Decimal(str(opening_balance))
+    closing = Decimal(str(closing_balance))
+    if opening + lines_total != closing:
+        message = (
+            f"Statement totals do not agree: opening {opening} + imported lines "
+            f"{lines_total} = {opening + lines_total}, not the stated closing "
+            f"{closing}. No statement was created; correct the closing balance "
+            "and try again."
+        )
+        if result["rejected"]:
+            message += (
+                f" ({len(result['rejected'])} file row(s) were also rejected — "
+                "see the file preview.)"
+            )
+        raise ValidationError(message)
+    return statement, result
 
 
 def suggested_statement_opening(treasury_account):

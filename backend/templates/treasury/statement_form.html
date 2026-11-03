@@ -11,5 +11,20 @@
 <p><button type="submit">ایجاد صورت‌حساب</button> <a class="btn btn-ghost" href="{% url 'bank_statement_list' %}">بازگشت</a></p>
 </form>
 </div>
+
+<div class="card">
+<h2>ساخت صورت‌حساب از فایل بانک</h2>
+<p>فایل صورت‌حساب صادرشده از بانک را بارگذاری کنید: دوره و مانده‌ها از خود فایل خوانده می‌شوند و در فرم بالا برای بازبینی و ویرایش پیش‌پر می‌شوند؛ بعد با دکمه «ایجاد صورت‌حساب» صورت‌حساب ساخته و ردیف‌ها وارد می‌شوند. جمع مانده ابتدای دوره و ردیف‌ها باید با مانده پایان دوره فایل برابر باشد.</p>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+{{ file_form.company }}
+{{ file_form.non_field_errors }}
+{{ file_form.as_p }}
+<p><button type="submit">خواندن فایل و پیش‌پر کردن فرم</button></p>
+</form>
+{% if file_preview %}
+<p><strong>فایل خوانده شد:</strong> {{ file_preview.filename }} — قالب: {% if file_preview.format == 'camt053' %}CAMT.053{% elif file_preview.format == 'ofx' %}OFX{% else %}CSV{% endif %} — {{ file_preview.row_count }} {{ file_preview.row_noun }}{% if file_preview.metadata.opening_balance != None %} — مانده ابتدای دوره (فایل): {{ file_preview.metadata.opening_balance }}{% endif %}{% if file_preview.metadata.closing_balance != None %} — مانده پایان دوره (فایل): {{ file_preview.metadata.closing_balance }}{% endif %}</p>
+{% if file_preview.rejected %}<ul>{% for rejected in file_preview.rejected %}<li>{{ file_preview.row_noun }} {{ rejected.row }}: {{ rejected.reason }}</li>{% endfor %}</ul>{% endif %}
+{% endif %}
+</div>
 {% endif %}
 {% endblock %}
