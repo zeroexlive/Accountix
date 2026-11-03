@@ -8,5 +8,5 @@
 <label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">پالایش</button></form></div>
 {% if invoices %}<div class="card"><table><tr><th>شماره</th><th>تاریخ</th><th>مشتری</th><th>انبار</th><th>وضعیت</th><th>وضعیت پرداخت</th><th>مبلغ کل</th><th></th></tr>
-{% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.status }}</td><td>{{ inv.payment_status }}</td><td>{{ inv.grand_total }}</td><td><a href="{% url 'sales_invoice_detail' inv.pk %}">جزئیات</a></td></tr>{% endfor %}
+{% for inv in invoices %}<tr><td>{{ inv.invoice_number }}</td><td>{{ inv.invoice_date }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.warehouse.code }}</td><td>{{ inv.status }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td><td>{{ inv.grand_total }}</td><td><a href="{% url 'sales_invoice_detail' inv.pk %}">جزئیات</a></td></tr>{% endfor %}
 </table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">فاکتور فروشی یافت نشد.</p>{% endif %}{% endblock %}
