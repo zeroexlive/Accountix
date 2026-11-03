@@ -4,18 +4,22 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-03): Sprints 01-08 done; internal MVP reached.**
+> **Status (2026-11-03): Sprints 01-11 done; release verdict "Ready
+> with documented limitations" (`docs/engineering/RELEASE_READINESS.md`).**
 > Authentication, companies/memberships, fiscal years/periods, chart of
 > accounts, the double-entry journal engine (posting/reversal, trial
 > balance, general ledger), the inventory engine (ledger-based stock
-> movements, MWAC), purchasing (parties, purchase invoices posting into
-> inventory and payables, supplier subledger), sales (invoices issuing
-> stock with revenue + COGS entries, customer subledger) and treasury
-> (cash/bank accounts, receipts/payments with allocation to invoices,
-> cheque register with clearing/bounce) exist and are tested
-> (135 tests). Financial statements, fiscal closing and opening
-> balances are **planned, not implemented** - see
-> `docs/engineering/CURRENT_STATE.md` and `docs/product/PRD.md`.
+> movements, MWAC), purchasing, sales, treasury (allocations, Iranian
+> cheque workflows), financial statements, fiscal closing, opening
+> balances, a reporting dashboard with CSV/XLSX exports and print
+> templates, a standalone launcher with backup/restore, and a
+> PostgreSQL-verified, type-checked codebase (214 tests on SQLite).
+> Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
+> Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
+> expenses chart and a performance panel — all figures derived from
+> the same reporting services. Headline limitation: the web UI is
+> read-only for business documents (posting happens through the
+> service layer / admin) — see `docs/engineering/CURRENT_STATE.md`.
 
 ## Stack
 
