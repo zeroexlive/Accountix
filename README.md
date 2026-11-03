@@ -14,7 +14,7 @@ for international markets without a rewrite.
 > closing, opening balances, a reporting dashboard with CSV/XLSX
 > exports and print templates, a standalone launcher with
 > backup/restore, and a PostgreSQL-verified, type-checked codebase
-> (298 tests on SQLite).
+> (318 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -30,9 +30,14 @@ for international markets without a rewrite.
 > auto-match, link-only matching, completion locked at zero
 > difference) and stock document forms (receipt/issue/transfer with
 > the ADR-013 GL opt-in and an opening-stock purpose) — see
-> `docs/engineering/CURRENT_STATE.md`. Note: Sprint 14 adds a
-> database migration (`treasury/0002`); run `manage.py migrate`
-> after pulling.
+> `docs/engineering/CURRENT_STATE.md`. Sprint 15 closed the last
+> Sprint 06 follow-up: cheque books (ADR-042 — per-bank-account
+> leaf inventory with account-level number uniqueness, consumed
+> opt-in inside `create_payment`, never resurrected by bounce or
+> reversal) and statement chaining prefill (the next statement's
+> start/opening prefilled from the latest completed one). Note:
+> Sprints 14–15 add database migrations (`treasury/0002`,
+> `treasury/0003`); run `manage.py migrate` after pulling.
 
 ## Stack
 

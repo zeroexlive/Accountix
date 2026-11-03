@@ -312,6 +312,28 @@ def import_statement_lines(statement, *, csv_text, user=None):
     return {"imported": len(valid), "rejected": rejected}
 
 
+def suggested_statement_opening(treasury_account):
+    """Chaining prefill for the next statement of an account
+    (Sprint 15): ``(start_date, opening_balance)`` taken from the
+    account's latest COMPLETED statement — start = its end date,
+    opening = its closing balance, which is exactly the chaining
+    discipline the difference identity assumes (ADR-041). OPEN
+    statements are ignored: their closing figure is not settled yet.
+    Returns None when the account has no completed statement."""
+    from apps.treasury.models import BankStatement
+
+    latest = (
+        BankStatement.objects.filter(
+            treasury_account=treasury_account, status=BankStatement.Status.COMPLETED
+        )
+        .order_by("-end_date", "-created_at")
+        .first()
+    )
+    if latest is None:
+        return None
+    return (latest.end_date, latest.closing_balance)
+
+
 # ---------------------------------------------------------------------------
 # Matching
 # ---------------------------------------------------------------------------

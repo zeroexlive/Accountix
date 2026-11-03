@@ -149,6 +149,22 @@ Modular monolith, single Django project under `backend/`:
   form. This sprint HAS a migration
   (`treasury/0002_bankstatement_bankstatementline`). Suite: 298
   passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 15): cheque books + statement chaining prefill —
+  see `SPRINT_15_REPORT.md` and ADR-042. A ChequeBook belongs to
+  one BANK treasury account and generates its ChequeLeaf rows in
+  one transaction with account-level number uniqueness (overlapping
+  ranges impossible by DB constraint); an issued-cheque payment
+  may name a leaf and consumes it inside `create_payment` (number
+  taken from the leaf, conflicting entry rejected); bounce and
+  payment reversal never resurrect a used leaf; void is
+  UNUSED → VOID only; counts are derived by annotation. Books are
+  opt-in — the no-leaf payment path is unchanged. The statement
+  create form now prefills start date + opening balance from the
+  account's latest COMPLETED statement (`?account=`), always
+  editable. With this, the Sprint 06 follow-ups are ALL closed
+  (bank reconciliation in Sprint 14, cheque books here). This
+  sprint HAS a migration (`treasury/0003_chequebook_chequeleaf`).
+  Suite: 318 passed + 3 skipped on SQLite, mypy clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -244,7 +260,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-298 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+318 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -267,7 +283,9 @@ forms, per-area UI flows, negative/permission paths); Sprint 13:
 UI, opening balances via UI, stock-count UI incl. the freeze
 rejection and the draft-lines service); Sprint 14:
 +15 (reconciliation services incl. the difference-identity scenario,
-reconciliation UI, stock-document UI) — see the sprint reports for exact
+reconciliation UI, stock-document UI); Sprint 15:
++20 (cheque-book generation/collision/consumption/lifecycle,
+chaining helper, cheque-book UI + prefill) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -293,9 +311,10 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    (Sprints 12–13, including opening balances, stock counts, fiscal
    closing and Jalali display). ~~Bank reconciliation + stock
    document forms~~ — done (Sprint 14, ADR-041; the largest unbuilt
-   treasury feature is closed). Post-v1.0 candidates: cheque books,
-   Windows verification, login rate limiting, PG restore drill, .po
-   translations.
+   treasury feature is closed). ~~Cheque books~~ — done (Sprint 15,
+   ADR-042; with this, ALL Sprint 06 follow-ups are closed).
+   Post-v1.0 candidates: Windows verification, login rate
+   limiting, PG restore drill, .po translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

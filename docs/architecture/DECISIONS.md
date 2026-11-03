@@ -554,3 +554,63 @@ transaction; invalid rows are reported with their physical file
 line numbers and reasons — never silently dropped, never a partial
 silent mess. A (date, amount, reference) triple may occur at most
 once per statement, on import and on manual entry alike.
+
+## ADR-042 — Cheque books: account-level leaf-number uniqueness; consumption inside create_payment; used leaves are never resurrected (accepted, Sprint 15)
+A cheque book is an inventory of physical paper: the leaves of the
+books a bank hands over for ONE bank account, spent one by one on
+ISSUED cheques. (Received cheques are other parties' paper — they
+never had a book here and stay out of scope, in the model and in
+the UI labels.) The Sprint 06 Cheque model already stores
+`cheque_number` as a free string (today's Sayad printed number);
+Sprint 15 adds the control layer around it, opt-in: nothing
+changes for a company that never creates a book.
+(1) **Leaf-number uniqueness is account-level**: a DB
+`UniqueConstraint` on `(treasury_account, number)` across all
+leaves — stronger than the `(book, number)` minimum. The Cheque
+model itself keys cheques by `(company, direction, bank_name,
+number)` and leaf numbers are the same printed numbers, so two
+books of one account must never overlap; with account-level
+uniqueness an overlapping range is impossible *by construction*,
+not merely checked. `create_cheque_book` still pre-checks and
+fails cleanly naming the first colliding number, and a second
+`(book, position)` constraint keeps each book's sequence
+well-ordered. Book creation validates: BANK account, active,
+same company; 1 ≤ leaf_count ≤ 1000 (`MAX_LEAF_COUNT`); the whole
+book is generated in one transaction. Leaf numbers are generated
+by incrementing the trailing digit run of the first number,
+preserving zero-padding ("0042" → "0043"); the number may outgrow
+its width ("999" → "1000"), and a first number with no trailing
+digits is allowed only for a one-leaf book.
+(2) **Consumption happens where the Cheque row is created**:
+`create_payment` (the row exists from DRAFT; `post_payment` never
+creates cheques). The service gains an optional keyword
+`leaf=None` — every existing caller and test is unaffected. With
+a leaf: the payment must be an outgoing CHEQUE payment (issued
+cheques only); the leaf is row-locked, must belong to the same
+treasury account the payment draws on and be UNUSED; the cheque's
+number is taken FROM the leaf, and a user-entered number that
+conflicts with it is rejected (an equal one is accepted). On
+success, inside the same transaction, the leaf flips to USED and
+links to the cheque through a OneToOne (`ChequeLeaf.cheque`,
+related name `leaf` on the cheque).
+(3) **A used leaf is never resurrected.** Bouncing an issued
+cheque, reversing its payment, or voiding anything else leaves
+the leaf USED: the physical leaf left the book and was handed to
+the payee — the paper is spent regardless of what the ledger
+later does, and reissuing the same printed number would break
+the uniqueness story in (1). Payments have no draft-discard flow
+in this codebase (a DRAFT payment is only ever posted or
+reversed), so there is no release path to build; consumption at
+creation is the single, final consumption point. The only leaf
+transition besides consumption is `void_leaf`: UNUSED → VOID for
+damaged/misprinted paper, never on a USED leaf.
+(4) **Book activeness is derived, never stored**: unused/used/
+void counts come from annotated leaf counts
+(`cheque_books_with_counts`, no N+1), so a book is "active"
+exactly while it has UNUSED leaves. Books are never deleted.
+Statement chaining (the second Sprint 15 piece) follows the same
+derive-don't-store rule: `suggested_statement_opening` reads the
+account's latest COMPLETED statement (by end date) and offers
+`(end_date, closing_balance)` as the next statement's prefill —
+OPEN statements are ignored because their closing is not yet
+agreed with the bank, and the prefill is always editable.

@@ -18,6 +18,7 @@
 <div class="card">
 <h2>مشخصات چک (فقط برای روش «چک»)</h2>
 <p><label for="{{ form.cheque_bank_name.id_for_label }}">بانک صادرکننده چک</label>{{ form.cheque_bank_name }}{{ form.cheque_bank_name.errors }}</p>
+{% if form.leaf %}<p><label for="{{ form.leaf.id_for_label }}">برگ دفترچه چک</label>{{ form.leaf }}{{ form.leaf.errors }}</p>{% endif %}
 <p><label for="{{ form.cheque_number.id_for_label }}">شماره چک</label>{{ form.cheque_number }}{{ form.cheque_number.errors }}</p>
 <p><label for="{{ form.sayad_id.id_for_label }}">شناسه صیاد</label>{{ form.sayad_id }}{{ form.sayad_id.errors }}</p>
 <p><label for="{{ form.cheque_issue_date.id_for_label }}">تاریخ صدور چک</label>{{ form.cheque_issue_date }}{{ form.cheque_issue_date.errors }}</p>

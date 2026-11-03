@@ -3,6 +3,7 @@
 {% if not company %}{% include "_company_chooser.html" %}{% else %}
 <div class="card">
 <p>دوره صورت‌حساب و مانده‌های ابتدا و پایان دوره را همان‌طور که بانک اعلام کرده وارد کنید. مانده‌ها با علامت دفتر بانک‌اند: مانده عادی حساب مثبت است.</p>
+{% if prefill_account %}<p class="empty">حساب «{{ prefill_account.name }}» انتخاب شده است؛ اگر برای این حساب صورت‌حساب نهایی‌شده‌ای وجود داشته باشد، تاریخ شروع و مانده ابتدای دوره از پایان همان صورت‌حساب پیش‌فرض گرفته شده‌اند و قابل ویرایش‌اند.</p>{% endif %}
 <form method="post">{% csrf_token %}
 {{ form.company }}
 {{ form.non_field_errors }}

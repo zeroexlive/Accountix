@@ -112,17 +112,28 @@ def create_payment(
     reference="",
     description="",
     cheque=None,
+    leaf=None,
 ):
     """Create a DRAFT payment. ``cheque`` (a dict) attaches a DRAFT-stage
     Cheque row when method is CHEQUE: keys bank_name, cheque_number,
     due_date, and optionally sayad_id, issue_date, amount (defaults to
-    the payment amount and must equal it)."""
-    from apps.treasury.models import Cheque, Payment
+    the payment amount and must equal it).
+
+    ``leaf`` (a ChequeLeaf, Sprint 15 / ADR-042) is the opt-in cheque
+    book control for ISSUED cheques: when given, the leaf must be an
+    UNUSED leaf of the payment's own treasury account, the cheque
+    takes its number from the leaf (a conflicting entered number is
+    rejected), and the leaf flips to USED, linked to the new cheque —
+    all inside this transaction. When omitted, behaviour is exactly
+    what it was before cheque books existed."""
+    from apps.treasury.models import Cheque, ChequeLeaf, Payment
 
     amount = Decimal(str(amount))
     if amount <= ZERO:
         raise ValidationError("Payment amount must be positive.")
     _validate_treasury_account(company, treasury_account)
+    if leaf is not None and method != Payment.Method.CHEQUE:
+        raise ValidationError("A cheque book leaf can only be used for a CHEQUE payment.")
     payment = Payment.objects.create(
         company=company,
         direction=direction,
@@ -150,18 +161,42 @@ def create_payment(
             if direction_c == Cheque.Direction.RECEIVED
             else Cheque.Status.DELIVERED
         )
-        Cheque.objects.create(
+        locked_leaf = None
+        cheque_number = cheque.get("cheque_number", "")
+        if leaf is not None:
+            if direction != Payment.Direction.PAYMENT:
+                raise ValidationError(
+                    "Cheque book leaves are only for issued (outgoing) cheques; "
+                    "received cheques are the other party's paper."
+                )
+            from apps.treasury import cheque_books as cheque_book_services
+
+            locked_leaf = cheque_book_services.consume_leaf(
+                leaf, company=company, treasury_account=treasury_account
+            )
+            entered = (cheque_number or "").strip()
+            if entered and entered != locked_leaf.number:
+                raise ValidationError(
+                    f"The entered cheque number {entered} does not match the "
+                    f"selected leaf {locked_leaf.number}."
+                )
+            cheque_number = locked_leaf.number
+        cheque_row = Cheque.objects.create(
             company=company,
             direction=direction_c,
             payment=payment,
             bank_name=cheque.get("bank_name", ""),
-            cheque_number=cheque["cheque_number"],
+            cheque_number=cheque_number,
             sayad_id=cheque.get("sayad_id", ""),
             amount=cheque_amount,
             issue_date=cheque.get("issue_date"),
             due_date=cheque["due_date"],
             status=initial,
         )
+        if locked_leaf is not None:
+            locked_leaf.status = ChequeLeaf.Status.USED
+            locked_leaf.cheque = cheque_row
+            locked_leaf.save(update_fields=["status", "cheque", "updated_at"])
     elif cheque:
         raise ValidationError("Cheque details are only accepted for CHEQUE payments.")
     return payment

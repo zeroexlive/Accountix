@@ -5,6 +5,7 @@
 <span><label>حساب بانکی</label>
 <select name="account"><option value="">همه</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>
 <button type="submit">نمایش</button></form></div>{% endif %}
+{% if request.GET.account %}<p><a class="btn" href="{% url 'bank_statement_create' %}?account={{ request.GET.account }}">صورت‌حساب جدید برای این حساب</a></p>{% endif %}
 <div class="card"><table>
 <tr><th>حساب بانکی</th><th>از تاریخ</th><th>تا تاریخ</th><th>مانده پایان (بانک)</th><th>وضعیت</th><th></th></tr>
 {% for s in statements %}<tr><td>{{ s.treasury_account.name }}</td><td>{{ s.start_date|jalali }}</td><td>{{ s.end_date|jalali }}</td><td>{{ s.closing_balance }}</td><td>{% if s.status == 'COMPLETED' %}<span class="pill pill-paid">نهایی</span>{% else %}<span class="pill pill-partial">باز</span>{% endif %}</td><td><a href="{% url 'bank_statement_detail' s.pk %}">تطبیق</a></td></tr>

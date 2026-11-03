@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+<h1>دفترچه چک {{ book.label|default:book.first_number }}</h1>
+<div class="card">
+<p>حساب بانکی: <strong>{{ book.treasury_account.name }}</strong> ({{ book.treasury_account.bank_name }}) — بازه برگ‌ها: از <strong>{{ book.first_number }}</strong> تا <strong>{{ last_leaf.number }}</strong></p>
+<p>کل برگ: {{ book.leaf_count }} — باقی‌مانده: <strong>{{ unused_count }}</strong> — مصرف‌شده: {{ used_count }} — باطل‌شده: {{ void_count }}</p>
+</div>
+<div class="card"><table>
+<tr><th>شماره برگ</th><th>وضعیت</th><th>چک مرتبط</th><th></th></tr>
+{% for leaf in leaves %}<tr>
+<td>{{ leaf.number }}</td>
+<td>{% if leaf.status == 'UNUSED' %}<span class="pill pill-partial">مصرف‌نشده</span>{% elif leaf.status == 'USED' %}<span class="pill pill-paid">مصرف‌شده</span>{% else %}<span class="pill pill-unpaid">باطل‌شده</span>{% endif %}</td>
+<td>{% if leaf.cheque %}<a href="{% url 'cheque_detail' leaf.cheque.pk %}">چک {{ leaf.cheque.cheque_number }} — {{ leaf.cheque.amount }}</a>{% if leaf.cheque.payment %} (<a href="{% url 'payment_detail' leaf.cheque.payment.pk %}">{{ leaf.cheque.payment.party.name }}</a>){% endif %}{% else %}—{% endif %}</td>
+<td>{% if leaf.status == 'UNUSED' %}<form method="post" action="{% url 'cheque_leaf_void' leaf.pk %}" class="inline-form" onsubmit="return confirm('برگ {{ leaf.number }} باطل می‌شود و دیگر قابل استفاده نیست. ادامه می‌دهید؟')">{% csrf_token %}<button type="submit" class="btn-danger">ابطال برگ</button></form>{% endif %}</td>
+</tr>
+{% empty %}<tr><td colspan="4" class="empty">برگی ثبت نشده است.</td></tr>{% endfor %}
+</table></div>
+<p><a class="btn btn-ghost" href="{% url 'cheque_book_list' %}">بازگشت به فهرست دفترچه‌ها</a></p>
+{% endblock %}

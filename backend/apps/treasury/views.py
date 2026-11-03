@@ -9,11 +9,12 @@ from apps.accounting.models import JournalLine
 from apps.core.access import resolve_scoped_company, user_company_ids
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
-from apps.treasury import reconciliation, reporting, services
+from apps.treasury import cheque_books, reconciliation, reporting, services
 from apps.treasury.forms import (
     AllocationForm,
     BankStatementForm,
     BankStatementLineForm,
+    ChequeBookForm,
     ChequeClearForm,
     PaymentForm,
     PaymentPostForm,
@@ -25,6 +26,8 @@ from apps.treasury.models import (
     BankStatement,
     BankStatementLine,
     Cheque,
+    ChequeBook,
+    ChequeLeaf,
     Payment,
     PaymentAllocation,
     TreasuryAccount,
@@ -143,24 +146,33 @@ def payment_create(request):
                 "issue_date": data["cheque_issue_date"],
                 "due_date": data["cheque_due_date"],
             }
-        try:
-            payment = services.create_payment(
-                company=company,
-                direction=data["direction"],
-                party=data["party"],
-                treasury_account=data["treasury_account"],
-                amount=data["amount"],
-                payment_date=data["payment_date"],
-                method=data["method"],
-                reference=data["reference"],
-                description=data["description"],
-                cheque=cheque,
-            )
-        except ValidationError as exc:
-            add_service_errors(form, exc)
-        else:
-            messages.success(request, "دریافت/پرداخت به‌صورت پیش‌نویس ایجاد شد.")
-            return redirect("payment_detail", pk=payment.pk)
+        leaf = None
+        leaf_resolved = True
+        if data.get("leaf"):
+            leaf = ChequeLeaf.objects.filter(pk=data["leaf"], company=company).first()
+            if leaf is None:
+                form.add_error("leaf", "برگ دفترچه انتخاب‌شده یافت نشد.")
+                leaf_resolved = False
+        if leaf_resolved:
+            try:
+                payment = services.create_payment(
+                    company=company,
+                    direction=data["direction"],
+                    party=data["party"],
+                    treasury_account=data["treasury_account"],
+                    amount=data["amount"],
+                    payment_date=data["payment_date"],
+                    method=data["method"],
+                    reference=data["reference"],
+                    description=data["description"],
+                    cheque=cheque,
+                    leaf=leaf,
+                )
+            except ValidationError as exc:
+                add_service_errors(form, exc)
+            else:
+                messages.success(request, "دریافت/پرداخت به‌صورت پیش‌نویس ایجاد شد.")
+                return redirect("payment_detail", pk=payment.pk)
     return render(
         request,
         "treasury/payment_form.html",
@@ -305,7 +317,9 @@ def cheque_detail(request, pk):
     )
     clear_form = ChequeClearForm(company=cheque.company)
     return render(
-        request, "treasury/cheque_detail.html", {"cheque": cheque, "clear_form": clear_form}
+        request,
+        "treasury/cheque_detail.html",
+        {"cheque": cheque, "clear_form": clear_form, "leaf": getattr(cheque, "leaf", None)},
     )
 
 
@@ -423,7 +437,20 @@ def bank_statement_list(request):
 @login_required
 def bank_statement_create(request):
     companies, company = resolve_scoped_company(request)
-    form = BankStatementForm(request.POST or None, company=company, companies=companies)
+    initial = {}
+    prefill_account = None
+    if request.method == "GET" and company is not None and request.GET.get("account"):
+        prefill_account = TreasuryAccount.objects.filter(
+            pk=request.GET["account"], company=company, kind=TreasuryAccount.Kind.BANK
+        ).first()
+        if prefill_account is not None:
+            initial["treasury_account"] = prefill_account
+            suggestion = reconciliation.suggested_statement_opening(prefill_account)
+            if suggestion is not None:
+                initial["start_date"], initial["opening_balance"] = suggestion
+    form = BankStatementForm(
+        request.POST or None, company=company, companies=companies, initial=initial
+    )
     if request.method == "POST" and company is not None and form.is_valid():
         data = form.cleaned_data
         try:
@@ -445,8 +472,98 @@ def bank_statement_create(request):
     return render(
         request,
         "treasury/statement_form.html",
+        {
+            "form": form,
+            "companies": companies,
+            "company": company,
+            "prefill_account": prefill_account,
+        },
+    )
+
+
+@login_required
+def cheque_book_list(request):
+    books = cheque_books.cheque_books_with_counts().filter(
+        company_id__in=user_company_ids(request.user)
+    )
+    if request.GET.get("account"):
+        account = get_object_or_404(
+            TreasuryAccount,
+            pk=request.GET["account"],
+            company_id__in=user_company_ids(request.user),
+        )
+        books = books.filter(treasury_account=account)
+    accounts = TreasuryAccount.objects.filter(
+        company_id__in=user_company_ids(request.user), kind=TreasuryAccount.Kind.BANK
+    )
+    return render(
+        request,
+        "treasury/cheque_book_list.html",
+        {"books": books, "accounts": accounts},
+    )
+
+
+@login_required
+def cheque_book_create(request):
+    companies, company = resolve_scoped_company(request)
+    form = ChequeBookForm(request.POST or None, company=company, companies=companies)
+    if request.method == "POST" and company is not None and form.is_valid():
+        data = form.cleaned_data
+        try:
+            book = cheque_books.create_cheque_book(
+                company=company,
+                treasury_account=data["treasury_account"],
+                first_number=data["first_number"],
+                leaf_count=data["leaf_count"],
+                label=data["label"],
+                user=request.user,
+            )
+        except ValidationError as exc:
+            add_service_errors(form, exc)
+        else:
+            messages.success(request, "دفترچه چک ایجاد شد.")
+            return redirect("cheque_book_detail", pk=book.pk)
+    return render(
+        request,
+        "treasury/cheque_book_form.html",
         {"form": form, "companies": companies, "company": company},
     )
+
+
+@login_required
+def cheque_book_detail(request, pk):
+    book = get_object_or_404(
+        ChequeBook.objects.select_related("company", "treasury_account"),
+        pk=pk,
+        company_id__in=user_company_ids(request.user),
+    )
+    leaves = book.leaves.select_related("cheque", "cheque__payment", "cheque__payment__party").all()
+    unused, used, void = cheque_books.book_counts(book)
+    return render(
+        request,
+        "treasury/cheque_book_detail.html",
+        {
+            "book": book,
+            "leaves": leaves,
+            "unused_count": unused,
+            "used_count": used,
+            "void_count": void,
+            "last_leaf": leaves.last() if leaves else None,
+        },
+    )
+
+
+@login_required
+@require_POST
+def cheque_leaf_void(request, leaf_pk):
+    leaf = get_object_or_404(ChequeLeaf, pk=leaf_pk, company_id__in=user_company_ids(request.user))
+    try:
+        cheque_books.void_leaf(leaf, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        messages.success(request, f"برگ {leaf.number} باطل شد.")
+    return redirect("cheque_book_detail", pk=leaf.book_id)
 
 
 def _statement_detail_context(statement, line_form=None, import_form=None):

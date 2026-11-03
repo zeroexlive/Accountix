@@ -16,7 +16,7 @@ from apps.accounting.models import Account
 from apps.core.forms import date_widget
 from apps.organizations.models import Company
 from apps.parties.models import Party
-from apps.treasury.models import BankStatementLine, Payment, TreasuryAccount
+from apps.treasury.models import BankStatementLine, ChequeLeaf, Payment, TreasuryAccount
 
 
 class TreasuryAccountForm(forms.Form):
@@ -58,6 +58,8 @@ class PaymentForm(forms.Form):
     sayad_id = forms.CharField(max_length=64, required=False, label="شناسه صیاد")
     cheque_issue_date = forms.DateField(widget=date_widget(), required=False, label="تاریخ صدور چک")
     cheque_due_date = forms.DateField(widget=date_widget(), required=False, label="سررسید چک")
+    # Cheque book leaf (Sprint 15, ADR-042) — only added in __init__
+    # when the company actually has UNUSED leaves; see below.
 
     def __init__(self, *args, company=None, companies=None, direction=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,11 +75,40 @@ class PaymentForm(forms.Form):
             self.fields["treasury_account"].queryset = TreasuryAccount.objects.filter(
                 company=company, is_active=True
             ).order_by("name")
+            self._add_leaf_field(company)
+
+    def _add_leaf_field(self, company):
+        """Offer the UNUSED cheque-book leaves of the company, grouped
+        by book, as an optional picker. When the company has no unused
+        leaves the field is absent entirely and free cheque-number
+        entry works exactly as before cheque books existed."""
+        leaves = (
+            ChequeLeaf.objects.filter(company=company, status=ChequeLeaf.Status.UNUSED)
+            .select_related("book", "treasury_account")
+            .order_by("treasury_account__name", "book__created_at", "position")
+        )
+        groups = {}
+        for leaf in leaves:
+            book = leaf.book
+            group_label = (
+                f"دفترچه {book.label or book.first_number} — حساب {leaf.treasury_account.name}"
+            )
+            groups.setdefault(group_label, []).append((str(leaf.pk), leaf.number))
+        if not groups:
+            return
+        choices = [("", "— بدون برگ؛ شماره آزاد —")]
+        choices.extend((label, options) for label, options in groups.items())
+        self.fields["leaf"] = forms.ChoiceField(
+            choices=choices,
+            required=False,
+            label="برگ دفترچه چک (فقط چک پرداختی)",
+            help_text="با انتخاب برگ، شماره چک از روی برگ خوانده می‌شود و برگ مصرف‌شده علامت می‌خورد.",
+        )
 
     def clean(self):
         cleaned = super().clean()
         if cleaned.get("method") == Payment.Method.CHEQUE:
-            if not cleaned.get("cheque_number"):
+            if not cleaned.get("cheque_number") and not cleaned.get("leaf"):
                 self.add_error("cheque_number", "برای روش چک، شماره چک لازم است.")
             if not cleaned.get("cheque_due_date"):
                 self.add_error("cheque_due_date", "برای روش چک، سررسید چک لازم است.")
@@ -207,6 +238,38 @@ class StatementImportForm(forms.Form):
         label="فایل CSV صورت‌حساب",
         help_text="ستون‌ها: date, description, reference, amount (یا debit و credit). تاریخ‌ها میلادی (YYYY-MM-DD) و مبلغ با علامت بانک است.",
     )
+
+
+class ChequeBookForm(forms.Form):
+    """New cheque book (Sprint 15, ADR-042): one BANK treasury
+    account, the printed number of the first leaf, and how many
+    leaves the book holds. The service generates the whole range and
+    rejects any overlap with the account's existing leaves."""
+
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+    )
+    treasury_account = forms.ModelChoiceField(
+        queryset=TreasuryAccount.objects.none(), label="حساب بانکی"
+    )
+    label = forms.CharField(max_length=200, required=False, label="عنوان دفترچه")
+    first_number = forms.CharField(
+        max_length=64,
+        label="شماره اولین برگ",
+        help_text="بخش عددی انتهای شماره، شمارنده برگ‌هاست؛ مثلاً شروع از 1001 یعنی برگ‌ها 1001، 1002، …",
+    )
+    leaf_count = forms.IntegerField(
+        min_value=1, max_value=1000, label="تعداد برگ", help_text="بین ۱ تا ۱۰۰۰ برگ."
+    )
+
+    def __init__(self, *args, company=None, companies=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if companies is not None:
+            self.fields["company"].queryset = companies
+        if company is not None:
+            self.fields["treasury_account"].queryset = TreasuryAccount.objects.filter(
+                company=company, is_active=True, kind=TreasuryAccount.Kind.BANK
+            ).order_by("name")
 
 
 class StatementMatchForm(forms.Form):

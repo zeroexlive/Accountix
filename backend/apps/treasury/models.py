@@ -388,3 +388,82 @@ class BankStatementLine(TimeStampedUUIDModel):
 
     def __str__(self):
         return f"Statement line {self.line_date} {self.amount}"
+
+
+class ChequeBook(TimeStampedUUIDModel):
+    """A physical cheque book of ONE bank treasury account (Sprint 15,
+    ADR-042): a sequential range of leaves used for ISSUED cheques
+    only — received cheques are other parties' paper and never come
+    from a book. The book itself is just the range record; the leaves
+    carry the state. Books are never deleted; a book is "active"
+    exactly while it still has UNUSED leaves (derived, not stored).
+    """
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cheque_books")
+    treasury_account = models.ForeignKey(
+        TreasuryAccount, on_delete=models.PROTECT, related_name="cheque_books"
+    )
+    label = models.CharField(max_length=200, blank=True)
+    first_number = models.CharField(max_length=64)
+    leaf_count = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Cheque book {self.label or self.first_number} ({self.treasury_account.name})"
+
+
+class ChequeLeaf(TimeStampedUUIDModel):
+    """One leaf of a cheque book. ``number`` is the printed leaf
+    identifier (in current Iranian practice the Sayad id string).
+
+    Uniqueness is enforced at the ACCOUNT level: no two leaves of the
+    same bank treasury account may share a number, across all of the
+    account's books — so overlapping book ranges are impossible by
+    construction (ADR-042).
+
+    A leaf is consumed exactly once, when an issued cheque is created
+    from it (``services.create_payment(..., leaf=...)``): status flips
+    to USED and ``cheque`` links the cheque row. Nothing resurrects a
+    used leaf — not payment reversal, not a bounce: the physical leaf
+    has left the book.
+    """
+
+    class Status(models.TextChoices):
+        UNUSED = "UNUSED", "Unused"
+        USED = "USED", "Used"
+        VOID = "VOID", "Void"
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cheque_leaves")
+    treasury_account = models.ForeignKey(
+        TreasuryAccount, on_delete=models.PROTECT, related_name="cheque_leaves"
+    )
+    book = models.ForeignKey(ChequeBook, on_delete=models.CASCADE, related_name="leaves")
+    number = models.CharField(max_length=64)
+    # 0-based position inside the book: stable display order even when
+    # the numeric counter outgrows its zero-padded width (999 -> 1000).
+    position = models.PositiveIntegerField()
+    status = models.CharField(max_length=6, choices=Status.choices, default=Status.UNUSED)
+    cheque = models.OneToOneField(
+        Cheque,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="leaf",
+    )
+
+    class Meta:
+        ordering = ["book", "position"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["treasury_account", "number"],
+                name="uniq_cheque_leaf_number_per_account",
+            ),
+            models.UniqueConstraint(
+                fields=["book", "position"], name="uniq_cheque_leaf_position_per_book"
+            ),
+        ]
+
+    def __str__(self):
+        return f"Leaf {self.number} [{self.status}]"

@@ -4,6 +4,7 @@
 <p>جهت: {{ cheque.direction }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date|jalali }} — تاریخ صدور: {{ cheque.issue_date|jalali|default:"—" }} — شناسه صیاد: {{ cheque.sayad_id|default:"—" }}</p>
 <p>وضعیت: <strong>{{ cheque.status }}</strong> — حساب نگهدارنده: {{ cheque.holding_account|default:"—" }}</p>
 <p>دریافت/پرداخت مرتبط: {% if cheque.payment %}<a href="{% url 'payment_detail' cheque.payment.pk %}">{{ cheque.payment.amount }} — {{ cheque.payment.party.name }}</a>{% else %}—{% endif %}</p>
+{% if leaf %}<p>برگ دفترچه: <a href="{% url 'cheque_book_detail' leaf.book.pk %}">برگ {{ leaf.number }} از دفترچه {{ leaf.book.label|default:leaf.book.first_number }} ({{ leaf.treasury_account.name }})</a></p>{% endif %}
 <p>سند وصول: {{ cheque.clearing_journal_entry|default:"—" }} — سند برگشت/عودت: {{ cheque.bounce_journal_entry|default:"—" }}</p>
 </div>
 <div class="card action-card">
