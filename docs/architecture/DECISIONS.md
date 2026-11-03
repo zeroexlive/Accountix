@@ -375,3 +375,34 @@ Allocations needed no fix: `allocate_payment` already locked the
 payment and invoice rows before checking totals, and its race test
 passed unchanged. All three concurrency tests now pass repeatedly on
 PostgreSQL and skip cleanly on SQLite.
+
+## ADR-038 — Design system v2: a token-based hand-written CSS shell; dashboard data stays derived (accepted, Sprint 11)
+Sprint 11 rebuilt the screen UI after the owner's feedback that the
+Sprint 01–10 interface was "too dry and soulless", using a modern
+light SaaS dashboard as the visual reference. Decisions:
+(1) **One hand-written CSS file, token-based.** `app.css` was rewritten
+(not accreted) around design tokens — soft-gray canvas (`#f4f5f8`),
+white cards (18px radius, diffuse shadows, hairline borders), a
+near-black primary, one vivid accent (magenta, revenue) plus a soft
+blue (expenses) and green/red/amber semantics. ADR-006 stands: no
+Tailwind, no HTMX/Alpine vendoring.
+(2) **Offline asset policy is a feature.** No CDN fonts, no icon
+fonts, no JS chart libraries — icons are inline SVG, charts are pure
+CSS bars, the font stack is Tahoma-first system fonts. The packaged
+app must render identically with no network.
+(3) **RTL mirroring, not translation.** The reference is LTR; the
+layout is mirrored structurally (sidebar on the right, bars and
+tables flow RTL) while all labels remain the existing Persian ones.
+(4) **The shell is the base template.** Authenticated pages get a
+sidebar + topbar + user card; anonymous pages (login) get a bare
+centered shell. Print templates keep their own base and their
+Sprint 08 output — the redesign is screen-only.
+(5) **Honest widgets only.** The reference's decorative search,
+share, customize and imports/exports buttons were NOT copied: every
+control in the UI must work. Dashboard additions are two derived
+helpers in `apps.reporting.services` — `period_series` (per-period
+revenue/expenses from `income_statement`, sums pinned equal by
+tests) and the KPI delta/performance computations (shares of
+existing reports). A percentage is rendered only when its
+denominator is non-zero; otherwise the panel shows an empty state.
+No business logic and no stored data changed (ADR-031 spirit).
