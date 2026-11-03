@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% block content %}
+<h1>سند دستی جدید</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<form method="post" class="doc-form">{% csrf_token %}
+<div class="card">
+<p>شرکت: <strong>{{ company.name }}</strong></p>
+{{ form.company }}
+{{ form.non_field_errors }}
+<p><label for="{{ form.entry_date.id_for_label }}">تاریخ سند</label>{{ form.entry_date }}{{ form.entry_date.errors }}</p>
+<p><label for="{{ form.description.id_for_label }}">شرح سند</label>{{ form.description }}{{ form.description.errors }}</p>
+<p><label for="{{ form.idempotency_key.id_for_label }}">کلید یکتایی (اختیاری)</label>{{ form.idempotency_key }}{{ form.idempotency_key.errors }}<span class="helptext">{{ form.idempotency_key.help_text }}</span></p>
+</div>
+<div class="card">
+<h2>ردیف‌های سند</h2>
+{{ lines.management_form }}
+{{ lines.non_form_errors }}
+<table class="line-table"><thead><tr><th>حساب</th><th>بدهکار</th><th>بستانکار</th><th>شرح</th><th>طرف‌حساب</th><th>حذف</th></tr></thead>
+<tbody id="line-rows">
+{% for f in lines %}<tr>{% for field in f %}<td>{{ field }}{{ field.errors }}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table>
+<p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">+ ردیف جدید</button></p>
+<p class="empty">هر ردیف فقط بدهکار یا فقط بستانکار باشد و جمع دو طرف سند باید برابر شود؛ این قواعد هنگام ایجاد پیش‌نویس توسط سرویس حسابداری بررسی می‌شود.</p>
+</div>
+<p><button type="submit">ایجاد پیش‌نویس سند</button> <a class="btn btn-ghost" href="{% url 'journal_list' %}">بازگشت</a></p>
+</form>
+{% include "_line_formset_js.html" with formset=lines %}
+{% endif %}
+{% endblock %}
