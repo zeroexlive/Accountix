@@ -7,12 +7,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.accounting import reporting, services
-from apps.accounting.forms import AccountForm, JournalEntryForm, JournalLineFormSet
+from apps.accounting.forms import (
+    AccountForm,
+    JournalEntryForm,
+    JournalLineFormSet,
+    OpeningBalanceForm,
+    OpeningLineFormSet,
+)
 from apps.accounting.models import Account, JournalEntry
 from apps.core.access import resolve_scoped_company, user_company_ids
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
-from apps.organizations.models import Company, FiscalPeriod
+from apps.organizations.models import Company, FiscalPeriod, FiscalYear
 
 
 def _member_company(request):
@@ -236,6 +242,104 @@ def journal_reverse(request, pk):
     else:
         messages.success(request, "سند برگشت خورد.")
     return redirect("journal_detail", pk=entry.pk)
+
+
+def _opening_entry(company, fiscal_year):
+    """The fiscal year's posted opening-balance entry, if any (read-only
+    lookup by the ADR-029 idempotency key)."""
+    return JournalEntry.objects.filter(
+        company=company, idempotency_key=f"opening-balance:{fiscal_year.id}"
+    ).first()
+
+
+@login_required
+def opening_balance_create(request):
+    """Opening balances for a fiscal year (Sprint 13, ADR-029).
+
+    The service appends the balancing line on the user-picked offset
+    account, so the form's lines may be unbalanced on purpose. One
+    opening entry exists per fiscal year: when one is already posted
+    the page links to it instead of offering a duplicate form (the
+    service would return the same entry anyway, but silently — the
+    user must be told)."""
+    companies, company = resolve_scoped_company(request)
+    fiscal_years = (
+        FiscalYear.objects.filter(company=company).order_by("start_date") if company else []
+    )
+    fiscal_year = None
+    existing = None
+    if company is not None and fiscal_years:
+        raw_year = request.POST.get("fiscal_year") or request.GET.get("fiscal_year")
+        if raw_year:
+            fiscal_year = get_object_or_404(fiscal_years, pk=raw_year)
+        else:
+            for candidate in fiscal_years:
+                if _opening_entry(company, candidate) is None:
+                    fiscal_year = candidate
+                    break
+            else:
+                fiscal_year = fiscal_years[0]
+        existing = _opening_entry(company, fiscal_year)
+
+    form = OpeningBalanceForm(
+        request.POST or None,
+        companies=companies,
+        company=company,
+        initial={"company": company, "fiscal_year": fiscal_year}
+        if company and fiscal_year
+        else None,
+    )
+    lines = OpeningLineFormSet(
+        request.POST or None, prefix="lines", form_kwargs={"company": company}
+    )
+    if (
+        request.method == "POST"
+        and company is not None
+        and existing is None
+        and form.is_valid()
+        and lines.is_valid()
+    ):
+        line_dicts = []
+        for line_form in lines:
+            if line_form.cleaned_data.get("DELETE"):
+                continue
+            account = line_form.cleaned_data.get("account")
+            if account is None:
+                continue
+            line_dicts.append(
+                {
+                    "account": account,
+                    "debit": line_form.cleaned_data.get("debit") or 0,
+                    "credit": line_form.cleaned_data.get("credit") or 0,
+                    "party": line_form.cleaned_data.get("party"),
+                }
+            )
+        try:
+            entry = services.post_opening_balance(
+                company=company,
+                fiscal_year=form.cleaned_data["fiscal_year"],
+                lines=line_dicts,
+                offset_account=form.cleaned_data["offset_account"],
+                user=request.user,
+            )
+        except ValidationError as exc:
+            add_service_errors(form, exc)
+        else:
+            messages.success(request, "تراز افتتاحیه ثبت شد.")
+            return redirect("journal_detail", pk=entry.pk)
+    return render(
+        request,
+        "accounting/opening_balance_form.html",
+        {
+            "form": form,
+            "lines": lines,
+            "companies": companies,
+            "company": company,
+            "fiscal_years": fiscal_years,
+            "fiscal_year": fiscal_year,
+            "existing": existing,
+        },
+    )
 
 
 @login_required

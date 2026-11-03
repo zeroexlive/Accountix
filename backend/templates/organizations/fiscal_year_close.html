@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load jalali %}{% block content %}
+<h1>بستن سال مالی {{ year.name }} — {{ year.company.name }}</h1>
+<div class="card">
+<p>دوره‌های باز زیر بسته می‌شوند. دوره‌ای که فعالیت سود و زیانی ندارد، بدون سند اختتامیه بسته می‌شود؛ برای بقیه، نتیجه هر دوره به حساب سود (زیان) انباشته منتقل می‌شود.</p>
+<table><tr><th>دوره</th><th>شروع</th><th>پایان</th></tr>
+{% for p in open_periods %}<tr><td>{{ p.name }}</td><td>{{ p.start_date|jalali }}</td><td>{{ p.end_date|jalali }}</td></tr>
+{% empty %}<tr><td colspan="3" class="empty">دوره بازی وجود ندارد؛ فقط وضعیت سال مالی «بسته» می‌شود.</td></tr>{% endfor %}</table>
+</div>
+<div class="card"><h2>تأیید بستن سال مالی</h2>
+<form method="post" class="stack">{% csrf_token %}
+{{ form.non_field_errors }}
+<p><label for="{{ form.retained_earnings.id_for_label }}">{{ form.retained_earnings.label }}</label>{{ form.retained_earnings }}{{ form.retained_earnings.errors }}</p>
+<button type="submit">بستن سال مالی</button></form>
+</div>
+<p><a class="btn btn-ghost" href="{% url 'fiscal_year_detail' year.pk %}">بازگشت به سال مالی</a></p>
+{% endblock %}

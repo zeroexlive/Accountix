@@ -85,6 +85,59 @@ class JournalLineForm(forms.Form):
 JournalLineFormSet = forms.formset_factory(JournalLineForm, extra=4, can_delete=True)
 
 
+class OpeningBalanceForm(forms.Form):
+    """Opening-balance header (Sprint 13). The offset account is the
+    ADR-029 caller-supplied equity account: the service appends the
+    difference to it, so the entry balances by construction."""
+
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.none(), widget=forms.HiddenInput, label="شرکت"
+    )
+    fiscal_year: forms.ModelChoiceField = forms.ModelChoiceField(queryset=None, label="سال مالی")
+    offset_account: forms.ModelChoiceField = forms.ModelChoiceField(
+        queryset=None, label="حساب طرف تراز افتتاحیه"
+    )
+
+    def __init__(self, *args, companies=None, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if companies is not None:
+            self.fields["company"].queryset = companies
+        if company is not None:
+            from apps.organizations.models import FiscalYear
+
+            self.fields["fiscal_year"].queryset = FiscalYear.objects.filter(
+                company=company
+            ).order_by("start_date")
+            self.fields["offset_account"].queryset = eligible_accounts(company, "EQUITY")
+
+
+class OpeningLineForm(forms.Form):
+    """One opening-balance line: a single-sided amount on a postable
+    account, optionally tagged with a party (opening AR/AP)."""
+
+    account = forms.ModelChoiceField(queryset=Account.objects.none(), label="حساب")
+    debit = forms.DecimalField(
+        max_digits=19, decimal_places=2, required=False, initial=0, label="بدهکار"
+    )
+    credit = forms.DecimalField(
+        max_digits=19, decimal_places=2, required=False, initial=0, label="بستانکار"
+    )
+    party = forms.ModelChoiceField(
+        queryset=Party.objects.none(), required=False, label="طرف‌حساب (برچسب فرعی)"
+    )
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if company is not None:
+            self.fields["account"].queryset = eligible_accounts(company)
+            self.fields["party"].queryset = Party.objects.filter(
+                company=company, is_active=True
+            ).order_by("code")
+
+
+OpeningLineFormSet = forms.formset_factory(OpeningLineForm, extra=4, can_delete=True)
+
+
 class AccountForm(forms.ModelForm):
     class Meta:
         model = Account

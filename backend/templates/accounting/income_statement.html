@@ -4,8 +4,8 @@
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
 <label>دوره مالی</label>
 <select name="period"><option value="">بدون دوره (بازه تاریخی)</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
-<label>از تاریخ</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
-<label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
+<label>از تاریخ (میلادی)</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
+<label>تا تاریخ (میلادی)</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <label>حساب‌های بهای تمام‌شده (COGS)</label>
 <select name="cogs" multiple size="4">{% for a in expense_accounts %}<option value="{{ a.pk }}" {% if a.pk|stringformat:"s" in selected_cogs_ids %}selected{% endif %}>{{ a.code }} — {{ a.name }}</option>{% endfor %}</select>
 <button type="submit">نمایش</button></form></div>

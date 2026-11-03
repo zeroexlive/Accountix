@@ -532,6 +532,60 @@ def create_inventory_count(*, company, warehouse, count_date, lines, description
     return count
 
 
+@transaction.atomic
+def update_inventory_count_lines(count, *, lines, user=None):
+    """Update the counted quantities of a DRAFT count's lines (Sprint 13).
+
+    ``create_inventory_count`` snapshots the system quantities and the
+    UI seeds the counted quantities with the snapshot; the physical
+    count is then typed in on the count page and saved through here
+    before posting. ``lines`` are dicts with ``product`` (a Product or
+    an existing line's product id), ``counted_qty`` and an optional
+    ``unit_cost``. Only lines already on the count can be updated —
+    the product set (and its snapshots) is fixed at creation; a
+    product that was missed means a fresh count, because its snapshot
+    would otherwise be taken at a different moment than the rest.
+    """
+    from apps.audit.services import record_event
+    from apps.inventory.models import InventoryCount
+
+    count = InventoryCount.objects.select_for_update().get(pk=count.pk)
+    if count.status != InventoryCount.Status.DRAFT:
+        raise ValidationError("Only a DRAFT inventory count can be edited.")
+
+    existing = {line.product_id: line for line in count.lines.all()}
+    seen = set()
+    for raw in lines:
+        product = raw.get("product")
+        product_id = getattr(product, "pk", product)
+        line = existing.get(product_id)
+        if line is None:
+            raise ValidationError("Count line product is not part of this count.")
+        if product_id in seen:
+            raise ValidationError(f"Product {line.product.sku} appears twice.")
+        seen.add(product_id)
+        counted_qty = _dec(raw.get("counted_qty", ZERO), "counted_qty")
+        if counted_qty < ZERO:
+            raise ValidationError("Counted quantity cannot be negative.")
+        line.counted_qty = counted_qty
+        unit_cost = raw.get("unit_cost")
+        if unit_cost is not None:
+            unit_cost = _dec(unit_cost, "unit_cost")
+            if unit_cost < ZERO:
+                raise ValidationError("Unit cost cannot be negative.")
+        line.unit_cost = unit_cost
+        line.save()
+    record_event(
+        action="stock_count.lines_updated",
+        entity_type="InventoryCount",
+        company=count.company,
+        user=user,
+        entity_id=count.id,
+        lines_updated=str(len(seen)),
+    )
+    return count
+
+
 def _resolve_count_gl_account(company, gl_accounts, key):
     from apps.accounting.models import Account
 

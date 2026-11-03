@@ -1,8 +1,8 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}{% load jalali %}{% block content %}
 <p><a class="btn" href="{% url 'purchase_invoice_print' invoice.pk %}">نسخه چاپی</a></p>
 <h1>فاکتور خرید {{ invoice.invoice_number }}</h1>
 <div class="card">
-<p>تأمین‌کننده: {{ invoice.supplier.name }} ({{ invoice.supplier.code }}) — تاریخ: {{ invoice.invoice_date }} — انبار: {{ invoice.warehouse.code }}</p>
+<p>تأمین‌کننده: {{ invoice.supplier.name }} ({{ invoice.supplier.code }}) — تاریخ: {{ invoice.invoice_date|jalali }} — انبار: {{ invoice.warehouse.code }}</p>
 <p>وضعیت: {{ invoice.status }} — وضعیت پرداخت: {{ invoice.payment_status }}</p>
 <table><tr><th>کالا</th><th>مقدار</th><th>واحد</th><th>بهای واحد</th><th>تخفیف</th><th>نرخ مالیات</th><th>مالیات</th></tr>
 {% for line in invoice.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{{ line.quantity }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td>{{ line.unit_cost }}</td><td>{{ line.discount_amount }}</td><td>{{ line.tax_rate }}</td><td>{{ line.tax_amount }}</td></tr>{% endfor %}
@@ -29,5 +29,5 @@
 </div>
 {% endif %}
 {% if invoice.returns.all %}<div class="card"><h2>برگشت‌ها</h2><table><tr><th>شماره</th><th>تاریخ</th><th>وضعیت</th><th>مبلغ</th><th></th></tr>
-{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date }}</td><td>{{ r.status }}</td><td>{{ r.total_amount }}</td><td><a href="{% url 'purchase_return_detail' r.pk %}">جزئیات</a></td></tr>{% endfor %}</table></div>{% endif %}
+{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date|jalali }}</td><td>{{ r.status }}</td><td>{{ r.total_amount }}</td><td><a href="{% url 'purchase_return_detail' r.pk %}">جزئیات</a></td></tr>{% endfor %}</table></div>{% endif %}
 {% endblock %}

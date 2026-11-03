@@ -455,3 +455,29 @@ per-payment picker at posting time, exactly as the cheque model
 requires. A POST naming a company outside the user's memberships is
 a 404 on every create endpoint, and detail/action endpoints stay
 membership-scoped.
+
+## ADR-040 — Jalali dates are a display-only layer (accepted, Sprint 13)
+Iranian users read dates in the Jalali (Persian) calendar, but the
+ledger's chronology — period resolution, range filters, MWAC posting
+order, cheque due-date semantics — is Gregorian by design and must
+not move. Decision: **conversion happens only at render time.**
+(1) Every stored date, every service and every form/filter input
+stays Gregorian ISO, exactly as before; no model, service or parser
+changed. (2) Templates render dates through a single `jalali`
+template filter (`apps/core/templatetags/jalali.py`) producing
+`YYYY/MM/DD` with Latin digits — the digit convention the UI already
+uses for amounts and codes (mixing Persian digits into dates only
+would make dates and amounts on the same row look inconsistent).
+(3) The conversion delegates to the pinned pure-Python `jdatetime`
+library rather than a hand-rolled algorithm: the Jalali leap-year
+rule (2820-year cycle arithmetic) is exactly the kind of code that
+drifts silently, and the library is the reference implementation;
+its correctness here is pinned by tests on known pairs around the
+1404/1405 boundary (1404 is a common year: 2026-03-20 ↔ 1404-12-29,
+2026-03-21 ↔ 1405-01-01). (4) Because displays are now Jalali while
+inputs stay Gregorian, date inputs that could be misread are
+labelled «(میلادی)» or carry a help text saying so. (5) Service-
+generated *text* (e.g. journal descriptions that embed an ISO date)
+is content, not a date display, and is deliberately left untouched —
+changing it would mean editing the services, which this layer
+forswears.

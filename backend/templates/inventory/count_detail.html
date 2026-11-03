@@ -1,0 +1,45 @@
+{% extends "base.html" %}{% load jalali %}{% block content %}
+<h1>انبارگردانی {{ count.count_date|jalali }} — {{ count.status }}</h1>
+<div class="card">
+<p>شرکت: {{ count.company.name }} — انبار: {{ count.warehouse.code }} — {{ count.warehouse.name }}{% if count.description %} — {{ count.description }}{% endif %}</p>
+<p class="empty">«موجودی سیستمی» لحظه ایجاد شمارش است و «موجودی فعلی» مانده زنده دفتر انبار. اگر این دو برای کالایی فرق کنند، یعنی انبار از زمان شمارش ثابت نمانده و ثبت نهایی رد می‌شود؛ در این صورت شمارش را رها کنید و انبارگردانی تازه بسازید.</p>
+{% if count.status == 'DRAFT' %}
+<form method="post" action="{% url 'inventory_count_save' count.pk %}">{% csrf_token %}
+{{ line_forms.management_form }}
+<table class="line-table"><thead><tr><th>کالا</th><th>موجودی سیستمی (اسنپ‌شات)</th><th>موجودی فعلی</th><th>شمارش‌شده</th><th>بهای واحد (فقط کالای یافت‌شده)</th><th>مغایرت</th></tr></thead>
+<tbody>
+{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td>{{ row.line.system_qty }}</td><td>{{ row.current_qty }}</td><td>{{ row.form.counted_qty }}{{ row.form.counted_qty.errors }}</td><td>{{ row.form.unit_cost }}{{ row.form.unit_cost.errors }}</td><td>{{ row.line.variance }}</td></tr>{% endfor %}
+</tbody></table>
+<p><button type="submit">ذخیره مقادیر شمارش</button></p>
+</form>
+{% else %}
+<table><thead><tr><th>کالا</th><th>موجودی سیستمی (اسنپ‌شات)</th><th>موجودی فعلی</th><th>شمارش‌شده</th><th>مغایرت</th></tr></thead>
+<tbody>
+{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td>{{ row.line.system_qty }}</td><td>{{ row.current_qty }}</td><td>{{ row.line.counted_qty }}</td><td>{{ row.line.variance }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+</div>
+{% if count.stock_document or count.journal_entry %}
+<div class="card">
+<p>{% if count.stock_document %}سند تعدیل انبار: {{ count.stock_document.doc_type }} ({{ count.stock_document_id }}){% endif %}{% if count.journal_entry %} — <a href="{% url 'journal_detail' count.journal_entry.pk %}">سند مغایرت در دفتر کل</a>{% endif %}</p>
+</div>
+{% endif %}
+{% if count.status == 'DRAFT' %}
+<div class="card action-card">
+<h2>ثبت نهایی انبارگردانی</h2>
+<p class="empty">مغایرت‌ها به‌صورت یک سند تعدیل انبار ثبت می‌شوند. در صورت انتخاب هر دو حساب دفتر کل، ارزش خالص مغایرت نیز سند می‌خورد؛ بدون انتخاب حساب، فقط انبار اصلاح می‌شود.</p>
+<form method="post" action="{% url 'inventory_count_post' count.pk %}" onsubmit="return confirm('انبارگردانی ثبت نهایی شود؟')">{% csrf_token %}
+<p><label for="{{ post_form.inventory_account.id_for_label }}">{{ post_form.inventory_account.label }}</label>{{ post_form.inventory_account }}{{ post_form.inventory_account.errors }}</p>
+<p><label for="{{ post_form.variance_account.id_for_label }}">{{ post_form.variance_account.label }}</label>{{ post_form.variance_account }}{{ post_form.variance_account.errors }}</p>
+<button type="submit">ثبت نهایی</button></form>
+</div>
+{% elif count.status == 'POSTED' %}
+<div class="card action-card">
+<h2>برگشت‌زدن انبارگردانی</h2>
+<form method="post" action="{% url 'inventory_count_reverse' count.pk %}" onsubmit="return confirm('انبارگردانی برگشتی ایجاد می‌شود. ادامه می‌دهید؟')">{% csrf_token %}
+<p><label>دلیل (اختیاری)</label><input type="text" name="reason" maxlength="500"></p>
+<button type="submit" class="btn-danger">برگشت‌زدن</button></form>
+</div>
+{% endif %}
+<p><a class="btn btn-ghost" href="{% url 'inventory_counts' %}">بازگشت به انبارگردانی‌ها</a></p>
+{% endblock %}

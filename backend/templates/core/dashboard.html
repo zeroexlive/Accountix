@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load jalali %}
 {% block title %}داشبورد | اکانتیکس{% endblock %}
 {% block page_title %}داشبورد{% endblock %}
 {% block content %}
@@ -9,7 +9,7 @@
 {% if dashboard %}
 <div class="period-note">
   <span>دوره جاری:</span>
-  {% if dashboard.period %}<span class="pill pill-info">{{ dashboard.period.name }}</span><span>{{ dashboard.period.start_date }} تا {{ dashboard.period.end_date }}</span>{% else %}<span>دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است.</span>{% endif %}
+  {% if dashboard.period %}<span class="pill pill-info">{{ dashboard.period.name }}</span><span>{{ dashboard.period.start_date|jalali }} تا {{ dashboard.period.end_date|jalali }}</span>{% else %}<span>دوره بازی وجود ندارد — ارقام دوره‌ای صفر و صورت سود و زیان تجمیعی است.</span>{% endif %}
 </div>
 
 <div class="kpi-grid">
@@ -66,7 +66,7 @@
 
 <div class="card"><div class="card-head"><h2>آخرین فاکتورهای فروش</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">همه فاکتورها</a></span></div>
 <table><thead><tr><th>شماره</th><th>تاریخ</th><th>مشتری</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr></thead>
-<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
 
 <div class="cards">
   <div class="card kpi"><h3>مطالبات از مشتریان (معین)</h3><p class="kpi-value">{{ dashboard.ar_total }}</p></div>
@@ -89,9 +89,9 @@
   </div>
   <div class="dash-stack">
     <div class="card"><h2>آخرین اسناد دفتر روزنامه</h2><table><thead><tr><th>تاریخ</th><th>شرح</th><th>وضعیت</th></tr></thead>
-    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">سندی ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+    <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">سندی ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
     <div class="card"><h2>آخرین فاکتورهای خرید</h2><table><thead><tr><th>شماره</th><th>تاریخ</th><th>تأمین‌کننده</th><th>مبلغ کل</th><th>وضعیت پرداخت</th></tr></thead>
-    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
   </div>
 </div>
 {% endif %}

@@ -1,13 +1,13 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}{% load jalali %}{% block content %}
 <h1>{% if payment.direction == 'RECEIPT' %}دریافت{% else %}پرداخت{% endif %} — {{ payment.amount }}</h1>
 <div class="card">
-<p>طرف‌حساب: {{ payment.party.name }} ({{ payment.party.code }}) — حساب خزانه: {{ payment.treasury_account.name }} — روش: {{ payment.get_method_display }} — تاریخ: {{ payment.payment_date }}</p>
+<p>طرف‌حساب: {{ payment.party.name }} ({{ payment.party.code }}) — حساب خزانه: {{ payment.treasury_account.name }} — روش: {{ payment.get_method_display }} — تاریخ: {{ payment.payment_date|jalali }}</p>
 <p>وضعیت: {{ payment.status }} — ارجاع: {{ payment.reference|default:"—" }} — حساب مقابل: {{ payment.counterparty_account|default:"—" }} — سند حسابداری: {{ payment.journal_entry|default:"—" }}</p>
 {% if payment.description %}<p>{{ payment.description }}</p>{% endif %}
 <p>تخصیص‌یافته: {{ allocated_total }} — تخصیص‌نیافته: {{ unallocated }}</p>
 </div>
 {% if cheque %}<div class="card"><h2>چک پیوست</h2>
-<p>شماره: {{ cheque.cheque_number }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date }} — وضعیت: {{ cheque.status }} — <a href="{% url 'cheque_detail' cheque.pk %}">مشاهده و عملیات چک</a></p></div>{% endif %}
+<p>شماره: {{ cheque.cheque_number }} — بانک: {{ cheque.bank_name|default:"—" }} — مبلغ: {{ cheque.amount }} — سررسید: {{ cheque.due_date|jalali }} — وضعیت: {{ cheque.status }} — <a href="{% url 'cheque_detail' cheque.pk %}">مشاهده و عملیات چک</a></p></div>{% endif %}
 {% if payment.status == 'DRAFT' %}
 <div class="card action-card">
 <h2>ثبت نهایی</h2>
@@ -31,7 +31,7 @@
 {{ allocation_form.non_field_errors }}
 <table class="line-table"><thead><tr><th>فاکتور</th><th>تاریخ</th><th>مبلغ کل</th><th>تخصیص‌یافته</th><th>مانده</th><th>مبلغ تخصیص</th></tr></thead>
 <tbody>
-{% for row in allocation_rows %}<tr><td>{{ row.item.invoice.invoice_number }}</td><td>{{ row.item.invoice.invoice_date }}</td><td>{{ row.item.total }}</td><td>{{ row.item.allocated }}</td><td>{{ row.item.outstanding }}</td><td>{{ row.field }}{{ row.field.errors }}</td></tr>{% endfor %}
+{% for row in allocation_rows %}<tr><td>{{ row.item.invoice.invoice_number }}</td><td>{{ row.item.invoice.invoice_date|jalali }}</td><td>{{ row.item.total }}</td><td>{{ row.item.allocated }}</td><td>{{ row.item.outstanding }}</td><td>{{ row.field }}{{ row.field.errors }}</td></tr>{% endfor %}
 </tbody></table>
 <p class="empty">سقف هر تخصیص توسط سرویس خزانه کنترل می‌شود: نه بیشتر از مانده فاکتور و نه بیشتر از مبلغ این دریافت/پرداخت.</p>
 <button type="submit">ثبت تخصیص‌ها</button></form>

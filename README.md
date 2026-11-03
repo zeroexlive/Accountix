@@ -4,7 +4,7 @@ Accounting and inventory management software for small and medium-sized
 commercial businesses. Initial target market: Iran. Architecture is prepared
 for international markets without a rewrite.
 
-> **Status (2026-11-03): Sprints 01-11 done; release verdict "Ready
+> **Status (2026-11-03): Sprints 01-13 done; release verdict "Ready
 > with documented limitations" (`docs/engineering/RELEASE_READINESS.md`).**
 > Authentication, companies/memberships, fiscal years/periods, chart of
 > accounts, the double-entry journal engine (posting/reversal, trial
@@ -13,7 +13,7 @@ for international markets without a rewrite.
 > cheque workflows), financial statements, fiscal closing, opening
 > balances, a reporting dashboard with CSV/XLSX exports and print
 > templates, a standalone launcher with backup/restore, and a
-> PostgreSQL-verified, type-checked codebase (214 tests on SQLite).
+> PostgreSQL-verified, type-checked codebase (283 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -21,7 +21,10 @@ for international markets without a rewrite.
 > headline limitation: the web UI now does full data entry — parties,
 > catalog, purchase/sales invoices and returns, treasury, cheque
 > actions and manual journals — always through the service layer,
-> never around it — see `docs/engineering/CURRENT_STATE.md`.
+> never around it. Sprint 13 completed data entry (opening balances,
+> stock counts, fiscal closing/reopening from the fiscal-year pages)
+> and made every displayed date Jalali (ADR-040; storage and inputs
+> stay Gregorian) — see `docs/engineering/CURRENT_STATE.md`.
 
 ## Stack
 

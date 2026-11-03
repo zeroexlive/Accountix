@@ -4,7 +4,7 @@
 <select name="company">{% for c in companies %}<option value="{{ c.pk }}" {% if company and c.pk == company.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
 <label>دوره مالی (مانده تا پایان دوره)</label>
 <select name="period"><option value="">بدون دوره</option>{% for p in periods %}<option value="{{ p.pk }}" {% if period and p.pk == period.pk %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
-<label>تا تاریخ</label><input type="date" name="as_of" value="{{ request.GET.as_of }}">
+<label>تا تاریخ (میلادی)</label><input type="date" name="as_of" value="{{ request.GET.as_of }}">
 <button type="submit">نمایش</button></form></div>
 {% if result %}<div class="card"><table>
 <tr><th>حساب</th><th>مبلغ</th></tr>

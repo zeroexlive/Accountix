@@ -10,6 +10,7 @@ urlpatterns = [
     path("journal/<uuid:pk>/", views.journal_detail, name="journal_detail"),
     path("journal/<uuid:pk>/post/", views.journal_post, name="journal_post"),
     path("journal/<uuid:pk>/reverse/", views.journal_reverse, name="journal_reverse"),
+    path("opening-balances/", views.opening_balance_create, name="opening_balance_create"),
     path("trial-balance/", views.trial_balance_view, name="trial_balance"),
     path("income-statement/", views.income_statement_view, name="income_statement"),
     path("balance-sheet/", views.balance_sheet_view, name="balance_sheet"),

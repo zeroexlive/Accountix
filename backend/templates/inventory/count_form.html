@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block content %}
+<h1>انبارگردانی جدید</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<div class="card">
+<p>با ایجاد انبارگردانی، موجودی لحظه‌ای همه کالاهای انبار انتخاب‌شده به‌عنوان «موجودی سیستمی» ثبت (اسنپ‌شات) می‌شود و مقدار شمارش‌شده هر کالا موقتاً همان مقدار سیستمی است. از این لحظه تا ثبت نهایی، انبار باید ثابت بماند: اگر موجودی هر کالا تغییر کند، ثبت نهایی رد می‌شود و شمارش باید از نو انجام شود.</p>
+</div>
+<form method="post" class="doc-form">{% csrf_token %}
+<div class="card">
+<p>شرکت: <strong>{{ company.name }}</strong></p>
+{{ form.company }}
+{{ form.non_field_errors }}
+<p><label for="{{ form.warehouse.id_for_label }}">انبار</label>{{ form.warehouse }}{{ form.warehouse.errors }}</p>
+<p><label for="{{ form.count_date.id_for_label }}">تاریخ شمارش</label>{{ form.count_date }}{{ form.count_date.errors }}{% if form.count_date.help_text %}<span class="helptext">{{ form.count_date.help_text }}</span>{% endif %}</p>
+<p><label for="{{ form.description.id_for_label }}">شرح</label>{{ form.description }}{{ form.description.errors }}</p>
+</div>
+<p><button type="submit">ایجاد انبارگردانی</button> <a class="btn btn-ghost" href="{% url 'inventory_counts' %}">بازگشت</a></p>
+</form>
+{% endif %}
+{% endblock %}

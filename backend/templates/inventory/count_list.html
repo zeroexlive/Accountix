@@ -1,11 +1,12 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}{% load jalali %}{% block content %}
 <h1>انبارگردانی‌ها</h1>
+<p><a class="btn" href="{% url 'inventory_count_create' %}">انبارگردانی جدید</a></p>
 <div class="card"><table>
-<tr><th>تاریخ</th><th>شرکت</th><th>انبار</th><th>وضعیت</th><th>کالا</th><th>سیستمی</th><th>شمارش‌شده</th><th>مغایرت</th></tr>
+<tr><th>تاریخ</th><th>شرکت</th><th>انبار</th><th>وضعیت</th><th>کالا</th><th>سیستمی</th><th>شمارش‌شده</th><th>مغایرت</th><th></th></tr>
 {% for count in counts %}{% for line in count.lines.all %}
-<tr><td>{{ count.count_date }}</td><td>{{ count.company.name }}</td><td>{{ count.warehouse.code }}</td><td>{{ count.status }}</td><td>{{ line.product.sku }}</td><td>{{ line.system_qty }}</td><td>{{ line.counted_qty }}</td><td>{{ line.variance }}</td></tr>
+<tr><td>{{ count.count_date|jalali }}</td><td>{{ count.company.name }}</td><td>{{ count.warehouse.code }}</td><td>{{ count.status }}</td><td>{{ line.product.sku }}</td><td>{{ line.system_qty }}</td><td>{{ line.counted_qty }}</td><td>{{ line.variance }}</td><td><a href="{% url 'inventory_count_detail' count.pk %}">جزئیات</a></td></tr>
 {% endfor %}{% empty %}
-<tr><td colspan="8" class="empty">انبارگردانی‌ای ثبت نشده است.</td></tr>
+<tr><td colspan="9" class="empty">انبارگردانی‌ای ثبت نشده است.</td></tr>
 {% endfor %}
 </table></div>
 {% endblock %}

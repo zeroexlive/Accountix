@@ -1,0 +1,47 @@
+{% extends "base.html" %}{% block content %}
+<h1>تراز افتتاحیه</h1>
+{% if not company %}{% include "_company_chooser.html" %}{% else %}
+<div class="card">
+<p>تراز افتتاحیه در اولین روز نخستین دوره سال مالی ثبت می‌شود. ردیف‌ها لازم نیست با هم تراز باشند: اختلاف جمع بدهکار و بستانکار به‌صورت خودکار روی «حساب طرف تراز افتتاحیه» (مثلاً سود انباشته یا تراز افتتاحیه) می‌نشیند تا سند همیشه متوازن باشد. برای مانده اول دوره مشتریان و تأمین‌کنندگان، طرف‌حساب را روی ردیف مشخص کنید.</p>
+<p class="empty">موجودی اول دوره کالاها جزو این سند نیست: کالای اول دوره با یک رسید انبار با مرجع <bdi>opening_stock</bdi> وارد می‌شود تا میانگین موزون از همان ابتدا درست شکل بگیرد. مانده‌های فعلی انبار را در <a href="{% url 'stock_balances' %}">موجودی انبار</a> ببینید.</p>
+</div>
+{% if fiscal_years %}
+<div class="card"><form method="get" class="inline-form">
+<input type="hidden" name="company" value="{{ company.pk }}">
+<span><label>سال مالی</label>
+<select name="fiscal_year">{% for y in fiscal_years %}<option value="{{ y.pk }}" {% if fiscal_year and y.pk == fiscal_year.pk %}selected{% endif %}>{{ y.name }}</option>{% endfor %}</select></span>
+<button type="submit">نمایش</button></form></div>
+{% endif %}
+{% if existing %}
+<div class="card">
+<p>برای سال مالی <strong>{{ fiscal_year.name }}</strong> تراز افتتاحیه قبلاً ثبت شده است؛ برای هر سال مالی فقط یک سند افتتاحیه وجود دارد.</p>
+<p><a class="btn" href="{% url 'journal_detail' existing.pk %}">مشاهده سند افتتاحیه</a></p>
+</div>
+{% elif fiscal_year %}
+<form method="post" class="doc-form">{% csrf_token %}
+<div class="card">
+<p>شرکت: <strong>{{ company.name }}</strong> — سال مالی: <strong>{{ fiscal_year.name }}</strong></p>
+{{ form.company }}
+{{ form.non_field_errors }}
+<input type="hidden" name="fiscal_year" value="{{ fiscal_year.pk }}">
+<p><label for="{{ form.offset_account.id_for_label }}">حساب طرف تراز افتتاحیه</label>{{ form.offset_account }}{{ form.offset_account.errors }}</p>
+</div>
+<div class="card">
+<h2>ردیف‌های افتتاحیه</h2>
+{{ lines.management_form }}
+{{ lines.non_form_errors }}
+<table class="line-table"><thead><tr><th>حساب</th><th>بدهکار</th><th>بستانکار</th><th>طرف‌حساب</th><th>حذف</th></tr></thead>
+<tbody id="line-rows">
+{% for f in lines %}<tr>{% for field in f %}<td>{{ field }}{{ field.errors }}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table>
+<p><button type="button" class="btn btn-ghost" id="add-line" data-prefix="lines">+ ردیف جدید</button></p>
+<p class="empty">هر ردیف فقط بدهکار یا فقط بستانکار باشد؛ قواعد ردیف‌ها هنگام ثبت توسط سرویس حسابداری بررسی می‌شود.</p>
+</div>
+<p><button type="submit">ثبت تراز افتتاحیه</button> <a class="btn btn-ghost" href="{% url 'journal_list' %}">بازگشت</a></p>
+</form>
+{% include "_line_formset_js.html" with formset=lines %}
+{% else %}
+<div class="card"><p class="empty">این شرکت هنوز سال مالی ندارد. ابتدا از بخش سازمان یک سال مالی بسازید.</p></div>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -3,6 +3,27 @@ from django import forms
 from apps.organizations.models import Company, FiscalPeriod, FiscalYear
 
 
+class FiscalCloseForm(forms.Form):
+    """Retained-earnings picker for period/year closing (Sprint 13).
+
+    ADR-028/011: the closing entry moves the period result into a
+    retained-earnings account the *user* picks per closing — nothing
+    is hardcoded. Eligibility is the Sprint 12 GL-picker rule (active,
+    postable, same company), narrowed to EQUITY accounts.
+    """
+
+    retained_earnings: forms.ModelChoiceField = forms.ModelChoiceField(
+        queryset=None, label="حساب سود (زیان) انباشته", required=True
+    )
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.accounting.forms import eligible_accounts
+
+        if company is not None:
+            self.fields["retained_earnings"].queryset = eligible_accounts(company, "EQUITY")
+
+
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company

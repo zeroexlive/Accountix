@@ -109,13 +109,38 @@ Modular monolith, single Django project under `backend/`:
   as written — the limitation it records is now historical (the
   remaining readiness items are unchanged: PG restore drill and
   Windows bundle still NOT VERIFIED, no login rate limiting).
+- Update (Sprint 13): data entry is complete and dates display in
+  Jalali — see `SPRINT_13_REPORT.md`, ADR-039 patterns and ADR-040.
+  The three Sprint 07 workflows that still had read-only pages now
+  have UI: fiscal period closing (preview with the period's
+  income-statement totals + retained-earnings picker →
+  `close_fiscal_period`), reopening via `reopen_fiscal_period` (the
+  service reverses the closing entry; the UI never flips a status),
+  whole-year closing via `close_fiscal_year`, opening balances via
+  `post_opening_balance` (one entry per fiscal year; the page links
+  to the existing entry instead of offering a duplicate), and stock
+  counts end to end (create snapshots all stockable products →
+  counted quantities edited on the count page via the one new
+  service `update_inventory_count_lines` → post with optional GL
+  variance booking; the ADR-027 freeze rejection surfaces verbatim,
+  with snapshot vs live quantities side by side). Dates: every
+  displayed date renders Jalali (`YYYY/MM/DD`, Latin digits) through
+  the `jalali` template filter in `apps/core/templatetags` backed by
+  the pinned `jdatetime` dependency; storage, services and all form
+  inputs stay Gregorian, and filter date inputs are labelled
+  «(میلادی)». No page remains read-only except the statement/report
+  pages themselves (filters + exports, by design). Suite: 283 passed
+  + 3 skipped on SQLite, mypy clean, no model changes.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
   CDN would break the offline-first claim). Interactivity is server-rendered.
   Since Sprint 12 the web UI is fully writable for business documents
-  (data entry through the service layer only — see ADR-039); statement
-  and stock-count pages remain read-only views.
+  (data entry through the service layer only — see ADR-039), and since
+  Sprint 13 also for opening balances, stock counts and fiscal
+  closing. Displayed dates are Jalali (ADR-040); inputs stay
+  Gregorian. Only the statement/report pages are read-only views
+  (they take filters and produce exports, by design).
 
 ## 3. Existing functionality (implemented + tested in Sprint 01)
 
@@ -201,7 +226,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-214 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+283 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -217,7 +242,12 @@ the real management commands; Sprint 10: +9 tests (3 PostgreSQL
 concurrency — they skip on SQLite — 5 password-validator/security
 settings, 1 open-items query-count); Sprint 11: +12 dashboard-v2
 tests (series equality, delta cases, performance percentages and
-empty states, sidebar link integrity, print markers) — see the sprint reports for exact
+empty states, sidebar link integrity, print markers); Sprint 12:
++44 data-entry UI tests (golden-path buy→sell→pay E2E through the
+forms, per-area UI flows, negative/permission paths); Sprint 13:
++25 (Jalali conversion pairs + rendered pages, closing/reopen via
+UI, opening balances via UI, stock-count UI incl. the freeze
+rejection and the draft-lines service) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -239,9 +269,12 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    ~~Sprint 10 production hardening~~ — done (PostgreSQL suite +
    concurrency fixes, mypy gate, Python 3.13 verified, security
    review, RELEASE_READINESS.md verdict "Ready with documented
-   limitations"). Post-v1.0 candidates: data-entry UI for business
-   documents, Windows verification, login rate limiting, PG restore
-   drill, Jalali display + translations, bank reconciliation.
+   limitations"). ~~Data-entry UI for business documents~~ — done
+   (Sprints 12–13, including opening balances, stock counts, fiscal
+   closing and Jalali display). Post-v1.0 candidates: bank
+   reconciliation (largest unbuilt treasury feature), Windows
+   verification, login rate limiting, PG restore drill, .po
+   translations.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
