@@ -78,8 +78,15 @@ for international markets without a rewrite.
 > members read, every role except VIEWER operates documents,
 > OWNER/ADMIN administer fiscal structure and closing — with
 > a Persian 403 page for under-roled members and unchanged
-> 404 isolation for non-members. There is no members UI yet;
-> roles are assigned in the Django admin. No migration.
+> 404 isolation for non-members. No migration.
+> Sprint 26 gave GOVERN its surface (ADR-051): each company's
+> OWNER manages its members in the UI — attach an existing user
+> by username or create one inline (no invites; offline-first),
+> change roles with immediate effect, deactivate instead of
+> deleting — with a guard that the company's last active OWNER
+> can never be demoted or deactivated. The bundle was rebuilt
+> in the same sprint and is current through Sprint 26.
+> No migration.
 
 ## Stack
 

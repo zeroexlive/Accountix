@@ -335,6 +335,24 @@ Modular monolith, single Django project under `backend/`:
   PyInstaller bundle is now one sprint behind the code again
   (Sprint 24 build); the Windows bundle remains the only
   NOT VERIFIED release-gate item.
+- Update (Sprint 26): the GOVERN tier is real — a per-company
+  members UI (ADR-051) lists the roster and lets the OWNER
+  attach an existing user by username or create a new user
+  inline (full password validators, Sprint 24 pattern; no
+  email invites — the product is offline-first), change roles
+  (effective on the member's next request), and deactivate /
+  reactivate memberships. Deactivation is the removal path —
+  no hard delete — and cuts access immediately; a service-layer
+  guard refuses to demote or deactivate the company's last
+  active OWNER. All mutations are organizations services that
+  re-assert GOVERN themselves; Django-admin assignment remains
+  available as the operator's tool. No model changes, no
+  migration. The PyInstaller bundle was rebuilt in the same
+  sprint and its frozen smoke ran the whole story bundle-only
+  (setup → members page → create a VIEWER inline → that user
+  logs in, reads, and is 403-denied on an OPERATE POST), so the
+  bundle is current through Sprint 26; the Windows bundle
+  remains the only NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -495,7 +513,18 @@ for all 8 roles, viewer operate POSTs 403 with nothing persisted,
 operate-tier administer denials, top-tier administer passes,
 service-layer PermissionDenied assertions, non-member 404 on read
 and write, per-company OWNER-of-A/VIEWER-of-B resolution, setup
-admin unaffected, button-hiding and shell role-label checks)
+admin unaffected, button-hiding and shell role-label checks);
+Sprint 26:
++22 (members UI: GOVERN gating of page + actions for non-OWNER
+members with nothing persisted, non-member 404, attach-existing
+happy path + unknown-username / already-member / invalid-role
+form errors, create-new happy path with a real login POST, weak
+password rejected by the validators, duplicate username, role
+change governing the member's very next request, last-owner
+demote + deactivate refused with two-owner lift, deactivation
+cutting access to 404 and reactivation restoring it,
+cross-company membership id 404, service-layer GOVERN assertion
+and guard)
 — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
@@ -547,4 +576,4 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
 4. Generate `uv.lock`; add coverage measurement to CI.
-5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; the follow-up is a GOVERN-gated members UI with the last-OWNER guard).
+5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; ~~the follow-up is a GOVERN-gated members UI with the last-OWNER guard~~ — done, Sprint 26, ADR-051).

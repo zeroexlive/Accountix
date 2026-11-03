@@ -1209,3 +1209,74 @@ OWNER of the new company); company *settings edits* do not exist
 as a surface either (companies are created, never edited, in the
 UI), so the ADMINISTER row's "company settings" entry is reserved
 for when such a page lands.
+
+## ADR-051 — Members UI: GOVERN gets a surface, deactivation is removal, the last OWNER is guarded (accepted, Sprint 26)
+
+ADR-050 (5) left the GOVERN tier defined but unapplied — no
+members UI existed, so membership assignment stayed with the
+Django admin. This ADR builds that surface in the organizations
+app: a per-company members page (roster + add + role change +
+(de)activation) under `companies/<pk>/members/…`, gated GOVERN
+end to end with the ADR-050 ordering (membership scoping first:
+non-member → 404; member below OWNER → 403), and linked only for
+OWNERs (company detail page + company list rows, via the Sprint
+25 `company_can` tag).
+
+(1) **Two add paths, no invites.** The product is offline-first,
+so there is no email-invite flow. An OWNER either attaches an
+EXISTING system user by exact username, or creates a NEW user
+inline (username, first/last name, password) and attaches them in
+the same transaction. The create path reuses the Sprint 24 setup
+pattern (ADR-049): a `UserCreationForm` subclass, so the full
+AUTH_PASSWORD_VALIDATORS set and the username-uniqueness check
+run as form validation — a weak password or a duplicate username
+is a form error and nothing is created. The new user gets no
+staff/superuser flags: product authority is the membership alone,
+and they can log in immediately. Already-a-member — on either
+path, active or deactivated — is a friendly form error; the
+service repeats the check so the model's unique constraint never
+leaks as an IntegrityError.
+
+(2) **All mutations are services that assert GOVERN themselves.**
+`add_member`, `create_member`, `change_member_role`,
+`deactivate_member`, `reactivate_member` live in
+`apps/organizations/services.py`, take the actor, and repeat the
+tier assertion via `_require_govern_role` — the ADR-050 (3)
+defense-in-depth posture, with the same convention: `actor=None`
+is the trusted internal path, and a failure is `PermissionDenied`,
+never a `ValidationError`. Role changes take effect on the
+member's very next request because enforcement resolves the role
+per request from the membership row (proven by test: an
+ACCOUNTANT's OPERATE POST succeeds, the OWNER demotes them to
+VIEWER, the identical POST then 403s).
+
+(3) **The last-owner guard.** Demoting or deactivating a
+membership that is the company's sole remaining ACTIVE OWNER is
+refused with a `ValidationError` (a Persian message, catalogued)
+and nothing changes. The guard counts active owners *excluding*
+the target row, so it applies identically when the actor targets
+themselves, and lifts as soon as a second active owner exists.
+Without it, one misclick could leave a company with nobody able
+to govern it — an unrecoverable state for an offline install
+short of database surgery.
+
+(4) **Deactivation is the removal path; there is no hard
+delete.** Membership rows carry history (who held which role,
+when) and may be referenced by audit trails, so removal flips
+`is_active` off and keeps the row. That is sufficient as a
+security boundary because Sprint 25 already made every scoped
+queryset and role lookup see ACTIVE memberships only: a
+deactivated user's access to the company becomes 404
+immediately, and reactivation restores the previous role with no
+re-entry of data. The roster keeps inactive rows visible (with a
+reactivate action) so the state is never a surprise.
+
+(5) **Scope kept.** The Django admin remains able to edit
+memberships directly — it is the operator's own tool, outside
+product roles by design (ADR-050 (5)). Password resets for
+members are not part of this surface (an admin task, via the
+launcher's `manage changepassword` passthrough); self-service
+profile editing is a separate future surface. No model changes
+were needed — `CompanyMembership.created_at` (from the shared
+timestamp base) is the roster's "joined" date — so this sprint
+ships no migration.

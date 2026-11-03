@@ -1,2 +1,3 @@
-{% extends "base.html" %}{% load i18n %}{% block content %}
-<h1>{{ company.name }}</h1><div class="card"><p>{{ company.legal_name }}</p><p>{% blocktrans with currency=company.default_currency %}ارز پیش‌فرض: {{ currency }}{% endblocktrans %}</p></div>{% endblock %}
+{% extends "base.html" %}{% load i18n access_tags %}{% block content %}
+<h1>{{ company.name }}</h1><div class="card"><p>{{ company.legal_name }}</p><p>{% blocktrans with currency=company.default_currency %}ارز پیش‌فرض: {{ currency }}{% endblocktrans %}</p>
+{% company_can company "GOVERN" as can_govern %}{% if can_govern %}<p><a class="btn" href="{% url 'company_members' company.pk %}">{% trans "اعضای شرکت" %}</a></p>{% endif %}</div>{% endblock %}

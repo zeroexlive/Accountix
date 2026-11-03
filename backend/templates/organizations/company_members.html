@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+<h1>{% blocktrans with name=company.name %}اعضای شرکت {{ name }}{% endblocktrans %}</h1>
+<div class="card">
+<table><tr><th>{% trans "کاربر" %}</th><th>{% trans "نقش" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "تاریخ عضویت" %}</th><th>{% trans "عملیات" %}</th></tr>
+{% for m in memberships %}<tr>
+<td>{{ m.user.username }}{% if m.user.get_full_name %} — {{ m.user.get_full_name }}{% endif %}</td>
+<td>{{ m.get_role_display }}</td>
+<td>{% if m.is_active %}{% trans "فعال" %}{% else %}{% trans "غیرفعال" %}{% endif %}</td>
+<td>{{ m.created_at|jalali }}</td>
+<td>
+<form method="post" action="{% url 'company_member_role' company.pk m.pk %}">{% csrf_token %}<select name="role">{% for value, label in role_choices %}<option value="{{ value }}"{% if value == m.role %} selected{% endif %}>{{ label }}</option>{% endfor %}</select> <button type="submit" class="btn btn-ghost">{% trans "تغییر نقش" %}</button></form>
+{% if m.is_active %}<form method="post" action="{% url 'company_member_deactivate' company.pk m.pk %}" onsubmit="return confirm('{% trans "این عضویت غیرفعال شود؟ دسترسی کاربر به شرکت بلافاصله قطع می‌شود." %}')">{% csrf_token %}<button type="submit" class="btn-danger">{% trans "غیرفعال‌کردن" %}</button></form>
+{% else %}<form method="post" action="{% url 'company_member_reactivate' company.pk m.pk %}">{% csrf_token %}<button type="submit" class="btn btn-ghost">{% trans "فعال‌سازی دوباره" %}</button></form>{% endif %}
+</td></tr>
+{% empty %}<tr><td colspan="5" class="empty">{% trans "این شرکت عضوی ندارد." %}</td></tr>{% endfor %}</table>
+</div>
+<div class="card">
+<h2>{% trans "افزودن عضو موجود" %}</h2>
+<p class="empty">{% trans "اگر کاربر از قبل در سیستم حساب دارد، با نام کاربری دقیق او را به این شرکت اضافه کنید." %}</p>
+<form method="post" action="{% url 'company_member_add_existing' company.pk %}">{% csrf_token %}{{ attach_form.as_p }}<button type="submit">{% trans "افزودن عضو" %}</button></form>
+</div>
+<div class="card">
+<h2>{% trans "ساخت کاربر جدید" %}</h2>
+<p class="empty">{% trans "برای فردی که هنوز حساب ندارد، همین‌جا کاربر بسازید؛ می‌تواند بلافاصله وارد شود." %}</p>
+<form method="post" action="{% url 'company_member_add_new' company.pk %}">{% csrf_token %}{{ create_form.as_p }}<button type="submit">{% trans "ساخت و افزودن" %}</button></form>
+</div>
+<p><a class="btn btn-ghost" href="{% url 'company_detail' company.pk %}">{% trans "بازگشت به شرکت" %}</a></p>
+{% endblock %}

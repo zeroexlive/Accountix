@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 19:19+0330\n"
+"POT-Creation-Date: 2026-11-03 19:45+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -429,7 +429,9 @@ msgstr "Unit name"
 
 #: apps/catalog/forms.py:23 apps/catalog/forms.py:36 apps/catalog/forms.py:70
 #: apps/inventory/forms.py:20 apps/parties/forms.py:26
-#: templates/inventory/product_list.html:4 templates/parties/party_list.html:4
+#: templates/inventory/product_list.html:4
+#: templates/organizations/company_members.html:8
+#: templates/parties/party_list.html:4
 msgid "فعال"
 msgstr "Active"
 
@@ -1026,9 +1028,40 @@ msgstr "Inventory count posted."
 msgid "انبارگردانی برگشت خورد."
 msgstr "Inventory count reversed."
 
-#: apps/organizations/forms.py:17
+#: apps/organizations/forms.py:21
 msgid "حساب سود (زیان) انباشته"
 msgstr "Retained earnings account"
+
+#: apps/organizations/forms.py:42
+msgid "نام کاربری"
+msgstr "Username"
+
+#: apps/organizations/forms.py:43 apps/organizations/forms.py:75
+#: templates/organizations/company_members.html:4
+#: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
+msgid "نقش"
+msgstr "Role"
+
+#: apps/organizations/forms.py:55
+msgid "کاربری با این نام کاربری یافت نشد."
+msgstr "No user with this username was found."
+
+#: apps/organizations/forms.py:59
+msgid "این کاربر از قبل عضو این شرکت است."
+msgstr "This user is already a member of this company."
+
+#: apps/organizations/forms.py:73 apps/parties/forms.py:20
+#: templates/accounting/account_list.html:3
+#: templates/inventory/product_list.html:4
+#: templates/organizations/company_list.html:3
+#: templates/organizations/fiscal_year_list.html:3
+#: templates/parties/party_list.html:4 templates/treasury/account_list.html:4
+msgid "نام"
+msgstr "Name"
+
+#: apps/organizations/forms.py:74
+msgid "نام خانوادگی"
+msgstr "Last name"
 
 #: apps/organizations/models.py:41
 msgid "Owner"
@@ -1072,52 +1105,88 @@ msgstr "Open"
 msgid "Closed"
 msgstr "Closed"
 
-#: apps/organizations/services.py:14
+#: apps/organizations/services.py:15
 #, python-format
 msgid "%(start_label)s must be on or before %(end_label)s."
 msgstr "%(start_label)s must be on or before %(end_label)s."
 
-#: apps/organizations/services.py:48
+#: apps/organizations/services.py:66
+msgid "Invalid role."
+msgstr "Invalid role."
+
+#: apps/organizations/services.py:97
+msgid "The last active owner of a company cannot be demoted or deactivated."
+msgstr "The last active owner of a company cannot be demoted or deactivated."
+
+#: apps/organizations/services.py:115
+msgid "This user is already a member of this company."
+msgstr "This user is already a member of this company."
+
+#: apps/organizations/services.py:194
 msgid "Fiscal year overlaps an existing fiscal year for this company."
 msgstr "Fiscal year overlaps an existing fiscal year for this company."
 
-#: apps/organizations/services.py:56
+#: apps/organizations/services.py:202
 msgid "Fiscal period company does not match its fiscal year."
 msgstr "Fiscal period company does not match its fiscal year."
 
-#: apps/organizations/services.py:58
+#: apps/organizations/services.py:204
 msgid "Fiscal period starts before its fiscal year."
 msgstr "Fiscal period starts before its fiscal year."
 
-#: apps/organizations/services.py:60
+#: apps/organizations/services.py:206
 msgid "Fiscal period ends after its fiscal year."
 msgstr "Fiscal period ends after its fiscal year."
 
-#: apps/organizations/services.py:71
+#: apps/organizations/services.py:217
 msgid "Fiscal period overlaps another period in this fiscal year."
 msgstr "Fiscal period overlaps another period in this fiscal year."
 
-#: apps/organizations/views.py:117
+#: apps/organizations/views.py:114
+msgid "عضو به شرکت افزوده شد."
+msgstr "The member was added to the company."
+
+#: apps/organizations/views.py:138
+msgid "کاربر ساخته و به شرکت افزوده شد."
+msgstr "The user was created and added to the company."
+
+#: apps/organizations/views.py:156
+msgid "نقش عضو به‌روزرسانی شد."
+msgstr "The member's role was updated."
+
+#: apps/organizations/views.py:158
+msgid "نقش نامعتبر است."
+msgstr "Invalid role."
+
+#: apps/organizations/views.py:171
+msgid "عضویت غیرفعال شد."
+msgstr "The membership was deactivated."
+
+#: apps/organizations/views.py:180
+msgid "عضویت دوباره فعال شد."
+msgstr "The membership was reactivated."
+
+#: apps/organizations/views.py:262
 msgid "این دوره قبلاً بسته شده است."
 msgstr "This period has already been closed."
 
-#: apps/organizations/views.py:133
+#: apps/organizations/views.py:278
 msgid "دوره بسته شد و سند اختتامیه ثبت شد."
 msgstr "The period was closed and the closing entry was posted."
 
-#: apps/organizations/views.py:135
+#: apps/organizations/views.py:280
 msgid "دوره بسته شد؛ فعالیتی نداشت و سندی ثبت نشد."
 msgstr "The period was closed; it had no activity and no entry was posted."
 
-#: apps/organizations/views.py:162
+#: apps/organizations/views.py:307
 msgid "دوره بازگشایی شد و سند اختتامیه برگشت خورد."
 msgstr "The period was reopened and the closing entry was reversed."
 
-#: apps/organizations/views.py:179
+#: apps/organizations/views.py:324
 msgid "این سال مالی قبلاً بسته شده است."
 msgstr "This fiscal year has already been closed."
 
-#: apps/organizations/views.py:196
+#: apps/organizations/views.py:341
 #, python-format
 msgid "سال مالی بسته شد؛ %(count)s سند اختتامیه ثبت شد."
 msgstr "The fiscal year was closed; %(count)s closing entries were posted."
@@ -1132,14 +1201,6 @@ msgstr "Party type"
 #: templates/sales/ar_summary.html:8
 msgid "کد"
 msgstr "Code"
-
-#: apps/parties/forms.py:20 templates/accounting/account_list.html:3
-#: templates/inventory/product_list.html:4
-#: templates/organizations/company_list.html:3
-#: templates/organizations/fiscal_year_list.html:3
-#: templates/parties/party_list.html:4 templates/treasury/account_list.html:4
-msgid "نام"
-msgstr "Name"
 
 #: apps/parties/forms.py:21
 msgid "نام قانونی"
@@ -2620,8 +2681,8 @@ msgid ""
 "نقش شما در این شرکت اجازه انجام این عملیات را نمی‌دهد. برای دسترسی بیشتر با "
 "مالک شرکت در تماس باشید."
 msgstr ""
-"Your role in this company does not allow this operation. Contact the "
-"company owner for more access."
+"Your role in this company does not allow this operation. Contact the company "
+"owner for more access."
 
 #: templates/403.html:8
 msgid "بازگشت به داشبورد"
@@ -2939,6 +3000,7 @@ msgstr "Journal"
 #: templates/inventory/count_list.html:5
 #: templates/inventory/document_list.html:5
 #: templates/organizations/company_list.html:3
+#: templates/organizations/company_members.html:4
 #: templates/organizations/fiscal_year_detail.html:5
 #: templates/organizations/fiscal_year_list.html:3
 #: templates/purchases/invoice_detail.html:31
@@ -3749,6 +3811,10 @@ msgstr "Save warehouse"
 msgid "ارز پیش‌فرض: %(currency)s"
 msgstr "Default currency: %(currency)s"
 
+#: templates/organizations/company_detail.html:3
+msgid "اعضای شرکت"
+msgstr "Company members"
+
 #: templates/organizations/company_form.html:2
 #: templates/organizations/company_list.html:2
 msgid "شرکت جدید"
@@ -3757,6 +3823,85 @@ msgstr "New company"
 #: templates/organizations/company_list.html:3
 msgid "ارز"
 msgstr "Currency"
+
+#: templates/organizations/company_list.html:4
+msgid "اعضا"
+msgstr "Members"
+
+#: templates/organizations/company_members.html:2
+#, python-format
+msgid "اعضای شرکت %(name)s"
+msgstr "Members of %(name)s"
+
+#: templates/organizations/company_members.html:4
+msgid "کاربر"
+msgstr "User"
+
+#: templates/organizations/company_members.html:4
+msgid "تاریخ عضویت"
+msgstr "Joined on"
+
+#: templates/organizations/company_members.html:4
+#: templates/organizations/fiscal_year_detail.html:5
+#: templates/purchases/invoice_detail.html:24
+#: templates/sales/invoice_detail.html:24
+msgid "عملیات"
+msgstr "Actions"
+
+#: templates/organizations/company_members.html:8
+msgid "غیرفعال"
+msgstr "Inactive"
+
+#: templates/organizations/company_members.html:11
+msgid "تغییر نقش"
+msgstr "Change role"
+
+#: templates/organizations/company_members.html:12
+msgid "این عضویت غیرفعال شود؟ دسترسی کاربر به شرکت بلافاصله قطع می‌شود."
+msgstr "Deactivate this membership? The user loses access to the company immediately."
+
+#: templates/organizations/company_members.html:12
+msgid "غیرفعال‌کردن"
+msgstr "Deactivate"
+
+#: templates/organizations/company_members.html:13
+msgid "فعال‌سازی دوباره"
+msgstr "Reactivate"
+
+#: templates/organizations/company_members.html:15
+msgid "این شرکت عضوی ندارد."
+msgstr "This company has no members."
+
+#: templates/organizations/company_members.html:18
+msgid "افزودن عضو موجود"
+msgstr "Add an existing member"
+
+#: templates/organizations/company_members.html:19
+msgid ""
+"اگر کاربر از قبل در سیستم حساب دارد، با نام کاربری دقیق او را به این شرکت "
+"اضافه کنید."
+msgstr "If the user already has an account on this system, add them to this company by their exact username."
+
+#: templates/organizations/company_members.html:20
+msgid "افزودن عضو"
+msgstr "Add member"
+
+#: templates/organizations/company_members.html:23
+msgid "ساخت کاربر جدید"
+msgstr "Create a new user"
+
+#: templates/organizations/company_members.html:24
+msgid ""
+"برای فردی که هنوز حساب ندارد، همین‌جا کاربر بسازید؛ می‌تواند بلافاصله وارد شود."
+msgstr "For someone who does not have an account yet, create the user right here; they can log in immediately."
+
+#: templates/organizations/company_members.html:25
+msgid "ساخت و افزودن"
+msgstr "Create and add"
+
+#: templates/organizations/company_members.html:27
+msgid "بازگشت به شرکت"
+msgstr "Back to the company"
 
 #: templates/organizations/fiscal_period_close.html:2
 #, python-format
@@ -3869,12 +4014,6 @@ msgstr "Start: %(start)s — End: %(end)s — Status: %(status)s"
 msgid "سند اختتامیه"
 msgstr "Closing entry"
 
-#: templates/organizations/fiscal_year_detail.html:5
-#: templates/purchases/invoice_detail.html:24
-#: templates/sales/invoice_detail.html:24
-msgid "عملیات"
-msgstr "Actions"
-
 #: templates/organizations/fiscal_year_detail.html:7
 #, python-format
 msgid "سند %(date)s"
@@ -3949,10 +4088,6 @@ msgstr "Contacts"
 #: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "نام کامل"
 msgstr "Full name"
-
-#: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
-msgid "نقش"
-msgstr "Role"
 
 #: templates/parties/party_detail.html:9 templates/parties/party_form.html:12
 msgid "اصلی"
