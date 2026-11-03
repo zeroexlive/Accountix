@@ -3,9 +3,9 @@
 <div class="card">
 <p>{% blocktrans with company=entry.company.name period=entry.fiscal_period source=entry.source_type %}شرکت: {{ company }} — دوره مالی: {{ period }} — نوع منبع: {{ source }}{% endblocktrans %}{% if entry.reversal_of %} — {% trans "برگشتِ سند" %} <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
 {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}
-<table><tr><th>{% trans "حساب" %}</th><th>{% trans "شرح" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "بدهکار" %}</th><th>{% trans "بستانکار" %}</th></tr>
-{% for line in lines %}<tr><td>{{ line.account.code }} — {{ line.account.name }}</td><td>{{ line.description }}</td><td>{{ line.party|default:"—" }}</td><td>{{ line.debit }}</td><td>{{ line.credit }}</td></tr>{% endfor %}
-<tr><th>{% trans "جمع" %}</th><th></th><th></th><th>{{ entry.total_debit }}</th><th>{{ entry.total_credit }}</th></tr></table>
+<table><tr><th>{% trans "حساب" %}</th><th>{% trans "شرح" %}</th><th>{% trans "طرف‌حساب" %}</th><th class="num">{% trans "بدهکار" %}</th><th class="num">{% trans "بستانکار" %}</th></tr>
+{% for line in lines %}<tr><td>{{ line.account.code }} — {{ line.account.name }}</td><td>{{ line.description }}</td><td>{{ line.party|default:"—" }}</td><td class="num">{{ line.debit }}</td><td class="num">{{ line.credit }}</td></tr>{% endfor %}
+<tr><th>{% trans "جمع" %}</th><th></th><th></th><th class="num">{{ entry.total_debit }}</th><th class="num">{{ entry.total_credit }}</th></tr></table>
 </div>
 {% if entry.status == 'DRAFT' or entry.status == 'VALIDATED' %}
 <div class="card action-card">

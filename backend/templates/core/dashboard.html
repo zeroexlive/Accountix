@@ -65,8 +65,8 @@
 </div>
 
 <div class="card"><div class="card-head"><h2>{% trans "آخرین فاکتورهای فروش" %}</h2><span class="head-side"><a class="btn btn-ghost" href="{% url 'sales_invoice_list' %}">{% trans "همه فاکتورها" %}</a></span></div>
-<table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
-<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+<table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مشتری" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
+<tbody>{% for inv in dashboard.recent_sales %}<tr><td><a href="{% url 'sales_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.customer.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
 
 <div class="cards">
   <div class="card kpi"><h3>{% trans "مطالبات از مشتریان (معین)" %}</h3><p class="kpi-value">{{ dashboard.ar_total }}</p></div>
@@ -82,16 +82,16 @@
 
 <div class="cols-2">
   <div class="dash-stack">
-    <div class="card"><h2>{% trans "حساب‌های خزانه" %}</h2><table><thead><tr><th>{% trans "حساب" %}</th><th>{% trans "نوع" %}</th><th>{% trans "مانده" %}</th></tr></thead>
-    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td>{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "حساب خزانه‌ای تعریف نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
-    {% if dashboard.low_stock_rows %}<div class="card"><h2>{% trans "هشدار موجودی" %}</h2><table><thead><tr><th>{% trans "کد" %}</th><th>{% trans "محصول" %}</th><th>{% trans "موجودی" %}</th><th>{% trans "حداقل" %}</th></tr></thead>
-    <tbody>{% for r in dashboard.low_stock_rows %}<tr><td>{{ r.sku }}</td><td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.min_stock_level }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+    <div class="card"><h2>{% trans "حساب‌های خزانه" %}</h2><table><thead><tr><th>{% trans "حساب" %}</th><th>{% trans "نوع" %}</th><th class="num">{% trans "مانده" %}</th></tr></thead>
+    <tbody>{% for row in dashboard.treasury_rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td class="num">{{ row.balance }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "حساب خزانه‌ای تعریف نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    {% if dashboard.low_stock_rows %}<div class="card"><h2>{% trans "هشدار موجودی" %}</h2><table><thead><tr><th>{% trans "کد" %}</th><th>{% trans "محصول" %}</th><th class="num">{% trans "موجودی" %}</th><th class="num">{% trans "حداقل" %}</th></tr></thead>
+    <tbody>{% for r in dashboard.low_stock_rows %}<tr><td>{{ r.sku }}</td><td>{{ r.name }}</td><td class="num">{{ r.quantity }}</td><td class="num">{{ r.min_stock_level }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
   </div>
   <div class="dash-stack">
     <div class="card"><h2>{% trans "آخرین اسناد دفتر روزنامه" %}</h2><table><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "وضعیت" %}</th></tr></thead>
     <tbody>{% for e in dashboard.recent_entries %}<tr><td>{{ e.entry_date|jalali }}</td><td>{{ e.description }}</td><td>{{ e.status }}</td></tr>{% empty %}<tr><td colspan="3" class="empty">{% trans "سندی ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
-    <div class="card"><h2>{% trans "آخرین فاکتورهای خرید" %}</h2><table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "تأمین‌کننده" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
-    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td>{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
+    <div class="card"><h2>{% trans "آخرین فاکتورهای خرید" %}</h2><table><thead><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "تأمین‌کننده" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th>{% trans "وضعیت پرداخت" %}</th></tr></thead>
+    <tbody>{% for inv in dashboard.recent_purchases %}<tr><td><a href="{% url 'purchase_invoice_detail' inv.pk %}">{{ inv.invoice_number }}</a></td><td>{{ inv.invoice_date|jalali }}</td><td>{{ inv.supplier.name }}</td><td class="num">{{ inv.grand_total }}</td><td><span class="pill {% if inv.payment_status == 'PAID' %}pill-paid{% elif inv.payment_status == 'PARTIALLY_PAID' %}pill-partial{% else %}pill-unpaid{% endif %}">{{ inv.payment_status }}</span></td></tr>{% empty %}<tr><td colspan="5" class="empty">{% trans "فاکتوری ثبت نشده است." %}</td></tr>{% endfor %}</tbody></table></div>
   </div>
 </div>
 {% endif %}

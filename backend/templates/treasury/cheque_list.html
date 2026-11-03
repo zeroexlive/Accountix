@@ -6,6 +6,6 @@
 <label>{% trans "سررسید از (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
 <label>{% trans "سررسید تا (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">{% trans "پالایش" %}</button></form></div>
-{% if cheques %}<div class="card"><table><tr><th>{% trans "شماره" %}</th><th>{% trans "جهت" %}</th><th>{% trans "بانک" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "سررسید" %}</th><th>{% trans "وضعیت" %}</th></tr>
-{% for c in cheques %}<tr><td>{{ c.cheque_number }}</td><td>{{ c.direction }}</td><td>{{ c.bank_name }}</td><td>{{ c.amount }}</td><td>{{ c.due_date|jalali }}</td><td>{{ c.status }}</td><td><a href="{% url 'cheque_detail' c.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
+{% if cheques %}<div class="card"><table><tr><th>{% trans "شماره" %}</th><th>{% trans "جهت" %}</th><th>{% trans "بانک" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "سررسید" %}</th><th>{% trans "وضعیت" %}</th></tr>
+{% for c in cheques %}<tr><td>{{ c.cheque_number }}</td><td>{{ c.direction }}</td><td>{{ c.bank_name }}</td><td class="num">{{ c.amount }}</td><td>{{ c.due_date|jalali }}</td><td>{{ c.status }}</td><td><a href="{% url 'cheque_detail' c.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
 </table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">{% trans "چکی یافت نشد." %}</p>{% endif %}{% endblock %}

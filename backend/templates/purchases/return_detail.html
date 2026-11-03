@@ -3,8 +3,8 @@
 <div class="card">
 <p>{% trans "فاکتور اصلی:" %} <a href="{% url 'purchase_invoice_detail' invoice.pk %}">{{ invoice.invoice_number }}</a>{% blocktrans with name=invoice.supplier.name date=return.return_date|jalali %} — تأمین‌کننده: {{ name }} — تاریخ برگشت: {{ date }}{% endblocktrans %}</p>
 <p>{% blocktrans with status=return.status total=return.total_amount %}وضعیت: {{ status }} — مبلغ برگشت: {{ total }}{% endblocktrans %}</p>
-<table><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th>{% trans "مقدار برگشتی" %}</th></tr>
-{% for line in return.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td>{{ line.quantity }}</td></tr>{% endfor %}
+<table><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th class="num">{% trans "مقدار برگشتی" %}</th></tr>
+{% for line in return.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td class="num">{{ line.quantity }}</td></tr>{% endfor %}
 </table>
 <p>{% blocktrans with stock=return.stock_document|default:"—" journal=return.journal_entry|default:"—" %}سند انبار: {{ stock }} — سند حسابداری: {{ journal }}{% endblocktrans %}</p>
 </div>

@@ -4,8 +4,8 @@
 <div class="card">
 <p>{% blocktrans with name=invoice.customer.name code=invoice.customer.code date=invoice.invoice_date|jalali warehouse=invoice.warehouse.code %}مشتری: {{ name }} ({{ code }}) — تاریخ: {{ date }} — انبار: {{ warehouse }}{% endblocktrans %}</p>
 <p>{% blocktrans with status=invoice.status payment_status=invoice.payment_status %}وضعیت: {{ status }} — وضعیت پرداخت: {{ payment_status }}{% endblocktrans %}</p>
-<table><tr><th>{% trans "کالا" %}</th><th>{% trans "مقدار" %}</th><th>{% trans "واحد" %}</th><th>{% trans "قیمت واحد" %}</th><th>{% trans "تخفیف" %}</th><th>{% trans "نرخ مالیات" %}</th><th>{% trans "مالیات" %}</th></tr>
-{% for line in invoice.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td>{{ line.quantity }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td>{{ line.unit_price }}</td><td>{{ line.discount_amount }}</td><td>{{ line.tax_rate }}</td><td>{{ line.tax_amount }}</td></tr>{% endfor %}
+<table><tr><th>{% trans "کالا" %}</th><th class="num">{% trans "مقدار" %}</th><th>{% trans "واحد" %}</th><th class="num">{% trans "قیمت واحد" %}</th><th class="num">{% trans "تخفیف" %}</th><th class="num">{% trans "نرخ مالیات" %}</th><th class="num">{% trans "مالیات" %}</th></tr>
+{% for line in invoice.lines.all %}<tr><td>{{ line.product.sku }} — {{ line.product.name }}</td><td class="num">{{ line.quantity }}</td><td>{% if line.unit %}{{ line.unit.code }}{% else %}—{% endif %}</td><td class="num">{{ line.unit_price }}</td><td class="num">{{ line.discount_amount }}</td><td class="num">{{ line.tax_rate }}</td><td class="num">{{ line.tax_amount }}</td></tr>{% endfor %}
 </table>
 <p>{% trans "جمع جزء:" %} {{ invoice.subtotal }} — {% trans "تخفیف:" %} {{ invoice.discount_total }} — {% trans "مالیات:" %} {{ invoice.tax_total }} — <strong>{% trans "مبلغ کل:" %} {{ invoice.grand_total }}</strong></p>
 <p>{% blocktrans with stock=invoice.stock_document|default:"—" journal=invoice.journal_entry|default:"—" cogs=invoice.cogs_journal_entry|default:"—" %}سند انبار: {{ stock }} — سند درآمد: {{ journal }} — سند بهای تمام‌شده: {{ cogs }}{% endblocktrans %}</p>
@@ -28,6 +28,6 @@
 <button type="submit" class="btn-danger">{% trans "برگشت‌زدن فاکتور" %}</button></form>
 </div>
 {% endif %}
-{% if invoice.returns.all %}<div class="card"><h2>{% trans "برگشت‌ها" %}</h2><table><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "مبلغ" %}</th><th></th></tr>
-{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date|jalali }}</td><td>{{ r.status }}</td><td>{{ r.total_amount }}</td><td><a href="{% url 'sales_return_detail' r.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}</table></div>{% endif %}
+{% if invoice.returns.all %}<div class="card"><h2>{% trans "برگشت‌ها" %}</h2><table><tr><th>{% trans "شماره" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "وضعیت" %}</th><th class="num">{% trans "مبلغ" %}</th><th></th></tr>
+{% for r in invoice.returns.all %}<tr><td>{{ r.return_number }}</td><td>{{ r.return_date|jalali }}</td><td>{{ r.status }}</td><td class="num">{{ r.total_amount }}</td><td><a href="{% url 'sales_return_detail' r.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}</table></div>{% endif %}
 {% endblock %}

@@ -9,9 +9,9 @@
 <h2>{% trans "مقادیر برگشتی" %}</h2>
 {{ lines.management_form }}
 {{ lines.non_form_errors }}
-<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th>{% trans "فروخته‌شده" %}</th><th>{% trans "قبلاً برگشت‌خورده" %}</th><th>{% trans "قابل برگشت" %}</th><th>{% trans "مقدار برگشتی" %}</th></tr></thead>
+<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th class="num">{% trans "فروخته‌شده" %}</th><th class="num">{% trans "قبلاً برگشت‌خورده" %}</th><th class="num">{% trans "قابل برگشت" %}</th><th>{% trans "مقدار برگشتی" %}</th></tr></thead>
 <tbody>
-{% for row in line_rows %}<tr><td>{{ row.invoice_line.product.sku }} — {{ row.invoice_line.product.name }}{{ row.form.invoice_line }}</td><td>{% if row.invoice_line.unit %}{{ row.invoice_line.unit.code }}{% else %}—{% endif %}</td><td>{{ row.invoice_line.quantity }}</td><td>{{ row.returned }}</td><td>{{ row.remaining }}</td><td>{{ row.form.quantity }}{{ row.form.quantity.errors }}</td></tr>{% endfor %}
+{% for row in line_rows %}<tr><td>{{ row.invoice_line.product.sku }} — {{ row.invoice_line.product.name }}{{ row.form.invoice_line }}</td><td>{% if row.invoice_line.unit %}{{ row.invoice_line.unit.code }}{% else %}—{% endif %}</td><td class="num">{{ row.invoice_line.quantity }}</td><td class="num">{{ row.returned }}</td><td class="num">{{ row.remaining }}</td><td>{{ row.form.quantity }}{{ row.form.quantity.errors }}</td></tr>{% endfor %}
 </tbody></table>
 <p class="empty">{% trans "کالا با همان بهای تمام‌شدهٔ فروش اصلی به انبار برمی‌گردد (ADR-021)." %}</p>
 </div>

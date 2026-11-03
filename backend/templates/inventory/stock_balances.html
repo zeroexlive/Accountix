@@ -10,6 +10,6 @@
 <a class="btn" href="{% url 'export_stock_balances_xlsx' %}?company={{ company.pk }}{% if warehouse %}&warehouse={{ warehouse.pk }}{% endif %}">{% trans "خروجی Excel موجودی" %}</a>
 <a class="btn" href="{% url 'export_open_items_csv' %}?company={{ company.pk }}">{% trans "خروجی CSV اقلام باز" %}</a>
 </p>{% endif %}</div>
-{% if rows %}<div class="card"><table><tr><th>{% trans "انبار" %}</th><th>{% trans "کد (SKU)" %}</th><th>{% trans "محصول" %}</th><th>{% trans "مقدار" %}</th><th>{% trans "ارزش" %}</th><th>{% trans "میانگین موزون" %}</th></tr>
-{% for r in rows %}<tr><td>{{ r.warehouse_code }}</td><td>{{ r.sku }}</td><td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.value }}</td><td>{{ r.average_cost }}</td></tr>{% endfor %}
+{% if rows %}<div class="card"><table><tr><th>{% trans "انبار" %}</th><th>{% trans "کد (SKU)" %}</th><th>{% trans "محصول" %}</th><th class="num">{% trans "مقدار" %}</th><th class="num">{% trans "ارزش" %}</th><th class="num">{% trans "میانگین موزون" %}</th></tr>
+{% for r in rows %}<tr><td>{{ r.warehouse_code }}</td><td>{{ r.sku }}</td><td>{{ r.name }}</td><td class="num">{{ r.quantity }}</td><td class="num">{{ r.value }}</td><td class="num">{{ r.average_cost }}</td></tr>{% endfor %}
 </table></div>{% elif company %}<p class="empty">{% trans "حرکتی برای این شرکت ثبت نشده است." %}</p>{% else %}<p class="empty">{% trans "یک شرکت انتخاب کنید." %}</p>{% endif %}{% endblock %}

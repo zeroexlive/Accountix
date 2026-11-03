@@ -7,6 +7,6 @@
 <label>{% trans "از تاریخ (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
 <label>{% trans "تا تاریخ (میلادی)" %}</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">{% trans "پالایش" %}</button></form></div>
-{% if payments %}<div class="card"><table><tr><th>{% trans "تاریخ" %}</th><th>{% trans "جهت" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "روش" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th></tr>
-{% for p in payments %}<tr><td>{{ p.payment_date|jalali }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td>{{ p.amount }}</td><td>{{ p.status }}</td><td><a href="{% url 'payment_detail' p.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
+{% if payments %}<div class="card"><table><tr><th>{% trans "تاریخ" %}</th><th>{% trans "جهت" %}</th><th>{% trans "طرف‌حساب" %}</th><th>{% trans "روش" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th></tr>
+{% for p in payments %}<tr><td>{{ p.payment_date|jalali }}</td><td>{{ p.direction }}</td><td>{{ p.party.name }}</td><td>{{ p.method }}</td><td class="num">{{ p.amount }}</td><td>{{ p.status }}</td><td><a href="{% url 'payment_detail' p.pk %}">{% trans "جزئیات" %}</a></td></tr>{% endfor %}
 </table>{% include "_pagination.html" %}</div>{% else %}<p class="empty">{% trans "دریافت یا پرداختی یافت نشد." %}</p>{% endif %}{% endblock %}

@@ -20,8 +20,8 @@
 {% elif payment.status == 'POSTED' %}
 <div class="card">
 <h2>{% trans "تخصیص‌ها" %}</h2>
-{% if allocations %}<table><tr><th>{% trans "فاکتور" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
-{% for a in allocations %}<tr><td>{% if a.sales_invoice %}<a href="{% url 'sales_invoice_detail' a.sales_invoice.pk %}">{{ a.sales_invoice.invoice_number }}</a>{% else %}<a href="{% url 'purchase_invoice_detail' a.purchase_invoice.pk %}">{{ a.purchase_invoice.invoice_number }}</a>{% endif %}</td><td>{{ a.amount }}</td><td>{{ a.status }}{% if a.void_reason %} — {{ a.void_reason }}{% endif %}</td><td>{% if a.status == 'ACTIVE' %}<form method="post" action="{% url 'allocation_void' payment.pk a.pk %}" onsubmit="return confirm('{% trans "این تخصیص باطل می‌شود (حذف نمی‌شود). ادامه می‌دهید؟" %}')">{% csrf_token %}<input type="hidden" name="reason" value="ابطال از رابط کاربری"><button type="submit" class="btn-ghost">{% trans "ابطال" %}</button></form>{% endif %}</td></tr>{% endfor %}
+{% if allocations %}<table><tr><th>{% trans "فاکتور" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
+{% for a in allocations %}<tr><td>{% if a.sales_invoice %}<a href="{% url 'sales_invoice_detail' a.sales_invoice.pk %}">{{ a.sales_invoice.invoice_number }}</a>{% else %}<a href="{% url 'purchase_invoice_detail' a.purchase_invoice.pk %}">{{ a.purchase_invoice.invoice_number }}</a>{% endif %}</td><td class="num">{{ a.amount }}</td><td>{{ a.status }}{% if a.void_reason %} — {{ a.void_reason }}{% endif %}</td><td>{% if a.status == 'ACTIVE' %}<form method="post" action="{% url 'allocation_void' payment.pk a.pk %}" onsubmit="return confirm('{% trans "این تخصیص باطل می‌شود (حذف نمی‌شود). ادامه می‌دهید؟" %}')">{% csrf_token %}<input type="hidden" name="reason" value="ابطال از رابط کاربری"><button type="submit" class="btn-ghost">{% trans "ابطال" %}</button></form>{% endif %}</td></tr>{% endfor %}
 </table>{% else %}<p class="empty">{% trans "هنوز تخصیصی ثبت نشده است." %}</p>{% endif %}
 </div>
 <div class="card action-card">
@@ -29,9 +29,9 @@
 {% if open_items %}
 <form method="post" action="{% url 'payment_allocate' payment.pk %}">{% csrf_token %}
 {{ allocation_form.non_field_errors }}
-<table class="line-table"><thead><tr><th>{% trans "فاکتور" %}</th><th>{% trans "تاریخ" %}</th><th>{% trans "مبلغ کل" %}</th><th>{% trans "تخصیص‌یافته" %}</th><th>{% trans "مانده" %}</th><th>{% trans "مبلغ تخصیص" %}</th></tr></thead>
+<table class="line-table"><thead><tr><th>{% trans "فاکتور" %}</th><th>{% trans "تاریخ" %}</th><th class="num">{% trans "مبلغ کل" %}</th><th class="num">{% trans "تخصیص‌یافته" %}</th><th class="num">{% trans "مانده" %}</th><th>{% trans "مبلغ تخصیص" %}</th></tr></thead>
 <tbody>
-{% for row in allocation_rows %}<tr><td>{{ row.item.invoice.invoice_number }}</td><td>{{ row.item.invoice.invoice_date|jalali }}</td><td>{{ row.item.total }}</td><td>{{ row.item.allocated }}</td><td>{{ row.item.outstanding }}</td><td>{{ row.field }}{{ row.field.errors }}</td></tr>{% endfor %}
+{% for row in allocation_rows %}<tr><td>{{ row.item.invoice.invoice_number }}</td><td>{{ row.item.invoice.invoice_date|jalali }}</td><td class="num">{{ row.item.total }}</td><td class="num">{{ row.item.allocated }}</td><td class="num">{{ row.item.outstanding }}</td><td>{{ row.field }}{{ row.field.errors }}</td></tr>{% endfor %}
 </tbody></table>
 <p class="empty">{% trans "سقف هر تخصیص توسط سرویس خزانه کنترل می‌شود: نه بیشتر از مانده فاکتور و نه بیشتر از مبلغ این دریافت/پرداخت." %}</p>
 <button type="submit">{% trans "ثبت تخصیص‌ها" %}</button></form>

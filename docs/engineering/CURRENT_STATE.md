@@ -275,6 +275,22 @@ Modular monolith, single Django project under `backend/`:
   caches — see ADR-047 for the spurious-pass trap it closes).
   29 test assertions in 7 files migrated to the Persian strings.
   Suite: 364 passed + 3 skipped on SQLite, mypy clean.
+- Update (Sprint 22): the LTR design pass is done — see
+  `SPRINT_22_REPORT.md` and ADR-048. A scripted census found
+  zero physical direction declarations left in the stylesheet
+  or templates (Sprint 19 had taken the last conversions); the
+  sprint added the English design layer under `html[lang="en"]`
+  / `[dir="ltr"]` selectors only (Latin-first font stack,
+  tabular English display figures, the `.flip-rtl`
+  directional-icon mechanism — the audit found no current icon
+  qualifying) and activated the numeric rule: figure columns
+  across 32 templates now carry the `num` hook (inline-end
+  alignment + tabular numerals in both modes), which in Persian
+  moves figure columns to the left edge of their cells — the
+  sprint's one deliberate fa visual change, recorded in
+  ADR-048. Catalogs provably untouched (makemessages md5
+  fixpoint). Suite: 367 passed + 3 skipped on SQLite, mypy
+  clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -375,7 +391,7 @@ planned.
 
 ## 9. Test coverage assessment
 
-364 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
+367 pytest tests passing on SQLite with 3 skipped (Sprint 01: 25 — authentication 5,
 organizations/fiscal 11, accounting accounts 7, core/health/audit 2;
 Sprint 02: +17 journal/posting/reversal/reporting; Sprint 03: +32
 catalog/inventory tests; Sprint 04: +25 parties/purchasing tests;
@@ -419,7 +435,10 @@ flashes); Sprint 21:
 +1 (i18n: pinning test — an English-source service error and a
 choice label render Persian under fa, English under en; the
 sprint also migrated 29 existing assertions in 7 files to the new
-Persian renderings, count-neutral) — see the sprint reports for exact
+Persian renderings, count-neutral); Sprint 22:
++3 (i18n LTR design: stylesheet ships the en font/tabular and
+flip-rtl rules, numeric `num` hook live on a real page in both
+en/LTR and fa/RTL) — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
 not quote one. No integration/E2E/concurrency/security suites yet.
@@ -457,8 +476,9 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    ~~Translating service/choice strings into Persian in fa.po~~
    — done (Sprint 21, ADR-047; Jason took the product decision —
    the default UI's status/error vocabulary is now Persian).
-   Post-v1.0 candidates: Windows verification, an LTR design
-   pass, rebuilding the PyInstaller bundle.
+   ~~LTR design pass~~ — done (Sprint 22, ADR-048).
+   Post-v1.0 candidates: Windows verification, rebuilding the
+   PyInstaller bundle.
 2. Run the included GitHub Actions workflow once the code is on GitHub;
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.

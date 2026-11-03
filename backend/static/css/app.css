@@ -309,13 +309,36 @@ td.num,th.num{text-align:end;font-variant-numeric:tabular-nums}
 /* The shell was audited for dir=ltr: layout-critical rules already
    use logical properties (border-inline-end on the sidebar,
    margin-inline-start, text-align:start/end); the two physical
-   holdouts (table alignment, user-chip padding) were converted.
-   A pixel-perfect LTR design pass remains future work. */
+   holdouts (table alignment, user-chip padding) were converted. */
 .side-lang{margin-top:.1rem}
 .lang-switch{margin:0}
 .lang-switch .lang-btn{width:100%;text-align:center}
 .auth-lang{position:absolute;top:1rem;inset-inline-end:1rem}
 .auth-lang .lang-btn{width:auto}
+
+/* ---- English (LTR) design pass (Sprint 22, ADR-048) ---- */
+/* Latin-first type for English mode: the base stack is Tahoma-first
+   (tuned for Persian); English gets the platform UI stack with
+   Tahoma kept as a late fallback. Scoped to lang="en" so the
+   Persian rendering is untouched. */
+html[lang="en"] body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,Tahoma,sans-serif;
+}
+/* Figures in KPI values, chart-legend totals and performance
+   percentages line up in columns under English: tabular numerals.
+   (Table figures already get tabular-nums via td.num/th.num in
+   both modes; Persian display figures keep their Sprint 11 look.) */
+html[lang="en"] .kpi-value,html[lang="en"] .lg-value,html[lang="en"] .perf-pct{
+  font-variant-numeric:tabular-nums;
+}
+/* Directional-icon policy (ADR-048): an icon whose meaning IS a
+   direction (chevron, back/forward arrow) carries .flip-rtl and is
+   mirrored under LTR, where "forward" points the other way. Trend
+   arrows (↑/↓), circular/transfer arrows and representational icons
+   are never flipped. The Sprint 22 audit found no current icon
+   qualifying; the rule ships so the policy is executable the day
+   such an icon is added. */
+[dir="ltr"] .flip-rtl{transform:scaleX(-1)}
 
 /* ---- auth (login) ---- */
 .auth-shell{

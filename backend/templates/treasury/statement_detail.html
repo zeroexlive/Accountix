@@ -3,9 +3,9 @@
 <div class="card">
 <p>{% blocktrans with start=statement.start_date|jalali end=statement.end_date|jalali %}دوره: {{ start }} تا {{ end }} — وضعیت:{% endblocktrans %} {% if statement.status == 'COMPLETED' %}<span class="pill pill-paid">{% trans "نهایی" %}</span>{% else %}<span class="pill pill-partial">{% trans "باز" %}</span>{% endif %}{% if statement.source_note %} — {{ statement.source_note }}{% endif %}</p>
 <table>
-<tr><th>{% trans "مانده دفاتر (تا پایان دوره)" %}</th><td>{{ summary.book_balance }}</td><th>{% trans "مانده پایان دوره (بانک)" %}</th><td>{{ summary.statement_closing }}</td></tr>
-<tr><th>{% trans "تطبیق‌شده" %}</th><td>{% blocktrans with count=summary.matched_count total=summary.matched_total %}{{ count }} ردیف — {{ total }}{% endblocktrans %}</td><th>{% trans "ردیف‌های تطبیق‌نشده صورت‌حساب (خالص)" %}</th><td>{{ summary.unmatched_statement_net }}</td></tr>
-<tr><th>{% trans "حرکات دفتریِ نشان‌داده‌نشده در صورت‌حساب (خالص)" %}</th><td>{{ summary.outstanding_book_net }}</td><th>{% trans "اختلاف تطبیق" %}</th><td>{% if summary.difference == 0 %}<span class="pill pill-paid">{{ summary.difference }}</span>{% else %}<span class="pill pill-unpaid">{{ summary.difference }}</span>{% endif %}</td></tr>
+<tr><th>{% trans "مانده دفاتر (تا پایان دوره)" %}</th><td class="num">{{ summary.book_balance }}</td><th>{% trans "مانده پایان دوره (بانک)" %}</th><td class="num">{{ summary.statement_closing }}</td></tr>
+<tr><th>{% trans "تطبیق‌شده" %}</th><td>{% blocktrans with count=summary.matched_count total=summary.matched_total %}{{ count }} ردیف — {{ total }}{% endblocktrans %}</td><th>{% trans "ردیف‌های تطبیق‌نشده صورت‌حساب (خالص)" %}</th><td class="num">{{ summary.unmatched_statement_net }}</td></tr>
+<tr><th>{% trans "حرکات دفتریِ نشان‌داده‌نشده در صورت‌حساب (خالص)" %}</th><td class="num">{{ summary.outstanding_book_net }}</td><th>{% trans "اختلاف تطبیق" %}</th><td>{% if summary.difference == 0 %}<span class="pill pill-paid">{{ summary.difference }}</span>{% else %}<span class="pill pill-unpaid">{{ summary.difference }}</span>{% endif %}</td></tr>
 </table>
 <p class="empty">{% trans "اختلاف = مانده دفاتر − (مانده بانک − خالص ردیف‌های تطبیق‌نشده صورت‌حساب). نهایی‌کردن فقط وقتی اختلاف صفر است و هیچ ردیفی تطبیق‌نشده نمانده باشد ممکن است." %}</p>
 {% if statement.status == 'OPEN' %}
@@ -18,9 +18,9 @@
 
 <div class="card">
 <h2>{% trans "ردیف‌های صورت‌حساب" %}</h2>
-{% if lines %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "ارجاع" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "تطبیق" %}</th><th></th></tr></thead>
+{% if lines %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح" %}</th><th>{% trans "ارجاع" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "تطبیق" %}</th><th></th></tr></thead>
 <tbody>
-{% for line in lines %}<tr><td>{{ line.line_date|jalali }}</td><td>{{ line.description|default:"—" }}</td><td>{{ line.reference|default:"—" }}</td><td>{{ line.amount }}</td>
+{% for line in lines %}<tr><td>{{ line.line_date|jalali }}</td><td>{{ line.description|default:"—" }}</td><td>{{ line.reference|default:"—" }}</td><td class="num">{{ line.amount }}</td>
 <td>{% if line.is_matched %}<span class="pill pill-paid">{% trans "تطبیق‌شده" %}</span> <a href="{% url 'journal_detail' line.matched_journal_line.entry.pk %}">{% trans "سند حسابداری" %}</a>{% else %}<span class="pill pill-neutral">{% trans "تطبیق‌نشده" %}</span>{% endif %}</td>
 <td>{% if line.is_matched and statement.status == 'OPEN' %}<form method="post" action="{% url 'bank_statement_unmatch' statement.pk line.pk %}">{% csrf_token %}<button type="submit" class="btn-ghost">{% trans "لغو تطبیق" %}</button></form>{% endif %}</td></tr>{% endfor %}
 </tbody></table>{% else %}<p class="empty">{% trans "هنوز ردیفی وارد نشده است؛ از فرم ورود دستی یا بارگذاری فایل (CSV / CAMT.053 / OFX) استفاده کنید." %}</p>{% endif %}
@@ -44,9 +44,9 @@
 
 <div class="card">
 <h2>{% trans "حرکات دفتری تطبیق‌نشده (تا پایان دوره)" %}</h2>
-{% if match_forms %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح سند" %}</th><th>{% trans "مبلغ" %}</th><th>{% trans "تطبیق با ردیف صورت‌حساب" %}</th></tr></thead>
+{% if match_forms %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح سند" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "تطبیق با ردیف صورت‌حساب" %}</th></tr></thead>
 <tbody>
-{% for mf in match_forms %}<tr><td>{{ mf.row.date|jalali }}</td><td>{{ mf.row.description }}</td><td>{{ mf.row.amount }}</td>
+{% for mf in match_forms %}<tr><td>{{ mf.row.date|jalali }}</td><td>{{ mf.row.description }}</td><td class="num">{{ mf.row.amount }}</td>
 <td>{% if statement.status == 'OPEN' %}<form method="post" action="{% url 'bank_statement_match' statement.pk %}" class="inline-form">{% csrf_token %}{{ mf.form.journal_line }}{{ mf.form.statement_line }}<button type="submit" class="btn-ghost">{% trans "تطبیق" %}</button></form>{% else %}—{% endif %}</td></tr>{% endfor %}
 </tbody></table>{% else %}<p class="empty">{% trans "حرکت دفتری تطبیق‌نشده‌ای تا پایان این دوره وجود ندارد." %}</p>{% endif %}
 </div>

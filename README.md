@@ -14,7 +14,7 @@ for international markets without a rewrite.
 > closing, opening balances, a reporting dashboard with CSV/XLSX
 > exports and print templates, a standalone launcher with
 > backup/restore, and a PostgreSQL-verified, type-checked codebase
-> (354 tests on SQLite).
+> (367 tests on SQLite).
 > Sprint 11 rebuilt the web UI on design system v2 (ADR-038): a
 > Persian RTL sidebar shell, KPI delta badges, a CSS-only revenue vs
 > expenses chart and a performance panel — all figures derived from
@@ -68,6 +68,11 @@ for international markets without a rewrite.
 > default UI is now fully Persian. `compilemessages` after
 > checkout is required for both languages; without it those
 > strings fall back to the English source text. No migration.
+> Sprint 22 gave English mode its design pass (ADR-048): a
+> Latin-first font stack and tabular figures under
+> `html[lang="en"]`, a directional-icon mirroring policy, and
+> one numeric rule — figure columns align to the inline-end in
+> both directions. No migration.
 
 ## Stack
 

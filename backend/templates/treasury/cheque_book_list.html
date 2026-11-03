@@ -7,8 +7,8 @@
 <select name="account"><option value="">{% trans "همه" %}</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>
 <button type="submit">{% trans "نمایش" %}</button></form></div>{% endif %}
 <div class="card"><table>
-<tr><th>{% trans "حساب بانکی" %}</th><th>{% trans "عنوان" %}</th><th>{% trans "از شماره" %}</th><th>{% trans "کل برگ" %}</th><th>{% trans "باقی‌مانده" %}</th><th>{% trans "مصرف‌شده" %}</th><th>{% trans "باطل‌شده" %}</th><th></th></tr>
-{% for b in books %}<tr><td>{{ b.treasury_account.name }}</td><td>{{ b.label|default:"—" }}</td><td>{{ b.first_number }}</td><td>{{ b.total_count }}</td><td><strong>{{ b.unused_count }}</strong></td><td>{{ b.used_count }}</td><td>{{ b.void_count }}</td><td><a href="{% url 'cheque_book_detail' b.pk %}">{% trans "برگ‌ها" %}</a></td></tr>
+<tr><th>{% trans "حساب بانکی" %}</th><th>{% trans "عنوان" %}</th><th>{% trans "از شماره" %}</th><th class="num">{% trans "کل برگ" %}</th><th class="num">{% trans "باقی‌مانده" %}</th><th class="num">{% trans "مصرف‌شده" %}</th><th class="num">{% trans "باطل‌شده" %}</th><th></th></tr>
+{% for b in books %}<tr><td>{{ b.treasury_account.name }}</td><td>{{ b.label|default:"—" }}</td><td>{{ b.first_number }}</td><td class="num">{{ b.total_count }}</td><td class="num"><strong>{{ b.unused_count }}</strong></td><td class="num">{{ b.used_count }}</td><td class="num">{{ b.void_count }}</td><td><a href="{% url 'cheque_book_detail' b.pk %}">{% trans "برگ‌ها" %}</a></td></tr>
 {% empty %}<tr><td colspan="8" class="empty">{% trans "دفترچه چکی ثبت نشده است." %}</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

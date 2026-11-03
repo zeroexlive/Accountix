@@ -989,3 +989,63 @@ default — although the CLDR rule for Persian is `nplurals=1;
 plural=0`. The catalog contains no plural msgids today, so the
 header is inert; correct it in the header (and re-check both
 catalogs) if pluralized strings are ever introduced.
+
+## ADR-048 — LTR design policy: logical properties, one numeric rule, directional-icon flips, language-scoped type (accepted, Sprint 22)
+Sprint 19 (ADR-045) made English mode *unbroken*: the v2
+stylesheet was already logical-property based and its two physical
+holdouts were converted. Sprint 22 is the systematic design pass
+over the result, and this ADR freezes what it established as
+standing policy so future CSS does not re-introduce RTL-only
+assumptions.
+(1) **Logical properties only.** A scripted census of
+`static/css/app.css` and every non-print template found **zero**
+physical direction declarations left (no `margin/padding-left/
+right`, no `left:`/`right:` insets, no physical `text-align`, no
+floats, no physical border sides or corner radii, no
+`translateX`, no `background-position`, no hardcoded `order`).
+New styles use the logical forms (`-inline-start/-end`,
+`text-align: start/end`, `inset-inline-*`); a physical direction
+property needs a stated exception in review. Box-shadows are
+direction-agnostic by construction here (every x-offset is 0),
+and grid/flex tracks mirror with `dir` — neither needs per-mode
+rules.
+(2) **One numeric rule, both directions.** Figure columns —
+amounts, quantities, counts, balances, debit/credit, totals —
+carry the `num` class (`text-align: end` + tabular numerals):
+figures align to the inline-end in RTL and LTR alike, so a column
+of numbers lines up the same way in both modes. Sprint 22 applied
+the hook across the display tables (it existed in CSS since
+Sprint 11 but no template used it). Identifiers (account codes,
+SKUs, invoice, cheque and leaf numbers) and dates are **not**
+figures: they stay start-aligned text. Data-entry input grids are
+out of the rule (typed input keeps start alignment in both
+modes); display figures inside forms (e.g. return-form quantity
+columns) are in it. Deliberate consequence, recorded here so it
+is never mistaken for a regression: in Persian, figure columns
+move from the cell's right edge to its left edge — the single
+intentional fa visual change of the sprint; everything else in
+fa is pixel-identical.
+(3) **Directional icons flip; other icons never do.** An icon
+whose meaning *is* a direction (chevron, back/forward arrow)
+carries `.flip-rtl` and is mirrored under `[dir="ltr"]` by
+`transform: scaleX(-1)`. Trend arrows (↑/↓ KPI deltas, the
+trending-up nav glyph), circular/transfer arrows and
+representational icons (book, box, card, clock, scales…) are
+never flipped. The Sprint 22 audit of all 24 shell SVGs found no
+current icon qualifying; the rule ships so the policy is
+executable the day such an icon is added. Pagination ‹ › are
+translated string content, not CSS: the en strings already carry
+LTR-correct glyphs.
+(4) **Type is language-scoped.** English gets a Latin-first
+stack (`system-ui, "Segoe UI", Roboto, …` with Tahoma as a late
+fallback) and tabular numerals for KPI/legend/performance
+figures, both under `html[lang="en"]` selectors only. Shared
+rules must not encode tuning for one script that the other
+inherits.
+(5) **Direction differences live in selectors, not in physical
+properties.** Anything that must differ by direction is written
+under `[dir="ltr"]` / `html[lang="en"]` (or the rtl mirror), so
+the Persian rendering provably cannot change: neither selector
+matches `<html lang="fa" dir="rtl">`.
+Print templates stay out of all of this (Persian documents,
+ADR-045).

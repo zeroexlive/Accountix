@@ -6,16 +6,16 @@
 {% if count.status == 'DRAFT' %}
 <form method="post" action="{% url 'inventory_count_save' count.pk %}">{% csrf_token %}
 {{ line_forms.management_form }}
-<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "موجودی سیستمی (اسنپ‌شات)" %}</th><th>{% trans "موجودی فعلی" %}</th><th>{% trans "شمارش‌شده" %}</th><th>{% trans "بهای واحد (فقط کالای یافت‌شده)" %}</th><th>{% trans "مغایرت" %}</th></tr></thead>
+<table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th class="num">{% trans "موجودی سیستمی (اسنپ‌شات)" %}</th><th class="num">{% trans "موجودی فعلی" %}</th><th>{% trans "شمارش‌شده" %}</th><th>{% trans "بهای واحد (فقط کالای یافت‌شده)" %}</th><th class="num">{% trans "مغایرت" %}</th></tr></thead>
 <tbody>
-{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td>{{ row.line.system_qty }}</td><td>{{ row.current_qty }}</td><td>{{ row.form.counted_qty }}{{ row.form.counted_qty.errors }}</td><td>{{ row.form.unit_cost }}{{ row.form.unit_cost.errors }}</td><td>{{ row.line.variance }}</td></tr>{% endfor %}
+{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td class="num">{{ row.line.system_qty }}</td><td class="num">{{ row.current_qty }}</td><td>{{ row.form.counted_qty }}{{ row.form.counted_qty.errors }}</td><td>{{ row.form.unit_cost }}{{ row.form.unit_cost.errors }}</td><td class="num">{{ row.line.variance }}</td></tr>{% endfor %}
 </tbody></table>
 <p><button type="submit">{% trans "ذخیره مقادیر شمارش" %}</button></p>
 </form>
 {% else %}
-<table><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "موجودی سیستمی (اسنپ‌شات)" %}</th><th>{% trans "موجودی فعلی" %}</th><th>{% trans "شمارش‌شده" %}</th><th>{% trans "مغایرت" %}</th></tr></thead>
+<table><thead><tr><th>{% trans "کالا" %}</th><th class="num">{% trans "موجودی سیستمی (اسنپ‌شات)" %}</th><th class="num">{% trans "موجودی فعلی" %}</th><th class="num">{% trans "شمارش‌شده" %}</th><th class="num">{% trans "مغایرت" %}</th></tr></thead>
 <tbody>
-{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td>{{ row.line.system_qty }}</td><td>{{ row.current_qty }}</td><td>{{ row.line.counted_qty }}</td><td>{{ row.line.variance }}</td></tr>{% endfor %}
+{% for row in rows %}<tr><td>{{ row.line.product.sku }} — {{ row.line.product.name }}</td><td class="num">{{ row.line.system_qty }}</td><td class="num">{{ row.current_qty }}</td><td class="num">{{ row.line.counted_qty }}</td><td class="num">{{ row.line.variance }}</td></tr>{% endfor %}
 </tbody></table>
 {% endif %}
 </div>
