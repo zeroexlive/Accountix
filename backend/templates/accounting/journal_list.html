@@ -1,10 +1,11 @@
 {% extends "base.html" %}{% block content %}
 <h1>دفتر روزنامه</h1>
+<p><a class="btn" href="{% url 'journal_create' %}">سند دستی جدید</a></p>
 <div class="card"><form method="get">
 <label>وضعیت</label><select name="status"><option value="">همه</option>{% for value, label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
 <label>از تاریخ</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">
 <label>تا تاریخ</label><input type="date" name="date_to" value="{{ request.GET.date_to }}">
 <button type="submit">پالایش</button></form></div>
 <div class="card"><table><tr><th>تاریخ</th><th>شرح</th><th>شرکت</th><th>وضعیت</th><th>بدهکار</th><th>بستانکار</th></tr>
-{% for e in entries %}<tr><td>{{ e.entry_date }}</td><td>{{ e.description }}</td><td>{{ e.company }}</td><td>{{ e.status }}</td><td>{{ e.total_debit }}</td><td>{{ e.total_credit }}</td></tr>
+{% for e in entries %}<tr><td>{{ e.entry_date }}</td><td><a href="{% url 'journal_detail' e.pk %}">{{ e.description|default:"سند" }}</a></td><td>{{ e.company }}</td><td>{{ e.status }}</td><td>{{ e.total_debit }}</td><td>{{ e.total_credit }}</td></tr>
 {% empty %}<tr><td colspan="6" class="empty">سندی یافت نشد</td></tr>{% endfor %}</table>{% include "_pagination.html" %}</div>{% endblock %}
