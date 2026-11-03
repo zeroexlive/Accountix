@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block content %}
+<h1>طرف‌حساب {{ party.code }} — {{ party.name }}</h1>
+<p><a class="btn" href="{% url 'party_edit' party.pk %}">ویرایش</a> <a class="btn btn-ghost" href="{% url 'party_list' %}">بازگشت به فهرست</a></p>
+<div class="card">
+<p>شرکت: {{ party.company.name }} — نوع: {{ party.get_kind_display }} — فعال: {{ party.is_active }}</p>
+<p>نام قانونی: {{ party.legal_name|default:"—" }} — شناسه مالیاتی: {{ party.tax_id|default:"—" }} — شماره ثبت: {{ party.registration_number|default:"—" }}</p>
+<p>ایمیل: {{ party.email|default:"—" }} — تلفن: {{ party.phone|default:"—" }}</p>
+</div>
+{% if party.contacts.all %}<div class="card"><h2>مخاطبان</h2><table><tr><th>نام کامل</th><th>نقش</th><th>تلفن</th><th>ایمیل</th><th>اصلی</th></tr>
+{% for c in party.contacts.all %}<tr><td>{{ c.full_name }}</td><td>{{ c.role|default:"—" }}</td><td>{{ c.phone|default:"—" }}</td><td>{{ c.email|default:"—" }}</td><td>{{ c.is_primary }}</td></tr>{% endfor %}
+</table></div>{% endif %}
+{% if party.addresses.all %}<div class="card"><h2>نشانی‌ها</h2><table><tr><th>عنوان</th><th>نشانی</th><th>شهر</th><th>استان</th><th>کد پستی</th></tr>
+{% for a in party.addresses.all %}<tr><td>{{ a.label|default:"—" }}</td><td>{{ a.line1 }} {{ a.line2 }}</td><td>{{ a.city|default:"—" }}</td><td>{{ a.province|default:"—" }}</td><td>{{ a.postal_code|default:"—" }}</td></tr>{% endfor %}
+</table></div>{% endif %}
+{% endblock %}
