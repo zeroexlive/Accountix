@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n %}{% block content %}
+{% extends "base.html" %}{% load i18n access_tags %} %}{% block content %}{% company_can book.company "OPERATE" as can_act %}
 <h1>{% blocktrans with label=book.label|default:book.first_number %}دفترچه چک {{ label }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% blocktrans with name=book.treasury_account.name bank=book.treasury_account.bank_name first=book.first_number last=last_leaf.number %}حساب بانکی: <strong>{{ name }}</strong> ({{ bank }}) — بازه برگ‌ها: از <strong>{{ first }}</strong> تا <strong>{{ last }}</strong>{% endblocktrans %}</p>
@@ -10,7 +10,7 @@
 <td>{{ leaf.number }}</td>
 <td>{% if leaf.status == 'UNUSED' %}<span class="pill pill-partial">{% trans "مصرف‌نشده" %}</span>{% elif leaf.status == 'USED' %}<span class="pill pill-paid">{% trans "مصرف‌شده" %}</span>{% else %}<span class="pill pill-unpaid">{% trans "باطل‌شده" %}</span>{% endif %}</td>
 <td>{% if leaf.cheque %}<a href="{% url 'cheque_detail' leaf.cheque.pk %}">{% blocktrans with number=leaf.cheque.cheque_number amount=leaf.cheque.amount %}چک {{ number }} — {{ amount }}{% endblocktrans %}</a>{% if leaf.cheque.payment %} (<a href="{% url 'payment_detail' leaf.cheque.payment.pk %}">{{ leaf.cheque.payment.party.name }}</a>){% endif %}{% else %}—{% endif %}</td>
-<td>{% if leaf.status == 'UNUSED' %}<form method="post" action="{% url 'cheque_leaf_void' leaf.pk %}" class="inline-form" onsubmit="return confirm('{% blocktrans with number=leaf.number %}برگ {{ number }} باطل می‌شود و دیگر قابل استفاده نیست. ادامه می‌دهید؟{% endblocktrans %}')">{% csrf_token %}<button type="submit" class="btn-danger">{% trans "ابطال برگ" %}</button></form>{% endif %}</td>
+<td>{% if leaf.status == 'UNUSED' and can_act %}<form method="post" action="{% url 'cheque_leaf_void' leaf.pk %}" class="inline-form" onsubmit="return confirm('{% blocktrans with number=leaf.number %}برگ {{ number }} باطل می‌شود و دیگر قابل استفاده نیست. ادامه می‌دهید؟{% endblocktrans %}')">{% csrf_token %}<button type="submit" class="btn-danger">{% trans "ابطال برگ" %}</button></form>{% endif %}</td>
 </tr>
 {% empty %}<tr><td colspan="4" class="empty">{% trans "برگی ثبت نشده است." %}</td></tr>{% endfor %}
 </table></div>

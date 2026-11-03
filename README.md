@@ -73,6 +73,13 @@ for international markets without a rewrite.
 > `html[lang="en"]`, a directional-icon mirroring policy, and
 > one numeric rule — figure columns align to the inline-end in
 > both directions. No migration.
+> Sprint 25 made company roles real (ADR-050): membership
+> roles now gate every mutating endpoint in tiers — all
+> members read, every role except VIEWER operates documents,
+> OWNER/ADMIN administer fiscal structure and closing — with
+> a Persian 403 page for under-roled members and unchanged
+> 404 isolation for non-members. There is no members UI yet;
+> roles are assigned in the Django admin. No migration.
 
 ## Stack
 

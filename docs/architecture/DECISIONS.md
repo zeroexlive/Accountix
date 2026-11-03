@@ -1134,3 +1134,78 @@ starts no server, opens no browser and takes no instance lock;
 state-mutating commands follow the standing operator rule from
 the backup/restore docs — stop the server first. No new locking
 or safety machinery is built here.
+
+## ADR-050 — Role-permission enforcement: membership tiers on every mutating endpoint (accepted, Sprint 25)
+Since Sprint 01 every company-scoped page checked *membership* and
+nothing else: any member of a company — including a VIEWER — could
+post journals, close fiscal periods and void cheque leaves. The
+roles on `CompanyMembership` (OWNER, ADMIN, ACCOUNTANT, SALES,
+PURCHASES, WAREHOUSE, CASHIER, VIEWER; field default VIEWER) were
+display data. This ADR makes them the authorization model, closing
+CURRENT_STATE §10 item 5. The matrix (one row per operation class):
+
+| Operation class | OWNER | ADMIN | ACCOUNTANT | SALES | PURCHASES | WAREHOUSE | CASHIER | VIEWER |
+|---|---|---|---|---|---|---|---|---|
+| READ — lists, details, dashboard, reports, exports, print | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| OPERATE — create/edit drafts, post/reverse documents, payments + allocations, cheque actions, stock documents + counts, statement import + matching, master data (parties, products, units, categories, warehouses, cheque books) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| ADMINISTER — fiscal period close/reopen, fiscal year close, fiscal year creation, opening balances, chart of accounts, treasury accounts | ✓ | ✓ | — | — | — | — | — | — |
+| GOVERN — membership management (invite / role change / removal) | ✓ | — | — | — | — | — | — | — |
+
+(1) **One helper home.** All checks live in `apps/core/access.py`:
+`tier constants (READ_/OPERATE_/ADMINISTER_/GOVERN_ROLES) spelled as
+role values so the module stays import-cycle free, pinned against
+`CompanyMembership.Role` by a unit test so the two cannot drift;
+`membership_for(user, company)` (active memberships only, cached on
+the per-request user instance); `require_company_role` raising
+`PermissionDenied`; `require_posted_company_role` for the
+form-carried-company master-data views; and the
+`scoped_company_role_required(*roles)` decorator for the
+`resolve_scoped_company` create views. No view hand-rolls a check:
+object views add one line after their membership-scoped fetch,
+form-company views check the validated company, scoped creates take
+the decorator. When a scoped create cannot resolve a company yet
+(multi-company user has not chosen one), the view can only render
+its chooser — every save path in those views is already guarded by
+`company is not None` — so the decorator gates exactly when a
+company is resolved.
+(2) **403 never leaks existence.** Membership scoping runs first,
+exactly as before: a non-member's request 404s on the scoped
+queryset (or inside the resolver / posted-company lookup) before
+any role check runs. A member below the tier gets 403 rendering
+`templates/403.html` — a Persian permission-denied page in the app
+shell (strings wrapped per ADR-045/046; catalogs 1041 msgids, en
+100%). Read endpoints are unchanged: membership only, every role.
+(3) **Defense in depth in the sensitive services.** The four
+ADMINISTER services that already accept `user=`
+(`post_opening_balance`, `close_fiscal_period`,
+`reopen_fiscal_period`, `close_fiscal_year` in accounting) assert
+the tier internally via `_require_administer_role`, raising
+`PermissionDenied` (not `ValidationError` — an authorization stop,
+not form feedback; the views deliberately do not catch it).
+`user=None` remains the trusted internal path: the user-less
+service API predates the web UI and its callers are server-side
+code and tests; the web layer always passes the request user and
+is itself gated, so no request path reaches these services
+unchecked.
+(4) **UI surfacing is presentation, never the boundary.** A
+context processor (`apps.core.context_processors.company_roles`)
+exposes each membership's role, the primary membership and
+anywhere-flags; the shell shows company + role label (the
+catalogued choice label) beside the username, falling back to the
+previous generic label for membership-less users. Detail/list
+templates hide the buttons and action forms the current company
+role cannot use (per-object via the `company_can` template tag in
+`apps/core/templatetags/access_tags.py`). Tests prove the POST is
+denied with nothing persisted even though the button is hidden.
+(5) **GOVERN gates nothing yet — deliberately.** No
+membership-management UI exists (organizations URLs carry company
+and fiscal-year pages only), so there is no surface to gate and
+none was built; membership assignment remains the Django admin,
+which is the operator's own tool and out of scope for product
+roles. The follow-up is a members UI: GOVERN-gated, with the guard
+that the last OWNER of a company cannot be demoted or removed.
+Company creation stays global and ungated (the creator becomes
+OWNER of the new company); company *settings edits* do not exist
+as a surface either (companies are created, never edited, in the
+UI), so the ADMINISTER row's "company settings" entry is reserved
+for when such a page lands.

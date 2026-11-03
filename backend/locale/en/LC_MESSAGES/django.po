@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 18:52+0330\n"
+"POT-Creation-Date: 2026-11-03 19:19+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -180,242 +180,242 @@ msgstr "Posted journal entries cannot be deleted."
 msgid "Lines of a posted journal entry are immutable."
 msgstr "Lines of a posted journal entry are immutable."
 
-#: apps/accounting/reporting.py:216 apps/accounting/services.py:195
-#: apps/accounting/services.py:532 apps/accounting/services.py:620
-#: apps/accounting/services.py:715
+#: apps/accounting/reporting.py:216 apps/accounting/services.py:213
+#: apps/accounting/services.py:551 apps/accounting/services.py:640
+#: apps/accounting/services.py:736
 msgid "Fiscal period belongs to a different company."
 msgstr "Fiscal period belongs to a different company."
 
-#: apps/accounting/services.py:22
+#: apps/accounting/services.py:40
 msgid "An account cannot be its own parent."
 msgstr "An account cannot be its own parent."
 
-#: apps/accounting/services.py:24
+#: apps/accounting/services.py:42
 msgid "Parent account belongs to a different company."
 msgstr "Parent account belongs to a different company."
 
-#: apps/accounting/services.py:30
+#: apps/accounting/services.py:48
 msgid "Account hierarchy would contain a cycle."
 msgstr "Account hierarchy would contain a cycle."
 
-#: apps/accounting/services.py:32
+#: apps/accounting/services.py:50
 msgid "Existing account hierarchy contains a cycle."
 msgstr "Existing account hierarchy contains a cycle."
 
-#: apps/accounting/services.py:49
+#: apps/accounting/services.py:67
 #, python-format
 msgid "%(field)s is not a valid decimal amount."
 msgstr "%(field)s is not a valid decimal amount."
 
-#: apps/accounting/services.py:52
+#: apps/accounting/services.py:70
 #, python-format
 msgid "%(field)s is not a finite amount."
 msgstr "%(field)s is not a finite amount."
 
-#: apps/accounting/services.py:72
+#: apps/accounting/services.py:90
 #, python-format
 msgid "No fiscal period of this company contains %(entry_date)s."
 msgstr "No fiscal period of this company contains %(entry_date)s."
 
-#: apps/accounting/services.py:88
+#: apps/accounting/services.py:106
 #, python-format
 msgid "Line %(line)s: party not found."
 msgstr "Line %(line)s: party not found."
 
-#: apps/accounting/services.py:91
+#: apps/accounting/services.py:109
 #, python-format
 msgid "Line %(line)s: party belongs to a different company."
 msgstr "Line %(line)s: party belongs to a different company."
 
-#: apps/accounting/services.py:101
+#: apps/accounting/services.py:119
 msgid "A journal entry needs at least two lines."
 msgstr "A journal entry needs at least two lines."
 
-#: apps/accounting/services.py:111
+#: apps/accounting/services.py:129
 #, python-format
 msgid "Line %(line)s: account not found."
 msgstr "Line %(line)s: account not found."
 
-#: apps/accounting/services.py:114
+#: apps/accounting/services.py:132
 #, python-format
 msgid "Line %(line)s: account belongs to a different company."
 msgstr "Line %(line)s: account belongs to a different company."
 
-#: apps/accounting/services.py:118
+#: apps/accounting/services.py:136
 #, python-format
 msgid "Line %(line)s: account %(code)s is not postable."
 msgstr "Line %(line)s: account %(code)s is not postable."
 
-#: apps/accounting/services.py:123
+#: apps/accounting/services.py:141
 #, python-format
 msgid "Line %(line)s: account %(code)s is inactive."
 msgstr "Line %(line)s: account %(code)s is inactive."
 
-#: apps/accounting/services.py:130
+#: apps/accounting/services.py:148
 #, python-format
 msgid "Line %(line)s: amounts cannot be negative."
 msgstr "Line %(line)s: amounts cannot be negative."
 
-#: apps/accounting/services.py:134
+#: apps/accounting/services.py:152
 #, python-format
 msgid "Line %(line)s: a line is either debit or credit, not both."
 msgstr "Line %(line)s: a line is either debit or credit, not both."
 
-#: apps/accounting/services.py:138
+#: apps/accounting/services.py:156
 #, python-format
 msgid "Line %(line)s: a line cannot be zero on both sides."
 msgstr "Line %(line)s: a line cannot be zero on both sides."
 
-#: apps/accounting/services.py:146
+#: apps/accounting/services.py:164
 #, python-format
 msgid "Journal entry is not balanced: debit %(debit)s != credit %(credit)s."
 msgstr "Journal entry is not balanced: debit %(debit)s != credit %(credit)s."
 
-#: apps/accounting/services.py:150
+#: apps/accounting/services.py:168
 msgid "Journal entry total cannot be zero."
 msgstr "Journal entry total cannot be zero."
 
-#: apps/accounting/services.py:193 apps/accounting/services.py:416
+#: apps/accounting/services.py:211 apps/accounting/services.py:434
 msgid "Fiscal period is closed; posting is not allowed."
 msgstr "Fiscal period is closed; posting is not allowed."
 
-#: apps/accounting/services.py:266
+#: apps/accounting/services.py:284
 msgid "A reversal entry cannot itself be reversed."
 msgstr "A reversal entry cannot itself be reversed."
 
-#: apps/accounting/services.py:268 apps/accounting/services.py:272
+#: apps/accounting/services.py:286 apps/accounting/services.py:290
 msgid "This entry has already been reversed."
 msgstr "This entry has already been reversed."
 
-#: apps/accounting/services.py:270
+#: apps/accounting/services.py:288
 msgid "Only a POSTED entry can be reversed."
 msgstr "Only a POSTED entry can be reversed."
 
-#: apps/accounting/services.py:277
+#: apps/accounting/services.py:295
 msgid "Fiscal period for the reversal date is closed."
 msgstr "Fiscal period for the reversal date is closed."
 
-#: apps/accounting/services.py:281
+#: apps/accounting/services.py:299
 msgid "Entry has fewer than two lines and cannot be reversed."
 msgstr "Entry has fewer than two lines and cannot be reversed."
 
-#: apps/accounting/services.py:362
+#: apps/accounting/services.py:380
 msgid "An entry with this idempotency key already exists for this company."
 msgstr "An entry with this idempotency key already exists for this company."
 
-#: apps/accounting/services.py:413
+#: apps/accounting/services.py:431
 msgid "Only a DRAFT journal entry can be posted."
 msgstr "Only a DRAFT journal entry can be posted."
 
-#: apps/accounting/services.py:466
+#: apps/accounting/services.py:484
 #, python-format
 msgid "Opening line %(line)s: expected a dict or tuple."
 msgstr "Opening line %(line)s: expected a dict or tuple."
 
-#: apps/accounting/services.py:472
+#: apps/accounting/services.py:490
 #, python-format
 msgid "Opening line %(line)s: account not found."
 msgstr "Opening line %(line)s: account not found."
 
-#: apps/accounting/services.py:476
+#: apps/accounting/services.py:494
 #, python-format
 msgid "Opening line %(line)s: account belongs to a different company."
 msgstr "Opening line %(line)s: account belongs to a different company."
 
-#: apps/accounting/services.py:480
+#: apps/accounting/services.py:498
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is not postable."
 msgstr "Opening line %(line)s: account %(code)s is not postable."
 
-#: apps/accounting/services.py:485
+#: apps/accounting/services.py:503
 #, python-format
 msgid "Opening line %(line)s: account %(code)s is inactive."
 msgstr "Opening line %(line)s: account %(code)s is inactive."
 
-#: apps/accounting/services.py:492
+#: apps/accounting/services.py:510
 #, python-format
 msgid "Opening line %(line)s: amounts cannot be negative."
 msgstr "Opening line %(line)s: amounts cannot be negative."
 
-#: apps/accounting/services.py:496
+#: apps/accounting/services.py:514
 #, python-format
 msgid "Opening line %(line)s: a line is either debit or credit."
 msgstr "Opening line %(line)s: a line is either debit or credit."
 
-#: apps/accounting/services.py:500
+#: apps/accounting/services.py:518
 #, python-format
 msgid "Opening line %(line)s: a line cannot be zero on both sides."
 msgstr "Opening line %(line)s: a line cannot be zero on both sides."
 
-#: apps/accounting/services.py:527 apps/accounting/services.py:753
+#: apps/accounting/services.py:546 apps/accounting/services.py:775
 msgid "Fiscal year belongs to a different company."
 msgstr "Fiscal year belongs to a different company."
 
-#: apps/accounting/services.py:530
+#: apps/accounting/services.py:549
 msgid "The fiscal year has no periods."
 msgstr "The fiscal year has no periods."
 
-#: apps/accounting/services.py:535
+#: apps/accounting/services.py:554
 msgid "The first fiscal period is closed; opening balance cannot be posted."
 msgstr "The first fiscal period is closed; opening balance cannot be posted."
 
-#: apps/accounting/services.py:541
+#: apps/accounting/services.py:560
 msgid "Offset account not found."
 msgstr "Offset account not found."
 
-#: apps/accounting/services.py:543
+#: apps/accounting/services.py:562
 msgid "Offset account belongs to a different company."
 msgstr "Offset account belongs to a different company."
 
-#: apps/accounting/services.py:545
+#: apps/accounting/services.py:564
 msgid "Offset account is not postable/active."
 msgstr "Offset account is not postable/active."
 
-#: apps/accounting/services.py:548
+#: apps/accounting/services.py:567
 msgid "An opening balance needs at least one line."
 msgstr "An opening balance needs at least one line."
 
-#: apps/accounting/services.py:563
+#: apps/accounting/services.py:582
 msgid "An opening balance needs at least two journal lines."
 msgstr "An opening balance needs at least two journal lines."
 
-#: apps/accounting/services.py:622
+#: apps/accounting/services.py:642
 msgid "This fiscal period is already closed."
 msgstr "This fiscal period is already closed."
 
-#: apps/accounting/services.py:624
+#: apps/accounting/services.py:644
 msgid "This fiscal period already has an active closing entry."
 msgstr "This fiscal period already has an active closing entry."
 
-#: apps/accounting/services.py:629
+#: apps/accounting/services.py:649
 msgid "Retained earnings account not found."
 msgstr "Retained earnings account not found."
 
-#: apps/accounting/services.py:631
+#: apps/accounting/services.py:651
 msgid "Retained earnings account belongs to a different company."
 msgstr "Retained earnings account belongs to a different company."
 
-#: apps/accounting/services.py:633
+#: apps/accounting/services.py:653
 msgid "Retained earnings account is not postable/active."
 msgstr "Retained earnings account is not postable/active."
 
-#: apps/accounting/services.py:717
+#: apps/accounting/services.py:738
 msgid "Only a CLOSED fiscal period can be reopened."
 msgstr "Only a CLOSED fiscal period can be reopened."
 
-#: apps/accounting/views.py:196
+#: apps/accounting/views.py:204
 msgid "سند دستی به‌صورت پیش‌نویس ایجاد شد."
 msgstr "Manual entry created as a draft."
 
-#: apps/accounting/views.py:229
+#: apps/accounting/views.py:238
 msgid "سند ثبت نهایی شد."
 msgstr "Entry posted."
 
-#: apps/accounting/views.py:244
+#: apps/accounting/views.py:254
 msgid "سند برگشت خورد."
 msgstr "Entry reversed."
 
-#: apps/accounting/views.py:329
+#: apps/accounting/views.py:340
 msgid "تراز افتتاحیه ثبت شد."
 msgstr "Opening balance posted."
 
@@ -969,60 +969,60 @@ msgid ""
 msgstr ""
 "Reversal would make stock of %(sku)s negative in warehouse %(warehouse)s."
 
-#: apps/inventory/views.py:62
+#: apps/inventory/views.py:66
 msgid "کالا ایجاد شد."
 msgstr "Product created."
 
-#: apps/inventory/views.py:79
+#: apps/inventory/views.py:84
 msgid "کالا ذخیره شد."
 msgstr "Product saved."
 
-#: apps/inventory/views.py:96
+#: apps/inventory/views.py:101
 msgid "واحد ایجاد شد."
 msgstr "Unit created."
 
-#: apps/inventory/views.py:113
+#: apps/inventory/views.py:118
 msgid "دسته‌بندی ایجاد شد."
 msgstr "Category created."
 
-#: apps/inventory/views.py:126
+#: apps/inventory/views.py:131
 msgid "انبار ایجاد شد."
 msgstr "Warehouse created."
 
-#: apps/inventory/views.py:179
+#: apps/inventory/views.py:185
 msgid "انبارگردانی ایجاد شد؛ مقادیر شمارش‌شده را وارد کنید."
 msgstr "Inventory count created; enter the counted quantities."
 
-#: apps/inventory/views.py:247
+#: apps/inventory/views.py:254
 msgid "سند انبار به‌صورت پیش‌نویس ایجاد شد."
 msgstr "Stock document created as a draft."
 
-#: apps/inventory/views.py:257 templates/accounting/opening_balance_form.html:6
+#: apps/inventory/views.py:264 templates/accounting/opening_balance_form.html:6
 #: templates/inventory/document_list.html:3
 msgid "سند انبار جدید"
 msgstr "New stock document"
 
-#: apps/inventory/views.py:294
+#: apps/inventory/views.py:302
 msgid "سند انبار ثبت شد."
 msgstr "Stock document posted."
 
-#: apps/inventory/views.py:307
+#: apps/inventory/views.py:316
 msgid "سند انبار برگشت خورد."
 msgstr "Stock document reversed."
 
-#: apps/inventory/views.py:366
+#: apps/inventory/views.py:376
 msgid "مقادیر شمارش ذخیره شد."
 msgstr "Counted quantities saved."
 
-#: apps/inventory/views.py:368
+#: apps/inventory/views.py:378
 msgid "مقادیر شمارش معتبر نیست؛ بررسی کنید."
 msgstr "The counted quantities are invalid; please check them."
 
-#: apps/inventory/views.py:396
+#: apps/inventory/views.py:407
 msgid "انبارگردانی ثبت نهایی شد."
 msgstr "Inventory count posted."
 
-#: apps/inventory/views.py:411
+#: apps/inventory/views.py:423
 msgid "انبارگردانی برگشت خورد."
 msgstr "Inventory count reversed."
 
@@ -1097,27 +1097,27 @@ msgstr "Fiscal period ends after its fiscal year."
 msgid "Fiscal period overlaps another period in this fiscal year."
 msgstr "Fiscal period overlaps another period in this fiscal year."
 
-#: apps/organizations/views.py:114
+#: apps/organizations/views.py:117
 msgid "این دوره قبلاً بسته شده است."
 msgstr "This period has already been closed."
 
-#: apps/organizations/views.py:130
+#: apps/organizations/views.py:133
 msgid "دوره بسته شد و سند اختتامیه ثبت شد."
 msgstr "The period was closed and the closing entry was posted."
 
-#: apps/organizations/views.py:132
+#: apps/organizations/views.py:135
 msgid "دوره بسته شد؛ فعالیتی نداشت و سندی ثبت نشد."
 msgstr "The period was closed; it had no activity and no entry was posted."
 
-#: apps/organizations/views.py:158
+#: apps/organizations/views.py:162
 msgid "دوره بازگشایی شد و سند اختتامیه برگشت خورد."
 msgstr "The period was reopened and the closing entry was reversed."
 
-#: apps/organizations/views.py:174
+#: apps/organizations/views.py:179
 msgid "این سال مالی قبلاً بسته شده است."
 msgstr "This fiscal year has already been closed."
 
-#: apps/organizations/views.py:191
+#: apps/organizations/views.py:196
 #, python-format
 msgid "سال مالی بسته شد؛ %(count)s سند اختتامیه ثبت شد."
 msgstr "The fiscal year was closed; %(count)s closing entries were posted."
@@ -1216,7 +1216,7 @@ msgstr "Customer %(code)s is inactive."
 msgid "Party %(code)s is not a customer."
 msgstr "Party %(code)s is not a customer."
 
-#: apps/parties/views.py:58
+#: apps/parties/views.py:69
 msgid "طرف‌حساب ذخیره شد."
 msgstr "The party was saved."
 
@@ -1454,31 +1454,31 @@ msgstr "This purchase return has already been reversed."
 msgid "Only a POSTED purchase return can be reversed."
 msgstr "Only a POSTED purchase return can be reversed."
 
-#: apps/purchases/views.py:124
+#: apps/purchases/views.py:131
 msgid "فاکتور خرید به‌صورت پیش‌نویس ایجاد شد."
 msgstr "The purchase invoice was created as a draft."
 
-#: apps/purchases/views.py:149
+#: apps/purchases/views.py:157
 msgid "فاکتور خرید ثبت نهایی شد."
 msgstr "The purchase invoice was posted."
 
-#: apps/purchases/views.py:170
+#: apps/purchases/views.py:179
 msgid "فاکتور خرید برگشت خورد."
 msgstr "The purchase invoice was reversed."
 
-#: apps/purchases/views.py:182 apps/sales/views.py:179
+#: apps/purchases/views.py:192 apps/sales/views.py:189
 msgid "برگشت فقط برای فاکتور ثبت‌نهایی‌شده ممکن است."
 msgstr "A return is only possible for a posted invoice."
 
-#: apps/purchases/views.py:211
+#: apps/purchases/views.py:221
 msgid "برگشت خرید به‌صورت پیش‌نویس ایجاد شد."
 msgstr "The purchase return was created as a draft."
 
-#: apps/purchases/views.py:276
+#: apps/purchases/views.py:287
 msgid "برگشت خرید ثبت نهایی شد."
 msgstr "The purchase return was posted."
 
-#: apps/purchases/views.py:291
+#: apps/purchases/views.py:303
 msgid "برگشت خرید برگشت خورد."
 msgstr "The purchase return was reversed."
 
@@ -1699,27 +1699,27 @@ msgstr "This sales return has already been reversed."
 msgid "Only a POSTED sales return can be reversed."
 msgstr "Only a POSTED sales return can be reversed."
 
-#: apps/sales/views.py:125
+#: apps/sales/views.py:132
 msgid "فاکتور فروش به‌صورت پیش‌نویس ایجاد شد."
 msgstr "The sales invoice was created as a draft."
 
-#: apps/sales/views.py:148
+#: apps/sales/views.py:156
 msgid "فاکتور فروش ثبت نهایی شد."
 msgstr "The sales invoice was posted."
 
-#: apps/sales/views.py:167
+#: apps/sales/views.py:176
 msgid "فاکتور فروش برگشت خورد."
 msgstr "The sales invoice was reversed."
 
-#: apps/sales/views.py:208
+#: apps/sales/views.py:218
 msgid "برگشت فروش به‌صورت پیش‌نویس ایجاد شد."
 msgstr "The sales return was created as a draft."
 
-#: apps/sales/views.py:273
+#: apps/sales/views.py:284
 msgid "برگشت فروش ثبت نهایی شد."
 msgstr "The sales return was posted."
 
-#: apps/sales/views.py:286
+#: apps/sales/views.py:298
 msgid "برگشت فروش برگشت خورد."
 msgstr "The sales return was reversed."
 
@@ -2473,127 +2473,127 @@ msgstr "No bank transaction list (BANKTRANLIST) found in the OFX file."
 msgid "Unparseable closing balance (LEDGERBAL) %(balance)r in the OFX file."
 msgstr "Unparseable closing balance (LEDGERBAL) %(balance)r in the OFX file."
 
-#: apps/treasury/views.py:124
+#: apps/treasury/views.py:132
 msgid "حساب خزانه ایجاد شد."
 msgstr "The treasury account was created."
 
-#: apps/treasury/views.py:156
+#: apps/treasury/views.py:165
 msgid "برگ دفترچه انتخاب‌شده یافت نشد."
 msgstr "The selected cheque book leaf was not found."
 
-#: apps/treasury/views.py:176
+#: apps/treasury/views.py:185
 msgid "دریافت/پرداخت به‌صورت پیش‌نویس ایجاد شد."
 msgstr "The receipt/payment was created as a draft."
 
-#: apps/treasury/views.py:238
+#: apps/treasury/views.py:248
 msgid "دریافت/پرداخت ثبت نهایی شد."
 msgstr "The receipt/payment was posted."
 
-#: apps/treasury/views.py:269
+#: apps/treasury/views.py:280
 #, python-format
 msgid "%(invoice_number)s: %(message)s"
 msgstr "%(invoice_number)s: %(message)s"
 
-#: apps/treasury/views.py:273
+#: apps/treasury/views.py:284
 msgid "تخصیص‌ها ثبت شد و وضعیت پرداخت فاکتورها به‌روز شد."
 msgstr ""
 "Allocations were recorded and the invoices' payment status was updated."
 
-#: apps/treasury/views.py:289
+#: apps/treasury/views.py:301
 msgid "تخصیص باطل شد."
 msgstr "The allocation was voided."
 
-#: apps/treasury/views.py:302
+#: apps/treasury/views.py:315
 msgid "دریافت/پرداخت برگشت خورد."
 msgstr "The receipt/payment was reversed."
 
-#: apps/treasury/views.py:341
+#: apps/treasury/views.py:355
 msgid "چک به بانک واگذار شد."
 msgstr "The cheque was deposited to the bank."
 
-#: apps/treasury/views.py:351
+#: apps/treasury/views.py:366
 msgid "تاریخ وصول معتبر نیست."
 msgstr "The clearing date is not valid."
 
-#: apps/treasury/views.py:373
+#: apps/treasury/views.py:388
 msgid "چک وصول شد."
 msgstr "The cheque was cleared."
 
-#: apps/treasury/views.py:383
+#: apps/treasury/views.py:399
 msgid "تاریخ برگشت معتبر نیست."
 msgstr "The bounce date is not valid."
 
-#: apps/treasury/views.py:390
+#: apps/treasury/views.py:406
 msgid "چک برگشتی ثبت شد."
 msgstr "The cheque bounce was recorded."
 
-#: apps/treasury/views.py:400
+#: apps/treasury/views.py:417
 msgid "تاریخ عودت معتبر نیست."
 msgstr "The return date is not valid."
 
-#: apps/treasury/views.py:407
+#: apps/treasury/views.py:424
 msgid "چک به صادرکننده عودت داده شد."
 msgstr "The cheque was returned to the issuer."
 
-#: apps/treasury/views.py:449
+#: apps/treasury/views.py:466
 msgid "ردیف"
 msgstr "Row"
 
-#: apps/treasury/views.py:449
+#: apps/treasury/views.py:466
 msgid "تراکنش"
 msgstr "Transaction"
 
-#: apps/treasury/views.py:512 apps/treasury/views.py:783
+#: apps/treasury/views.py:530 apps/treasury/views.py:805
 msgid "فایل باید با کدگذاری UTF-8 باشد."
 msgstr "The file must be UTF-8 encoded."
 
-#: apps/treasury/views.py:571
+#: apps/treasury/views.py:589
 msgid "صورت‌حساب بانکی ایجاد شد."
 msgstr "The bank statement was created."
 
-#: apps/treasury/views.py:575 apps/treasury/views.py:788
+#: apps/treasury/views.py:593 apps/treasury/views.py:810
 #, python-format
 msgid "%(count)s ردیف از فایل وارد شد."
 msgstr "%(count)s rows were imported from the file."
 
-#: apps/treasury/views.py:580 apps/treasury/views.py:792
+#: apps/treasury/views.py:598 apps/treasury/views.py:814
 #: templates/treasury/statement_form.html:26
 #, python-format
 msgid "%(noun)s %(row)s: %(reason)s"
 msgstr "%(noun)s %(row)s: %(reason)s"
 
-#: apps/treasury/views.py:665
+#: apps/treasury/views.py:684
 msgid "دفترچه چک ایجاد شد."
 msgstr "The cheque book was created."
 
-#: apps/treasury/views.py:706
+#: apps/treasury/views.py:726
 #, python-format
 msgid "برگ %(number)s باطل شد."
 msgstr "Leaf %(number)s was voided."
 
-#: apps/treasury/views.py:758
+#: apps/treasury/views.py:779
 msgid "ردیف صورت‌حساب افزوده شد."
 msgstr "The statement line was added."
 
-#: apps/treasury/views.py:813
+#: apps/treasury/views.py:836
 #, python-format
 msgid "%(matched)s ردیف به‌صورت خودکار تطبیق شد؛ %(remaining)s ردیف باقی ماند."
 msgstr ""
 "%(matched)s rows were matched automatically; %(remaining)s rows remain."
 
-#: apps/treasury/views.py:839
+#: apps/treasury/views.py:863
 msgid "تطبیق ثبت شد."
 msgstr "The match was recorded."
 
-#: apps/treasury/views.py:853
+#: apps/treasury/views.py:878
 msgid "تطبیق لغو شد."
 msgstr "The match was cancelled."
 
-#: apps/treasury/views.py:866
+#: apps/treasury/views.py:892
 msgid "صورت‌حساب نهایی و قفل شد."
 msgstr "The statement was completed and locked."
 
-#: apps/treasury/views.py:879
+#: apps/treasury/views.py:906
 msgid "صورت‌حساب بازگشایی شد."
 msgstr "The statement was reopened."
 
@@ -2604,6 +2604,28 @@ msgstr "Company name"
 #: apps/users/views.py:92
 msgid "راه‌اندازی اولیه کامل شد؛ خوش آمدید."
 msgstr "First-run setup is complete; welcome."
+
+#: templates/403.html:2 templates/403.html:3 templates/403.html:6
+msgid "دسترسی مجاز نیست"
+msgstr "Access denied"
+
+#: templates/403.html:2 templates/base.html:6 templates/base.html:22
+#: templates/base.html:67 templates/registration/lockout.html:5
+#: templates/registration/login.html:5 templates/registration/setup.html:5
+msgid "اکانتیکس"
+msgstr "Accountix"
+
+#: templates/403.html:7
+msgid ""
+"نقش شما در این شرکت اجازه انجام این عملیات را نمی‌دهد. برای دسترسی بیشتر با "
+"مالک شرکت در تماس باشید."
+msgstr ""
+"Your role in this company does not allow this operation. Contact the "
+"company owner for more access."
+
+#: templates/403.html:8
+msgid "بازگشت به داشبورد"
+msgstr "Back to dashboard"
 
 #: templates/_company_chooser.html:6
 msgid "انتخاب شرکت"
@@ -3067,12 +3089,6 @@ msgstr "Balance"
 #: templates/accounting/trial_balance.html:14
 msgid "متوازن:"
 msgstr "Balanced:"
-
-#: templates/base.html:6 templates/base.html:22 templates/base.html:67
-#: templates/registration/lockout.html:5 templates/registration/login.html:5
-#: templates/registration/setup.html:5
-msgid "اکانتیکس"
-msgstr "Accountix"
 
 #: templates/base.html:22
 msgid "نرم‌افزار حسابداری و انبار"
@@ -4290,9 +4306,9 @@ msgid ""
 "می‌سازید؛ پس از آن این صفحه برای همیشه بسته می‌شود و ورود از صفحه ورود عادی "
 "انجام می‌شود."
 msgstr ""
-"No user has been created yet. In this one-time step you create the "
-"system administrator and the first company; after that this page "
-"closes for good and sign-in happens on the regular login page."
+"No user has been created yet. In this one-time step you create the system "
+"administrator and the first company; after that this page closes for good "
+"and sign-in happens on the regular login page."
 
 #: templates/registration/setup.html:8
 msgid "ساخت مدیر و شرکت"

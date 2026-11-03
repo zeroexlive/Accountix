@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+{% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can invoice.company "OPERATE" as can_act %}
 <p><a class="btn" href="{% url 'sales_invoice_print' invoice.pk %}">{% trans "نسخه چاپی" %}</a></p>
 <h1>{% blocktrans with number=invoice.invoice_number %}فاکتور فروش {{ number }}{% endblocktrans %}</h1>
 <div class="card">
@@ -10,7 +10,7 @@
 <p>{% trans "جمع جزء:" %} {{ invoice.subtotal }} — {% trans "تخفیف:" %} {{ invoice.discount_total }} — {% trans "مالیات:" %} {{ invoice.tax_total }} — <strong>{% trans "مبلغ کل:" %} {{ invoice.grand_total }}</strong></p>
 <p>{% blocktrans with stock=invoice.stock_document|default:"—" journal=invoice.journal_entry|default:"—" cogs=invoice.cogs_journal_entry|default:"—" %}سند انبار: {{ stock }} — سند درآمد: {{ journal }} — سند بهای تمام‌شده: {{ cogs }}{% endblocktrans %}</p>
 </div>
-{% if invoice.status == 'DRAFT' and post_form %}
+{% if can_act and invoice.status == 'DRAFT' and post_form %}
 <div class="card action-card">
 <h2>{% trans "ثبت نهایی فاکتور" %}</h2>
 <p class="empty">{% trans "با ثبت نهایی، حواله خروج انبار و اسناد حسابداری درآمد و بهای تمام‌شده به‌صورت یکجا ایجاد می‌شود. حساب‌های دفتر کل را برای همین سند انتخاب کنید." %}</p>
@@ -19,7 +19,7 @@
 {{ post_form.as_p }}
 <button type="submit">{% trans "ثبت نهایی فاکتور" %}</button></form>
 </div>
-{% elif invoice.status == 'POSTED' %}
+{% elif can_act and invoice.status == 'POSTED' %}
 <div class="card action-card">
 <h2>{% trans "عملیات" %}</h2>
 <p><a class="btn" href="{% url 'sales_return_create' invoice.pk %}">{% trans "ثبت برگشت از این فاکتور" %}</a></p>

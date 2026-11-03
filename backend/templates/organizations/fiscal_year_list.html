@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% load i18n jalali %}{% block content %}
-<h1>{% trans "سال‌های مالی" %}</h1><p><a class="btn" href="{% url 'fiscal_year_create' %}">{% trans "سال مالی جدید" %}</a></p>
+<h1>{% trans "سال‌های مالی" %}</h1>{% if can_administer_anywhere %}<p><a class="btn" href="{% url 'fiscal_year_create' %}">{% trans "سال مالی جدید" %}</a></p>{% endif %}
 <div class="card"><table><tr><th>{% trans "شرکت" %}</th><th>{% trans "نام" %}</th><th>{% trans "شروع" %}</th><th>{% trans "پایان" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
 {% for y in years %}<tr><td>{{ y.company }}</td><td>{{ y.name }}</td><td>{{ y.start_date|jalali }}</td><td>{{ y.end_date|jalali }}</td><td>{{ y.status }}</td><td><a href="{% url 'fiscal_year_detail' y.pk %}">{% trans "دوره‌ها و بستن" %}</a></td></tr>
 {% empty %}<tr><td colspan="6" class="empty">{% trans "موردی نیست" %}</td></tr>{% endfor %}</table></div>{% endblock %}

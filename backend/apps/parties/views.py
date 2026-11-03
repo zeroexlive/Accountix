@@ -3,7 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
-from apps.core.access import member_companies, require_posted_company_member, user_company_ids
+from apps.core.access import (
+    OPERATE_ROLES,
+    member_companies,
+    require_company_role,
+    require_posted_company_role,
+    user_company_ids,
+)
 from apps.parties.forms import AddressFormSet, ContactFormSet, PartyForm
 from apps.parties.models import Party
 
@@ -35,8 +41,13 @@ def _party_form_page(request, party=None):
     is_edit = party is not None
     if request.method == "POST" and not is_edit:
         # Same rule as the document create views: a company id outside
-        # the user's memberships is a 404, not a form error.
-        require_posted_company_member(request)
+        # the user's memberships is a 404, not a form error; a member
+        # below the OPERATE tier gets a 403 (ADR-050).
+        require_posted_company_role(request, OPERATE_ROLES)
+    if is_edit:
+        # Editing is an OPERATE surface on every method (ADR-050);
+        # the caller already 404'd non-members via its scoped fetch.
+        require_company_role(request.user, party.company, OPERATE_ROLES)
     form = PartyForm(request.POST or None, instance=party)
     form.fields["company"].queryset = member_companies(request.user)
     if is_edit:

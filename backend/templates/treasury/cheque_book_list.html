@@ -1,7 +1,7 @@
 {% extends "base.html" %}{% load i18n %}{% block content %}
 <h1>{% trans "دفترچه‌های چک" %}</h1>
 <p class="empty">{% trans "دفترچه چک، موجودی برگ‌های چکِ <strong>صادره</strong> از یک حساب بانکی است؛ چک‌های دریافتی کاغذِ طرف‌حساب‌اند و دفترچه ندارند." %}</p>
-<p><a class="btn" href="{% url 'cheque_book_create' %}">{% trans "دفترچه چک جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'cheque_book_create' %}">{% trans "دفترچه چک جدید" %}</a></p>{% endif %}
 {% if accounts %}<div class="card"><form method="get" class="inline-form">
 <span><label>{% trans "حساب بانکی" %}</label>
 <select name="account"><option value="">{% trans "همه" %}</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>

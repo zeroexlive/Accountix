@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load jalali i18n %}{% block content %}
 <h1>{% trans "اسناد انبار" %}</h1>
-<p><a class="btn" href="{% url 'stock_document_create' %}">{% trans "سند انبار جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'stock_document_create' %}">{% trans "سند انبار جدید" %}</a></p>{% endif %}
 <div class="card"><table>
 <tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرکت" %}</th><th>{% trans "نوع" %}</th><th>{% trans "انبار" %}</th><th>{% trans "مقصد" %}</th><th>{% trans "وضعیت" %}</th><th class="num">{% trans "ردیف‌ها" %}</th><th>{% trans "سند حسابداری" %}</th><th></th></tr>
 {% for doc in documents %}<tr><td>{{ doc.doc_date|jalali }}</td><td>{{ doc.company.name }}</td><td>{{ doc.get_doc_type_display }}{% if doc.source_type == 'opening_stock' %} {% trans "(موجودی اول دوره)" %}{% endif %}</td><td>{{ doc.warehouse.code }}</td><td>{{ doc.destination_warehouse.code|default:"—" }}</td><td>{{ doc.get_status_display }}</td><td class="num">{{ doc.lines.count }}</td><td>{% if doc.journal_entry %}<a href="{% url 'journal_detail' doc.journal_entry.pk %}">{% trans "دارد" %}</a>{% else %}—{% endif %}</td><td><a href="{% url 'stock_document_detail' doc.pk %}">{% trans "جزئیات" %}</a></td></tr>

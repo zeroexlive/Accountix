@@ -14,6 +14,24 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+def _require_administer_role(company, user) -> None:
+    """Defense-in-depth for the ADMINISTER-tier services (ADR-050).
+
+    The views gate fiscal closing and opening balances at the
+    ADMINISTER tier; the services repeat the assertion whenever a
+    user is supplied, so no future caller can widen the surface by
+    accident. ``user=None`` marks a trusted internal call (the
+    user-less service API predates the web UI) and skips the check.
+    A PermissionDenied — not a ValidationError — propagates: this is
+    an authorization stop, not form feedback.
+    """
+    if user is None:
+        return
+    from apps.core.access import ADMINISTER_ROLES, require_company_role
+
+    require_company_role(user, company, ADMINISTER_ROLES)
+
+
 def validate_account_hierarchy(account) -> None:
     parent = account.parent
     if parent is None:
@@ -516,6 +534,7 @@ def post_opening_balance(*, company, fiscal_year, lines, offset_account, user=No
     the excess of debits becomes a credit to the offset account and vice
     versa. No account is hardcoded.
     """
+    _require_administer_role(company, user)
     from apps.accounting.models import Account, JournalEntry
 
     key = f"opening-balance:{fiscal_year.id}"
@@ -609,6 +628,7 @@ def close_fiscal_period(*, company, period, retained_earnings, user=None):
     new postings into it. A period with no income-statement activity
     closes without an entry. Returns the closing entry or None.
     """
+    _require_administer_role(company, user)
     from django.db.models import Sum
 
     from apps.accounting.models import Account, JournalEntry, JournalLine
@@ -707,6 +727,7 @@ def reopen_fiscal_period(*, company, period, user=None):
     because the reversal entry is dated inside the period and the
     posting gate requires the period to be OPEN. Returns the reversal
     entry, or None when the period had no closing entry."""
+    _require_administer_role(company, user)
     from apps.audit.services import record_event
     from apps.organizations.models import FiscalPeriod
 
@@ -745,6 +766,7 @@ def close_fiscal_year(*, company, fiscal_year, retained_earnings, user=None):
     ``close_fiscal_period`` (already-CLOSED periods are skipped), then
     flip the year's status to CLOSED. Returns the closing entries that
     were posted (periods without activity contribute none)."""
+    _require_administer_role(company, user)
     from apps.audit.services import record_event
     from apps.organizations.models import FiscalYear
 

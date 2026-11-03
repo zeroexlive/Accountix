@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+{% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can statement.company "OPERATE" as can_act %}
 <h1>{% blocktrans with name=statement.treasury_account.name %}تطبیق بانکی — {{ name }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% blocktrans with start=statement.start_date|jalali end=statement.end_date|jalali %}دوره: {{ start }} تا {{ end }} — وضعیت:{% endblocktrans %} {% if statement.status == 'COMPLETED' %}<span class="pill pill-paid">{% trans "نهایی" %}</span>{% else %}<span class="pill pill-partial">{% trans "باز" %}</span>{% endif %}{% if statement.source_note %} — {{ statement.source_note }}{% endif %}</p>
@@ -8,10 +8,10 @@
 <tr><th>{% trans "حرکات دفتریِ نشان‌داده‌نشده در صورت‌حساب (خالص)" %}</th><td class="num">{{ summary.outstanding_book_net }}</td><th>{% trans "اختلاف تطبیق" %}</th><td>{% if summary.difference == 0 %}<span class="pill pill-paid">{{ summary.difference }}</span>{% else %}<span class="pill pill-unpaid">{{ summary.difference }}</span>{% endif %}</td></tr>
 </table>
 <p class="empty">{% trans "اختلاف = مانده دفاتر − (مانده بانک − خالص ردیف‌های تطبیق‌نشده صورت‌حساب). نهایی‌کردن فقط وقتی اختلاف صفر است و هیچ ردیفی تطبیق‌نشده نمانده باشد ممکن است." %}</p>
-{% if statement.status == 'OPEN' %}
+{% if statement.status == 'OPEN' and can_act %}
 <form method="post" action="{% url 'bank_statement_auto_match' statement.pk %}" class="inline-form">{% csrf_token %}<button type="submit">{% trans "تطبیق خودکار" %}</button></form>
 <form method="post" action="{% url 'bank_statement_complete' statement.pk %}" class="inline-form" onsubmit="return confirm('{% trans "صورت‌حساب نهایی و قفل می‌شود. ادامه می‌دهید؟" %}')">{% csrf_token %}<button type="submit" class="btn-danger">{% trans "نهایی‌کردن صورت‌حساب" %}</button></form>
-{% else %}
+{% elif can_act %}
 <form method="post" action="{% url 'bank_statement_reopen' statement.pk %}" class="inline-form">{% csrf_token %}<button type="submit">{% trans "بازگشایی صورت‌حساب" %}</button></form>
 {% endif %}
 </div>
@@ -22,11 +22,11 @@
 <tbody>
 {% for line in lines %}<tr><td>{{ line.line_date|jalali }}</td><td>{{ line.description|default:"—" }}</td><td>{{ line.reference|default:"—" }}</td><td class="num">{{ line.amount }}</td>
 <td>{% if line.is_matched %}<span class="pill pill-paid">{% trans "تطبیق‌شده" %}</span> <a href="{% url 'journal_detail' line.matched_journal_line.entry.pk %}">{% trans "سند حسابداری" %}</a>{% else %}<span class="pill pill-neutral">{% trans "تطبیق‌نشده" %}</span>{% endif %}</td>
-<td>{% if line.is_matched and statement.status == 'OPEN' %}<form method="post" action="{% url 'bank_statement_unmatch' statement.pk line.pk %}">{% csrf_token %}<button type="submit" class="btn-ghost">{% trans "لغو تطبیق" %}</button></form>{% endif %}</td></tr>{% endfor %}
+<td>{% if line.is_matched and statement.status == 'OPEN' and can_act %}<form method="post" action="{% url 'bank_statement_unmatch' statement.pk line.pk %}">{% csrf_token %}<button type="submit" class="btn-ghost">{% trans "لغو تطبیق" %}</button></form>{% endif %}</td></tr>{% endfor %}
 </tbody></table>{% else %}<p class="empty">{% trans "هنوز ردیفی وارد نشده است؛ از فرم ورود دستی یا بارگذاری فایل (CSV / CAMT.053 / OFX) استفاده کنید." %}</p>{% endif %}
 </div>
 
-{% if statement.status == 'OPEN' %}
+{% if statement.status == 'OPEN' and can_act %}
 <div class="card action-card">
 <h2>{% trans "افزودن ردیف دستی" %}</h2>
 <form method="post" action="{% url 'bank_statement_add_line' statement.pk %}">{% csrf_token %}
@@ -47,7 +47,7 @@
 {% if match_forms %}<table class="line-table"><thead><tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرح سند" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "تطبیق با ردیف صورت‌حساب" %}</th></tr></thead>
 <tbody>
 {% for mf in match_forms %}<tr><td>{{ mf.row.date|jalali }}</td><td>{{ mf.row.description }}</td><td class="num">{{ mf.row.amount }}</td>
-<td>{% if statement.status == 'OPEN' %}<form method="post" action="{% url 'bank_statement_match' statement.pk %}" class="inline-form">{% csrf_token %}{{ mf.form.journal_line }}{{ mf.form.statement_line }}<button type="submit" class="btn-ghost">{% trans "تطبیق" %}</button></form>{% else %}—{% endif %}</td></tr>{% endfor %}
+<td>{% if statement.status == 'OPEN' and can_act %}<form method="post" action="{% url 'bank_statement_match' statement.pk %}" class="inline-form">{% csrf_token %}{{ mf.form.journal_line }}{{ mf.form.statement_line }}<button type="submit" class="btn-ghost">{% trans "تطبیق" %}</button></form>{% else %}—{% endif %}</td></tr>{% endfor %}
 </tbody></table>{% else %}<p class="empty">{% trans "حرکت دفتری تطبیق‌نشده‌ای تا پایان این دوره وجود ندارد." %}</p>{% endif %}
 </div>
 <p><a class="btn btn-ghost" href="{% url 'bank_statement_list' %}">{% trans "بازگشت به فهرست صورت‌حساب‌ها" %}</a></p>

@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n jalali %}{% block content %}
 <h1>{% trans "دریافت‌ها و پرداخت‌ها" %}</h1>
-<p><a class="btn" href="{% url 'payment_create' %}">{% trans "دریافت / پرداخت جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'payment_create' %}">{% trans "دریافت / پرداخت جدید" %}</a></p>{% endif %}
 <div class="card"><form method="get">
 <label>{% trans "وضعیت" %}</label><select name="status"><option value="">{% trans "همه" %}</option>{% for v,l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
 <label>{% trans "روش" %}</label><select name="method"><option value="">{% trans "همه" %}</option>{% for v,l in methods %}<option value="{{ v }}" {% if request.GET.method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>

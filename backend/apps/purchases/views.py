@@ -6,7 +6,13 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.accounting.models import Account
-from apps.core.access import resolve_scoped_company, user_company_ids
+from apps.core.access import (
+    OPERATE_ROLES,
+    require_company_role,
+    resolve_scoped_company,
+    scoped_company_role_required,
+    user_company_ids,
+)
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
 from apps.organizations.models import Company
@@ -89,6 +95,7 @@ def purchase_invoice_detail(request, pk):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def purchase_invoice_create(request):
     companies, company = resolve_scoped_company(request)
     form = PurchaseInvoiceForm(request.POST or None, company=company, companies=companies)
@@ -136,6 +143,7 @@ def purchase_invoice_post(request, pk):
     invoice = get_object_or_404(
         PurchaseInvoice, pk=pk, company_id__in=user_company_ids(request.user)
     )
+    require_company_role(request.user, invoice.company, OPERATE_ROLES)
     form = PurchaseInvoicePostForm(
         request.POST, company=invoice.company, require=_purchase_post_requirements(invoice)
     )
@@ -160,6 +168,7 @@ def purchase_invoice_reverse(request, pk):
     invoice = get_object_or_404(
         PurchaseInvoice, pk=pk, company_id__in=user_company_ids(request.user)
     )
+    require_company_role(request.user, invoice.company, OPERATE_ROLES)
     try:
         services.reverse_purchase_invoice(
             invoice, user=request.user, reason=request.POST.get("reason", "")
@@ -178,6 +187,7 @@ def purchase_return_create(request, pk):
         pk=pk,
         company_id__in=user_company_ids(request.user),
     )
+    require_company_role(request.user, invoice.company, OPERATE_ROLES)
     if invoice.status != PurchaseInvoice.Status.POSTED:
         messages.error(request, _("برگشت فقط برای فاکتور ثبت‌نهایی‌شده ممکن است."))
         return redirect("purchase_invoice_detail", pk=invoice.pk)
@@ -250,6 +260,7 @@ def purchase_return_detail(request, pk):
 @require_POST
 def purchase_return_post(request, pk):
     ret = get_object_or_404(PurchaseReturn, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, ret.company, OPERATE_ROLES)
     post_form = None
     gl_accounts = None
     if ret.original_invoice.journal_entry_id:
@@ -281,6 +292,7 @@ def purchase_return_post(request, pk):
 @require_POST
 def purchase_return_reverse(request, pk):
     ret = get_object_or_404(PurchaseReturn, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, ret.company, OPERATE_ROLES)
     try:
         services.reverse_purchase_return(
             ret, user=request.user, reason=request.POST.get("reason", "")

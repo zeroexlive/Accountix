@@ -1,9 +1,9 @@
-{% extends "base.html" %}{% load jalali i18n %}{% block content %}
+{% extends "base.html" %}{% load jalali i18n access_tags %} %}{% block content %}{% company_can count.company "OPERATE" as can_act %}
 <h1>{% blocktrans with date=count.count_date|jalali status=count.status %}انبارگردانی {{ date }} — {{ status }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% trans "شرکت:" %} {{ count.company.name }} — {% trans "انبار:" %} {{ count.warehouse.code }} — {{ count.warehouse.name }}{% if count.description %} — {{ count.description }}{% endif %}</p>
 <p class="empty">{% trans "«موجودی سیستمی» لحظه ایجاد شمارش است و «موجودی فعلی» مانده زنده دفتر انبار. اگر این دو برای کالایی فرق کنند، یعنی انبار از زمان شمارش ثابت نمانده و ثبت نهایی رد می‌شود؛ در این صورت شمارش را رها کنید و انبارگردانی تازه بسازید." %}</p>
-{% if count.status == 'DRAFT' %}
+{% if count.status == 'DRAFT' and can_act %}
 <form method="post" action="{% url 'inventory_count_save' count.pk %}">{% csrf_token %}
 {{ line_forms.management_form }}
 <table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th class="num">{% trans "موجودی سیستمی (اسنپ‌شات)" %}</th><th class="num">{% trans "موجودی فعلی" %}</th><th>{% trans "شمارش‌شده" %}</th><th>{% trans "بهای واحد (فقط کالای یافت‌شده)" %}</th><th class="num">{% trans "مغایرت" %}</th></tr></thead>
@@ -24,7 +24,7 @@
 <p>{% if count.stock_document %}{% blocktrans with doctype=count.stock_document.doc_type docid=count.stock_document_id %}سند تعدیل انبار: {{ doctype }} ({{ docid }}){% endblocktrans %}{% endif %}{% if count.journal_entry %} — <a href="{% url 'journal_detail' count.journal_entry.pk %}">{% trans "سند مغایرت در دفتر کل" %}</a>{% endif %}</p>
 </div>
 {% endif %}
-{% if count.status == 'DRAFT' %}
+{% if can_act and count.status == 'DRAFT' %}
 <div class="card action-card">
 <h2>{% trans "ثبت نهایی انبارگردانی" %}</h2>
 <p class="empty">{% trans "مغایرت‌ها به‌صورت یک سند تعدیل انبار ثبت می‌شوند. در صورت انتخاب هر دو حساب دفتر کل، ارزش خالص مغایرت نیز سند می‌خورد؛ بدون انتخاب حساب، فقط انبار اصلاح می‌شود." %}</p>
@@ -33,7 +33,7 @@
 <p><label for="{{ post_form.variance_account.id_for_label }}">{{ post_form.variance_account.label }}</label>{{ post_form.variance_account }}{{ post_form.variance_account.errors }}</p>
 <button type="submit">{% trans "ثبت نهایی" %}</button></form>
 </div>
-{% elif count.status == 'POSTED' %}
+{% elif can_act and count.status == 'POSTED' %}
 <div class="card action-card">
 <h2>{% trans "برگشت‌زدن انبارگردانی" %}</h2>
 <form method="post" action="{% url 'inventory_count_reverse' count.pk %}" onsubmit="return confirm('{% trans "انبارگردانی برگشتی ایجاد می‌شود. ادامه می‌دهید؟" %}')">{% csrf_token %}

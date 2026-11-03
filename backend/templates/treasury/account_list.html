@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n %}{% block content %}
 <h1>{% trans "حساب‌های خزانه" %}</h1>
-<p><a class="btn" href="{% url 'treasury_account_create' %}">{% trans "حساب خزانه جدید" %}</a></p>
+{% if can_administer_anywhere %}<p><a class="btn" href="{% url 'treasury_account_create' %}">{% trans "حساب خزانه جدید" %}</a></p>{% endif %}
 {% if rows %}<div class="card"><table><tr><th>{% trans "نام" %}</th><th>{% trans "نوع" %}</th><th>{% trans "بانک" %}</th><th>{% trans "حساب دفتر کل" %}</th><th class="num">{% trans "مانده" %}</th></tr>
 {% for row in rows %}<tr><td>{{ row.account.name }}</td><td>{{ row.account.kind }}</td><td>{{ row.account.bank_name }}</td><td>{{ row.account.gl_account.code }}</td><td class="num">{{ row.balance }}</td></tr>{% endfor %}
 </table></div>{% else %}<p class="empty">{% trans "حساب خزانه‌ای ثبت نشده است." %}</p>{% endif %}{% endblock %}

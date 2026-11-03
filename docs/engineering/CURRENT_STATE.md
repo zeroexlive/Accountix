@@ -317,6 +317,24 @@ Modular monolith, single Django project under `backend/`:
   commands, and the rebuilt bundle's smoke ran the whole
   recipient journey bundle-only (ADR-049). The Windows bundle
   remains the only NOT VERIFIED release-gate item.
+- Update (Sprint 25): role-permission enforcement is live —
+  see `SPRINT_25_REPORT.md` and ADR-050. `CompanyMembership`
+  roles (unused since Sprint 01) now gate every mutating
+  endpoint by tier: READ for all members, OPERATE for every
+  role except VIEWER, ADMINISTER (fiscal close/reopen, year
+  close, fiscal-year creation, opening balances, chart of
+  accounts, treasury accounts) for OWNER/ADMIN, GOVERN
+  (membership management) reserved for OWNER — no members UI
+  exists yet, so GOVERN gates nothing and assignment stays
+  with the Django admin. Enforcement is one helper home
+  (`apps/core/access.py`), a Persian 403 page for under-roled
+  members, non-members still 404 exactly as before, and
+  in-service assertions in the closing/opening-balance
+  services. No model changes; no fixture changes were needed
+  (every UI test builder already modelled the OWNER). The
+  PyInstaller bundle is now one sprint behind the code again
+  (Sprint 24 build); the Windows bundle remains the only
+  NOT VERIFIED release-gate item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -471,7 +489,13 @@ net, count-neutral); Sprint 24:
 validation creating nothing, atomic admin+company+membership
 creation, setup death after first user, kill switch, English
 setup rendering; launcher manage passthrough: argv parsing,
-dispatch, real `manage check` exit-code propagation)
+dispatch, real `manage check` exit-code propagation); Sprint 25:
++24 (role matrix: tier pinning against the model choices, reads
+for all 8 roles, viewer operate POSTs 403 with nothing persisted,
+operate-tier administer denials, top-tier administer passes,
+service-layer PermissionDenied assertions, non-member 404 on read
+and write, per-company OWNER-of-A/VIEWER-of-B resolution, setup
+admin unaffected, button-hiding and shell role-label checks)
 — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
@@ -523,4 +547,4 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
 4. Generate `uv.lock`; add coverage measurement to CI.
-5. Add role permission checks when the first role-sensitive operation lands.
+5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; the follow-up is a GOVERN-gated members UI with the last-OWNER guard).

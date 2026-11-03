@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load jalali i18n %}{% block content %}
 <h1>{% trans "دفتر روزنامه" %}</h1>
-<p><a class="btn" href="{% url 'journal_create' %}">{% trans "سند دستی جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'journal_create' %}">{% trans "سند دستی جدید" %}</a></p>{% endif %}
 <div class="card"><form method="get">
 <label>{% trans "وضعیت" %}</label><select name="status"><option value="">{% trans "همه" %}</option>{% for value, label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
 <label>{% trans "از تاریخ (میلادی)" %}</label><input type="date" name="date_from" value="{{ request.GET.date_from }}">

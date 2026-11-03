@@ -11,9 +11,12 @@ from django.views.decorators.http import require_POST
 from apps.catalog.forms import ProductCategoryForm, ProductForm, UnitForm
 from apps.catalog.models import Product, ProductCategory
 from apps.core.access import (
+    OPERATE_ROLES,
     member_companies,
-    require_posted_company_member,
+    require_company_role,
+    require_posted_company_role,
     resolve_scoped_company,
+    scoped_company_role_required,
     user_company_ids,
 )
 from apps.core.forms import add_service_errors
@@ -43,6 +46,7 @@ def product_list(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def product_create(request):
     """Product create (Sprint 12). The company is chosen first (the
     shared chooser pattern) because the category/unit pickers are
@@ -71,6 +75,7 @@ def product_create(request):
 @login_required
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, product.company, OPERATE_ROLES)
     form = ProductForm(request.POST or None, instance=product, company=product.company)
     form.fields["company"].queryset = member_companies(request.user)
     form.fields["company"].disabled = True
@@ -88,7 +93,7 @@ def product_edit(request, pk):
 @login_required
 def unit_create(request):
     if request.method == "POST":
-        require_posted_company_member(request)
+        require_posted_company_role(request, OPERATE_ROLES)
     form = UnitForm(request.POST or None)
     form.fields["company"].queryset = member_companies(request.user)
     if request.method == "POST" and form.is_valid():
@@ -101,7 +106,7 @@ def unit_create(request):
 @login_required
 def category_create(request):
     if request.method == "POST":
-        require_posted_company_member(request)
+        require_posted_company_role(request, OPERATE_ROLES)
     form = ProductCategoryForm(request.POST or None)
     companies = member_companies(request.user)
     form.fields["company"].queryset = companies
@@ -118,7 +123,7 @@ def category_create(request):
 @login_required
 def warehouse_create(request):
     if request.method == "POST":
-        require_posted_company_member(request)
+        require_posted_company_role(request, OPERATE_ROLES)
     form = WarehouseForm(request.POST or None)
     form.fields["company"].queryset = member_companies(request.user)
     if request.method == "POST" and form.is_valid():
@@ -139,6 +144,7 @@ def inventory_count_list(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def inventory_count_create(request):
     """Start a stock count (Sprint 13): the service snapshots every
     active stockable product's balance in the chosen warehouse and
@@ -206,6 +212,7 @@ def stock_document_list(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def stock_document_create(request):
     companies, company = resolve_scoped_company(request)
     form_kw = {"companies": companies, "company": company}
@@ -274,6 +281,7 @@ def stock_document_detail(request, pk):
 @require_POST
 def stock_document_post(request, pk):
     document = _scoped_stock_document(request, pk)
+    require_company_role(request.user, document.company, OPERATE_ROLES)
     form = StockDocumentPostForm(request.POST, company=document.company)
     if not form.is_valid():
         for errors in form.errors.values():
@@ -299,6 +307,7 @@ def stock_document_post(request, pk):
 @require_POST
 def stock_document_reverse(request, pk):
     document = _scoped_stock_document(request, pk)
+    require_company_role(request.user, document.company, OPERATE_ROLES)
     try:
         services.reverse_stock_document(document, user=request.user)
     except ValidationError as exc:
@@ -347,6 +356,7 @@ def inventory_count_save(request, pk):
     """Save the typed-in counted quantities of a DRAFT count through
     ``update_inventory_count_lines`` (Sprint 13)."""
     count = _scoped_count(request, pk)
+    require_company_role(request.user, count.company, OPERATE_ROLES)
     lines = list(count.lines.select_related("product").all())
     formset = CountLineFormSet(request.POST, prefix="lines")
     if formset.is_valid() and len(formset) == len(lines):
@@ -376,6 +386,7 @@ def inventory_count_post(request, pk):
     service — a balance that moved since the snapshot rejects the
     post and its message is shown verbatim on the count page."""
     count = _scoped_count(request, pk)
+    require_company_role(request.user, count.company, OPERATE_ROLES)
     form = CountPostForm(request.POST, company=count.company)
     if not form.is_valid():
         for errors in form.errors.values():
@@ -401,6 +412,7 @@ def inventory_count_post(request, pk):
 @require_POST
 def inventory_count_reverse(request, pk):
     count = _scoped_count(request, pk)
+    require_company_role(request.user, count.company, OPERATE_ROLES)
     try:
         services.reverse_inventory_count(
             count, user=request.user, reason=request.POST.get("reason", "")

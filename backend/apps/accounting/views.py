@@ -16,7 +16,14 @@ from apps.accounting.forms import (
     OpeningLineFormSet,
 )
 from apps.accounting.models import Account, JournalEntry
-from apps.core.access import resolve_scoped_company, user_company_ids
+from apps.core.access import (
+    ADMINISTER_ROLES,
+    OPERATE_ROLES,
+    require_company_role,
+    resolve_scoped_company,
+    scoped_company_role_required,
+    user_company_ids,
+)
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
 from apps.organizations.models import Company, FiscalPeriod, FiscalYear
@@ -153,6 +160,7 @@ def balance_sheet_view(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def journal_create(request):
     """Manual journal entry: header + line formset → DRAFT via the
     accounting service (Sprint 12, ADR-039). §6.3 line rules are
@@ -221,6 +229,7 @@ def journal_detail(request, pk):
 @require_POST
 def journal_post(request, pk):
     entry = get_object_or_404(JournalEntry, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, entry.company, OPERATE_ROLES)
     try:
         services.post_journal_draft(entry, user=request.user)
     except ValidationError as exc:
@@ -234,6 +243,7 @@ def journal_post(request, pk):
 @require_POST
 def journal_reverse(request, pk):
     entry = get_object_or_404(JournalEntry, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, entry.company, OPERATE_ROLES)
     try:
         services.reverse_journal_entry(
             entry=entry, user=request.user, reason=request.POST.get("reason", "")
@@ -254,6 +264,7 @@ def _opening_entry(company, fiscal_year):
 
 
 @login_required
+@scoped_company_role_required(*ADMINISTER_ROLES)
 def opening_balance_create(request):
     """Opening balances for a fiscal year (Sprint 13, ADR-029).
 
@@ -352,6 +363,8 @@ def account_create(request):
         company_id__in=user_company_ids(request.user)
     )
     if request.method == "POST" and form.is_valid():
+        # ADMINISTER tier (ADR-050): the chart of accounts is structure.
+        require_company_role(request.user, form.cleaned_data["company"], ADMINISTER_ROLES)
         form.save()
         return redirect("account_list")
     return render(request, "accounting/account_form.html", {"form": form})

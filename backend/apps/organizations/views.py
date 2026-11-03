@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from apps.core.access import user_company_ids
+from apps.core.access import ADMINISTER_ROLES, require_company_role, user_company_ids
 from apps.core.forms import add_service_errors
 from apps.organizations.forms import CompanyForm, FiscalCloseForm, FiscalYearForm
 from apps.organizations.models import (
@@ -49,6 +49,8 @@ def fiscal_year_create(request):
     form = FiscalYearForm(request.POST or None)
     form.fields["company"].queryset = Company.objects.filter(id__in=user_company_ids(request.user))
     if request.method == "POST" and form.is_valid():
+        # ADMINISTER tier (ADR-050): fiscal structure is owner/admin work.
+        require_company_role(request.user, form.cleaned_data["company"], ADMINISTER_ROLES)
         form.save()
         return redirect("fiscal_year_list")
     return render(request, "organizations/fiscal_year_form.html", {"form": form})
@@ -110,6 +112,7 @@ def fiscal_period_close(request, pk):
         pk=pk,
         company_id__in=user_company_ids(request.user),
     )
+    require_company_role(request.user, period.company, ADMINISTER_ROLES)
     if period.status == FiscalPeriod.Status.CLOSED:
         messages.info(request, _("این دوره قبلاً بسته شده است."))
         return redirect("fiscal_year_detail", pk=period.fiscal_year_id)
@@ -148,6 +151,7 @@ def fiscal_period_reopen(request, pk):
     from apps.accounting import services as accounting_services
 
     period = get_object_or_404(FiscalPeriod, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, period.company, ADMINISTER_ROLES)
     try:
         accounting_services.reopen_fiscal_period(
             company=period.company, period=period, user=request.user
@@ -170,6 +174,7 @@ def fiscal_year_close(request, pk):
         pk=pk,
         company_id__in=user_company_ids(request.user),
     )
+    require_company_role(request.user, year.company, ADMINISTER_ROLES)
     if year.status == FiscalYear.Status.CLOSED:
         messages.info(request, _("این سال مالی قبلاً بسته شده است."))
         return redirect("fiscal_year_detail", pk=year.pk)

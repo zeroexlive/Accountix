@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+{% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can payment.company "OPERATE" as can_act %}
 <h1>{% if payment.direction == 'RECEIPT' %}{% trans "دریافت" %}{% else %}{% trans "پرداخت" %}{% endif %} — {{ payment.amount }}</h1>
 <div class="card">
 <p>{% blocktrans with name=payment.party.name code=payment.party.code account=payment.treasury_account.name method=payment.get_method_display date=payment.payment_date|jalali %}طرف‌حساب: {{ name }} ({{ code }}) — حساب خزانه: {{ account }} — روش: {{ method }} — تاریخ: {{ date }}{% endblocktrans %}</p>
@@ -8,7 +8,7 @@
 </div>
 {% if cheque %}<div class="card"><h2>{% trans "چک پیوست" %}</h2>
 <p>{% blocktrans with number=cheque.cheque_number bank=cheque.bank_name|default:"—" amount=cheque.amount due=cheque.due_date|jalali status=cheque.status %}شماره: {{ number }} — بانک: {{ bank }} — مبلغ: {{ amount }} — سررسید: {{ due }} — وضعیت: {{ status }} —{% endblocktrans %} <a href="{% url 'cheque_detail' cheque.pk %}">{% trans "مشاهده و عملیات چک" %}</a></p></div>{% endif %}
-{% if payment.status == 'DRAFT' %}
+{% if can_act and payment.status == 'DRAFT' %}
 <div class="card action-card">
 <h2>{% trans "ثبت نهایی" %}</h2>
 <p class="empty">{% trans "با ثبت نهایی، سند حسابداری این دریافت/پرداخت ایجاد می‌شود. حساب مقابل (مطالبات/بدهی) را برای همین سند انتخاب کنید." %}</p>
@@ -17,11 +17,11 @@
 {{ post_form.as_p }}
 <button type="submit">{% trans "ثبت نهایی" %}</button></form>
 </div>
-{% elif payment.status == 'POSTED' %}
+{% elif can_act and payment.status == 'POSTED' %}
 <div class="card">
 <h2>{% trans "تخصیص‌ها" %}</h2>
 {% if allocations %}<table><tr><th>{% trans "فاکتور" %}</th><th class="num">{% trans "مبلغ" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
-{% for a in allocations %}<tr><td>{% if a.sales_invoice %}<a href="{% url 'sales_invoice_detail' a.sales_invoice.pk %}">{{ a.sales_invoice.invoice_number }}</a>{% else %}<a href="{% url 'purchase_invoice_detail' a.purchase_invoice.pk %}">{{ a.purchase_invoice.invoice_number }}</a>{% endif %}</td><td class="num">{{ a.amount }}</td><td>{{ a.status }}{% if a.void_reason %} — {{ a.void_reason }}{% endif %}</td><td>{% if a.status == 'ACTIVE' %}<form method="post" action="{% url 'allocation_void' payment.pk a.pk %}" onsubmit="return confirm('{% trans "این تخصیص باطل می‌شود (حذف نمی‌شود). ادامه می‌دهید؟" %}')">{% csrf_token %}<input type="hidden" name="reason" value="ابطال از رابط کاربری"><button type="submit" class="btn-ghost">{% trans "ابطال" %}</button></form>{% endif %}</td></tr>{% endfor %}
+{% for a in allocations %}<tr><td>{% if a.sales_invoice %}<a href="{% url 'sales_invoice_detail' a.sales_invoice.pk %}">{{ a.sales_invoice.invoice_number }}</a>{% else %}<a href="{% url 'purchase_invoice_detail' a.purchase_invoice.pk %}">{{ a.purchase_invoice.invoice_number }}</a>{% endif %}</td><td class="num">{{ a.amount }}</td><td>{{ a.status }}{% if a.void_reason %} — {{ a.void_reason }}{% endif %}</td><td>{% if a.status == 'ACTIVE' and can_act %}<form method="post" action="{% url 'allocation_void' payment.pk a.pk %}" onsubmit="return confirm('{% trans "این تخصیص باطل می‌شود (حذف نمی‌شود). ادامه می‌دهید؟" %}')">{% csrf_token %}<input type="hidden" name="reason" value="ابطال از رابط کاربری"><button type="submit" class="btn-ghost">{% trans "ابطال" %}</button></form>{% endif %}</td></tr>{% endfor %}
 </table>{% else %}<p class="empty">{% trans "هنوز تخصیصی ثبت نشده است." %}</p>{% endif %}
 </div>
 <div class="card action-card">

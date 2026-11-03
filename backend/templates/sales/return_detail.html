@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+{% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can return.company "OPERATE" as can_act %}
 <h1>{% blocktrans with number=return.return_number %}برگشت فروش {{ number }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% trans "فاکتور اصلی:" %} <a href="{% url 'sales_invoice_detail' invoice.pk %}">{{ invoice.invoice_number }}</a>{% blocktrans with name=invoice.customer.name date=return.return_date|jalali %} — مشتری: {{ name }} — تاریخ برگشت: {{ date }}{% endblocktrans %}</p>
@@ -8,14 +8,14 @@
 </table>
 <p>{% blocktrans with stock=return.stock_document|default:"—" journal=return.journal_entry|default:"—" cogs=return.cogs_journal_entry|default:"—" %}سند انبار: {{ stock }} — سند حسابداری: {{ journal }} — سند بهای تمام‌شده: {{ cogs }}{% endblocktrans %}</p>
 </div>
-{% if return.status == 'DRAFT' %}
+{% if can_act and return.status == 'DRAFT' %}
 <div class="card action-card">
 <h2>{% trans "ثبت نهایی برگشت" %}</h2>
 <form method="post" action="{% url 'sales_return_post' return.pk %}">{% csrf_token %}
 {% if needs_gl %}{{ post_form.non_field_errors }}{{ post_form.as_p }}<p class="empty">{% trans "این برگشت روی فاکتوری است که سند حسابداری دارد؛ حساب‌های اسناد برگشت را انتخاب کنید." %}</p>{% endif %}
 <button type="submit">{% trans "ثبت نهایی برگشت" %}</button></form>
 </div>
-{% elif return.status == 'POSTED' %}
+{% elif can_act and return.status == 'POSTED' %}
 <div class="card action-card">
 <h2>{% trans "برگشت‌زدن این برگشت" %}</h2>
 <form method="post" action="{% url 'sales_return_reverse' return.pk %}" onsubmit="return confirm('{% trans "این برگشت به‌طور کامل برگشت می‌خورد. ادامه می‌دهید؟" %}')">{% csrf_token %}

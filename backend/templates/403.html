@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "دسترسی مجاز نیست" %} | {% trans "اکانتیکس" %}{% endblock %}
+{% block page_title %}{% trans "دسترسی مجاز نیست" %}{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>{% trans "دسترسی مجاز نیست" %}</h2>
+  <p>{% trans "نقش شما در این شرکت اجازه انجام این عملیات را نمی‌دهد. برای دسترسی بیشتر با مالک شرکت در تماس باشید." %}</p>
+  <p><a class="btn" href="{% url 'dashboard' %}">{% trans "بازگشت به داشبورد" %}</a></p>
+</div>
+{% endblock %}

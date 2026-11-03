@@ -7,7 +7,14 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.accounting.models import JournalLine
-from apps.core.access import resolve_scoped_company, user_company_ids
+from apps.core.access import (
+    ADMINISTER_ROLES,
+    OPERATE_ROLES,
+    require_company_role,
+    resolve_scoped_company,
+    scoped_company_role_required,
+    user_company_ids,
+)
 from apps.core.forms import add_service_errors
 from apps.core.pagination import apply_date_range, paginate
 from apps.treasury import cheque_books, reconciliation, reporting, services, statement_files
@@ -105,6 +112,7 @@ def cheque_list(request):
 
 
 @login_required
+@scoped_company_role_required(*ADMINISTER_ROLES)
 def treasury_account_create(request):
     companies, company = resolve_scoped_company(request)
     form = TreasuryAccountForm(request.POST or None, company=company, companies=companies)
@@ -131,6 +139,7 @@ def treasury_account_create(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def payment_create(request):
     companies, company = resolve_scoped_company(request)
     direction = request.POST.get("direction") or request.GET.get("direction") or None
@@ -227,6 +236,7 @@ def payment_detail(request, pk):
 @require_POST
 def payment_post(request, pk):
     payment = get_object_or_404(Payment, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, payment.company, OPERATE_ROLES)
     form = PaymentPostForm(request.POST, payment=payment)
     if form.is_valid():
         gl_accounts = {k: v for k, v in form.cleaned_data.items() if v is not None}
@@ -247,6 +257,7 @@ def payment_post(request, pk):
 @require_POST
 def payment_allocate(request, pk):
     payment = get_object_or_404(Payment, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, payment.company, OPERATE_ROLES)
     items = _payment_open_items(payment)
     form = AllocationForm(request.POST, items=items)
     if not form.is_valid():
@@ -278,6 +289,7 @@ def payment_allocate(request, pk):
 @require_POST
 def allocation_void(request, pk, alloc_pk):
     payment = get_object_or_404(Payment, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, payment.company, OPERATE_ROLES)
     allocation = get_object_or_404(PaymentAllocation, pk=alloc_pk, payment=payment)
     try:
         services.void_allocation(
@@ -294,6 +306,7 @@ def allocation_void(request, pk, alloc_pk):
 @require_POST
 def payment_reverse(request, pk):
     payment = get_object_or_404(Payment, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, payment.company, OPERATE_ROLES)
     try:
         services.reverse_payment(payment, user=request.user, reason=request.POST.get("reason", ""))
     except ValidationError as exc:
@@ -333,6 +346,7 @@ def cheque_detail(request, pk):
 @require_POST
 def cheque_deposit(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, cheque.company, OPERATE_ROLES)
     try:
         services.deposit_cheque(cheque, user=request.user)
     except ValidationError as exc:
@@ -346,6 +360,7 @@ def cheque_deposit(request, pk):
 @require_POST
 def cheque_clear(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, cheque.company, OPERATE_ROLES)
     clearing_date = _action_date(request, "clearing_date")
     if clearing_date == "INVALID":
         messages.error(request, _("تاریخ وصول معتبر نیست."))
@@ -378,6 +393,7 @@ def cheque_clear(request, pk):
 @require_POST
 def cheque_bounce(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, cheque.company, OPERATE_ROLES)
     bounce_date = _action_date(request, "bounce_date")
     if bounce_date == "INVALID":
         messages.error(request, _("تاریخ برگشت معتبر نیست."))
@@ -395,6 +411,7 @@ def cheque_bounce(request, pk):
 @require_POST
 def cheque_return(request, pk):
     cheque = get_object_or_404(Cheque, pk=pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, cheque.company, OPERATE_ROLES)
     return_date = _action_date(request, "return_date")
     if return_date == "INVALID":
         messages.error(request, _("تاریخ عودت معتبر نیست."))
@@ -484,6 +501,7 @@ def _file_initial(account, parsed):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def bank_statement_create(request):
     companies, company = resolve_scoped_company(request)
     initial = {}
@@ -645,6 +663,7 @@ def cheque_book_list(request):
 
 
 @login_required
+@scoped_company_role_required(*OPERATE_ROLES)
 def cheque_book_create(request):
     companies, company = resolve_scoped_company(request)
     form = ChequeBookForm(request.POST or None, company=company, companies=companies)
@@ -698,6 +717,7 @@ def cheque_book_detail(request, pk):
 @require_POST
 def cheque_leaf_void(request, leaf_pk):
     leaf = get_object_or_404(ChequeLeaf, pk=leaf_pk, company_id__in=user_company_ids(request.user))
+    require_company_role(request.user, leaf.company, OPERATE_ROLES)
     try:
         cheque_books.void_leaf(leaf, user=request.user)
     except ValidationError as exc:
@@ -740,6 +760,7 @@ def bank_statement_detail(request, pk):
 @require_POST
 def bank_statement_add_line(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     form = BankStatementLineForm(request.POST)
     if form.is_valid():
         data = form.cleaned_data
@@ -768,6 +789,7 @@ def bank_statement_add_line(request, pk):
 @require_POST
 def bank_statement_import(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     form = StatementImportForm(request.POST, request.FILES)
     if not form.is_valid():
         for errors in form.errors.values():
@@ -803,6 +825,7 @@ def bank_statement_import(request, pk):
 @require_POST
 def bank_statement_auto_match(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     try:
         result = reconciliation.auto_match(statement, user=request.user)
     except ValidationError as exc:
@@ -820,6 +843,7 @@ def bank_statement_auto_match(request, pk):
 @require_POST
 def bank_statement_match(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     form = StatementMatchForm(request.POST, statement=statement)
     if not form.is_valid():
         for errors in form.errors.values():
@@ -844,6 +868,7 @@ def bank_statement_match(request, pk):
 @require_POST
 def bank_statement_unmatch(request, pk, line_pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     line = get_object_or_404(BankStatementLine, pk=line_pk, statement=statement)
     try:
         reconciliation.unmatch_line(line, user=request.user)
@@ -858,6 +883,7 @@ def bank_statement_unmatch(request, pk, line_pk):
 @require_POST
 def bank_statement_complete(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     try:
         reconciliation.complete_statement(statement, user=request.user)
     except ValidationError as exc:
@@ -871,6 +897,7 @@ def bank_statement_complete(request, pk):
 @require_POST
 def bank_statement_reopen(request, pk):
     statement = _scoped_statement(request, pk)
+    require_company_role(request.user, statement.company, OPERATE_ROLES)
     try:
         reconciliation.reopen_statement(statement, user=request.user)
     except ValidationError as exc:

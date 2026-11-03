@@ -1,11 +1,11 @@
 {% extends "base.html" %}{% load i18n jalali %}{% block content %}
 <h1>{% trans "تطبیق بانکی" %}</h1>
-<p><a class="btn" href="{% url 'bank_statement_create' %}">{% trans "صورت‌حساب بانکی جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'bank_statement_create' %}">{% trans "صورت‌حساب بانکی جدید" %}</a></p>{% endif %}
 {% if accounts %}<div class="card"><form method="get" class="inline-form">
 <span><label>{% trans "حساب بانکی" %}</label>
 <select name="account"><option value="">{% trans "همه" %}</option>{% for a in accounts %}<option value="{{ a.pk }}" {% if request.GET.account == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></span>
 <button type="submit">{% trans "نمایش" %}</button></form></div>{% endif %}
-{% if request.GET.account %}<p><a class="btn" href="{% url 'bank_statement_create' %}?account={{ request.GET.account }}">{% trans "صورت‌حساب جدید برای این حساب" %}</a></p>{% endif %}
+{% if request.GET.account and can_operate_anywhere %}<p><a class="btn" href="{% url 'bank_statement_create' %}?account={{ request.GET.account }}">{% trans "صورت‌حساب جدید برای این حساب" %}</a></p>{% endif %}
 <div class="card"><table>
 <tr><th>{% trans "حساب بانکی" %}</th><th>{% trans "از تاریخ" %}</th><th>{% trans "تا تاریخ" %}</th><th class="num">{% trans "مانده پایان (بانک)" %}</th><th>{% trans "وضعیت" %}</th><th></th></tr>
 {% for s in statements %}<tr><td>{{ s.treasury_account.name }}</td><td>{{ s.start_date|jalali }}</td><td>{{ s.end_date|jalali }}</td><td class="num">{{ s.closing_balance }}</td><td>{% if s.status == 'COMPLETED' %}<span class="pill pill-paid">{% trans "نهایی" %}</span>{% else %}<span class="pill pill-partial">{% trans "باز" %}</span>{% endif %}</td><td><a href="{% url 'bank_statement_detail' s.pk %}">{% trans "تطبیق" %}</a></td></tr>

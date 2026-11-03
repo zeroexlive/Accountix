@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load i18n jalali %}{% block content %}
+{% extends "base.html" %}{% load i18n jalali access_tags %} %}{% block content %}{% company_can cheque.company "OPERATE" as can_act %}
 <h1>{% blocktrans with number=cheque.cheque_number %}چک {{ number }}{% endblocktrans %}</h1>
 <div class="card">
 <p>{% blocktrans with direction=cheque.direction bank=cheque.bank_name|default:"—" amount=cheque.amount due=cheque.due_date|jalali issue=cheque.issue_date|jalali|default:"—" sayad=cheque.sayad_id|default:"—" %}جهت: {{ direction }} — بانک: {{ bank }} — مبلغ: {{ amount }} — سررسید: {{ due }} — تاریخ صدور: {{ issue }} — شناسه صیاد: {{ sayad }}{% endblocktrans %}</p>
@@ -7,7 +7,7 @@
 {% if leaf %}<p>{% trans "برگ دفترچه:" %} <a href="{% url 'cheque_book_detail' leaf.book.pk %}">{% blocktrans with number=leaf.number label=leaf.book.label|default:leaf.book.first_number account=leaf.treasury_account.name %}برگ {{ number }} از دفترچه {{ label }} ({{ account }}){% endblocktrans %}</a></p>{% endif %}
 <p>{% blocktrans with clearing=cheque.clearing_journal_entry|default:"—" bounce=cheque.bounce_journal_entry|default:"—" %}سند وصول: {{ clearing }} — سند برگشت/عودت: {{ bounce }}{% endblocktrans %}</p>
 </div>
-<div class="card action-card">
+{% if can_act %}<div class="card action-card">
 <h2>{% trans "عملیات چک" %}</h2>
 {% if cheque.direction == 'RECEIVED' and cheque.status == 'RECEIVED' %}
 <form method="post" action="{% url 'cheque_deposit' cheque.pk %}" class="inline-form">{% csrf_token %}<button type="submit">{% trans "واگذاری به بانک" %}</button></form>
@@ -39,6 +39,6 @@
 {% if cheque.status == 'CLEARED' or cheque.status == 'BOUNCED' or cheque.status == 'RETURNED' or cheque.status == 'REVERSED' %}
 <p class="empty">{% blocktrans with status=cheque.status %}این چک در وضعیت نهایی «{{ status }}» است و عملیات دیگری ندارد.{% endblocktrans %}</p>
 {% endif %}
-</div>
+</div>{% endif %}
 <p><a class="btn btn-ghost" href="{% url 'cheque_list' %}">{% trans "بازگشت به فهرست چک‌ها" %}</a></p>
 {% endblock %}

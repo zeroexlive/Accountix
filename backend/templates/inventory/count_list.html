@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load jalali i18n %}{% block content %}
 <h1>{% trans "انبارگردانی‌ها" %}</h1>
-<p><a class="btn" href="{% url 'inventory_count_create' %}">{% trans "انبارگردانی جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'inventory_count_create' %}">{% trans "انبارگردانی جدید" %}</a></p>{% endif %}
 <div class="card"><table>
 <tr><th>{% trans "تاریخ" %}</th><th>{% trans "شرکت" %}</th><th>{% trans "انبار" %}</th><th>{% trans "وضعیت" %}</th><th>{% trans "کالا" %}</th><th class="num">{% trans "سیستمی" %}</th><th class="num">{% trans "شمارش‌شده" %}</th><th class="num">{% trans "مغایرت" %}</th><th></th></tr>
 {% for count in counts %}{% for line in count.lines.all %}

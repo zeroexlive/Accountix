@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n %}{% block content %}
 <h1>{% trans "طرف‌حساب‌ها" %}</h1>
-<p><a class="btn" href="{% url 'party_create' %}">{% trans "طرف‌حساب جدید" %}</a></p>
+{% if can_operate_anywhere %}<p><a class="btn" href="{% url 'party_create' %}">{% trans "طرف‌حساب جدید" %}</a></p>{% endif %}
 {% if parties %}<div class="card"><table><tr><th>{% trans "شرکت" %}</th><th>{% trans "کد" %}</th><th>{% trans "نام" %}</th><th>{% trans "نوع" %}</th><th>{% trans "شناسه مالیاتی" %}</th><th>{% trans "تلفن" %}</th><th>{% trans "فعال" %}</th></tr>
 {% for p in parties %}<tr><td>{{ p.company.name }}</td><td>{{ p.code }}</td><td><a href="{% url 'party_detail' p.pk %}">{{ p.name }}</a></td><td>{{ p.get_kind_display }}</td><td>{{ p.tax_id|default:"—" }}</td><td>{{ p.phone|default:"—" }}</td><td>{{ p.is_active }}</td></tr>{% endfor %}
 </table></div>{% else %}<p class="empty">{% trans "طرف‌حسابی ثبت نشده است." %}</p>{% endif %}{% endblock %}
