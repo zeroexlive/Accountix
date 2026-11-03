@@ -406,3 +406,52 @@ tests) and the KPI delta/performance computations (shares of
 existing reports). A percentage is rendered only when its
 denominator is non-zero; otherwise the panel shows an empty state.
 No business logic and no stored data changed (ADR-031 spirit).
+
+## ADR-039 — Data-entry UI writes exclusively through services; per-document GL selection; formsets without a JS requirement (accepted, Sprint 12)
+Sprint 12 closed the headline v1.0 limitation — the web UI was
+read-only for business documents — by adding create/edit/action
+screens for parties, catalog, purchase and sales invoices and
+returns, treasury accounts, payments, allocations, cheques and
+manual journal entries. Decisions:
+(1) **Views never post business logic.** Every state change goes
+through the existing service functions of the owning app
+(`post_purchase_invoice`, `post_payment`, `allocate_payment`,
+`clear_cheque`, …). Forms collect input; services validate and
+enforce. A service `ValidationError` is rendered as a form/non-field
+error (create/post forms) or an error message (action endpoints) with
+the service's own text — never swallowed, never a 500.
+(2) **Per-document GL selection preserves ADR-011.** There is still
+no account mapping and no hardcoded code anywhere. Each document's
+post form offers the accounts its posting service needs, filtered to
+the document company's *active, postable* accounts of the sensible
+type (payables: LIABILITY; inventory/receivables/cash: ASSET;
+revenue: REVENUE; COGS/expense: EXPENSE). The pickers' querysets are
+the server-side enforcement: an id outside them fails form
+validation, and the services re-validate the company before writing.
+Which accounts a given document truly requires is computed from the
+document itself (e.g. a tax account only when the invoice has tax).
+(3) **The draft→post split for manual journals needed two thin
+service functions.** Accounting previously exposed only the atomic
+`post_journal_entry`. `create_journal_draft` validates the lines with
+the same §6.3 `_validate_lines` used at posting time and saves a
+DRAFT; `post_journal_draft` re-validates the stored lines and
+requires an OPEN period. Every other document type already had a
+create/post service pair, so no other service was added. Master data
+(parties, units, categories, warehouses, products) follows the
+Sprint 01 pattern instead: ModelForms whose model `clean()` runs the
+service validation (ADR-002), with the company fixed on edit.
+(4) **Line items are server-side formsets; JavaScript is optional.**
+Document lines use Django formsets rendered with extra rows and
+DELETE flags, fully usable with JS disabled. A small vanilla-JS
+add-row clone (of the formset's `empty_form`) is the only script;
+HTMX/Alpine remain unloaded (ADR-006) and Tailwind remains unused
+(ADR-038).
+(5) **Existing invariants are untouched.** Invoice `payment_status`
+changes only inside the treasury recompute (ADR-024) because the UI
+calls the treasury services; allocations are voided, never deleted
+(ADR-025); received cheques sit in the cheques-in-hand holding
+account until cleared (ADR-026) — the holding account is a
+per-payment picker at posting time, exactly as the cheque model
+requires. A POST naming a company outside the user's memberships is
+a 404 on every create endpoint, and detail/action endpoints stay
+membership-scoped.
