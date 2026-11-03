@@ -302,6 +302,123 @@ def reverse_journal_entry(*, entry, user=None, reason="", reversal_date=None):
 
 
 # ---------------------------------------------------------------------------
+# Sprint 12 — manual journal drafts (data-entry UI, ADR-039)
+# ---------------------------------------------------------------------------
+
+
+@transaction.atomic
+def create_journal_draft(
+    *,
+    company,
+    entry_date,
+    lines,
+    description="",
+    user=None,
+    idempotency_key=None,
+):
+    """Create a DRAFT journal entry for the manual-entry UI.
+
+    Lines go through the exact §6.3 validation used at posting time
+    (``_validate_lines``: at least two lines, postable/active/same-company
+    accounts, one-sided amounts, balanced totals), so an invalid draft is
+    rejected before anything is written. The fiscal period must exist for
+    the date but need not be OPEN — the open-period gate is enforced when
+    the draft is posted (:func:`post_journal_draft`).
+
+    Unlike :func:`post_journal_entry`, an idempotency key that is already
+    taken raises ValidationError instead of returning the existing entry:
+    the form user must be told their key collides, not silently handed
+    someone else's draft.
+    """
+    from apps.accounting.models import JournalEntry, JournalLine
+    from apps.audit.services import record_event
+
+    key = idempotency_key or None
+    if key and JournalEntry.objects.filter(company=company, idempotency_key=key).exists():
+        raise ValidationError("An entry with this idempotency key already exists for this company.")
+    period = resolve_fiscal_period(company, entry_date)
+    validated = _validate_lines(company, lines)
+    entry = JournalEntry.objects.create(
+        company=company,
+        fiscal_period=period,
+        entry_date=entry_date,
+        description=description,
+        status=JournalEntry.Status.DRAFT,
+        source_type="MANUAL",
+        source_id="",
+        idempotency_key=key,
+    )
+    for account, debit, credit, line_desc, party in validated:
+        JournalLine.objects.create(
+            entry=entry,
+            account=account,
+            debit=debit,
+            credit=credit,
+            description=line_desc,
+            party=party,
+        )
+    record_event(
+        action="journal.draft_created",
+        entity_type="JournalEntry",
+        company=company,
+        user=user,
+        entity_id=entry.id,
+    )
+    return entry
+
+
+@transaction.atomic
+def post_journal_draft(entry, *, user=None):
+    """Post a DRAFT entry created by :func:`create_journal_draft`.
+
+    The stored lines are re-validated end to end (§6.3) and the period
+    containing the entry date must be OPEN — accounts may have been
+    deactivated or the period closed since the draft was saved, and a
+    stale draft must not slip past either gate. Re-posting a POSTED
+    entry returns it unchanged (the ``post_*`` convention of the other
+    apps); a REVERSED entry cannot be posted.
+    """
+    from apps.accounting.models import JournalEntry
+    from apps.audit.services import record_event
+
+    entry = JournalEntry.objects.select_for_update().get(pk=entry.pk)
+    if entry.status == JournalEntry.Status.POSTED:
+        return entry
+    if entry.status not in (JournalEntry.Status.DRAFT, JournalEntry.Status.VALIDATED):
+        raise ValidationError("Only a DRAFT journal entry can be posted.")
+    period = resolve_fiscal_period(entry.company, entry.entry_date)
+    if period.status != "OPEN":
+        raise ValidationError("Fiscal period is closed; posting is not allowed.")
+    raw_lines = [
+        {
+            "account": line.account,
+            "debit": line.debit,
+            "credit": line.credit,
+            "description": line.description,
+            "party": line.party,
+        }
+        for line in entry.lines.select_related("account", "party").all()
+    ]
+    _validate_lines(entry.company, raw_lines)
+    if entry.fiscal_period_id != period.id:
+        entry.fiscal_period = period
+    entry.status = JournalEntry.Status.POSTED
+    entry.posted_by = user
+    entry.posted_at = timezone.now()
+    entry.save()
+    record_event(
+        action="journal.posted",
+        entity_type="JournalEntry",
+        company=entry.company,
+        user=user,
+        entity_id=entry.id,
+        total_debit=str(entry.total_debit()),
+        total_credit=str(entry.total_credit()),
+    )
+    return entry
+
+
+# ---------------------------------------------------------------------------
 # Sprint 07 — opening balances
 # ---------------------------------------------------------------------------
 
