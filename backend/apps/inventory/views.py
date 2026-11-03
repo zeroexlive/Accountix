@@ -1,10 +1,19 @@
+from django import forms as django_forms
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
-from apps.catalog.models import Product
-from apps.core.access import user_company_ids
+from apps.catalog.forms import ProductCategoryForm, ProductForm, UnitForm
+from apps.catalog.models import Product, ProductCategory
+from apps.core.access import (
+    member_companies,
+    require_posted_company_member,
+    resolve_scoped_company,
+    user_company_ids,
+)
 from apps.core.pagination import apply_date_range, paginate
 from apps.inventory import reporting
+from apps.inventory.forms import WarehouseForm
 from apps.organizations.models import Company
 
 
@@ -16,6 +25,92 @@ def product_list(request):
         .order_by("sku")
     )
     return render(request, "inventory/product_list.html", {"products": products})
+
+
+@login_required
+def product_create(request):
+    """Product create (Sprint 12). The company is chosen first (the
+    shared chooser pattern) because the category/unit pickers are
+    scoped to it; the form itself also carries the company as a hidden
+    field so a forged id outside the memberships 404s in
+    ``resolve_scoped_company`` before any validation runs."""
+    companies, company = resolve_scoped_company(request)
+    form = ProductForm(
+        request.POST or None,
+        company=company,
+        initial={"company": company} if company else None,
+    )
+    form.fields["company"].queryset = companies
+    form.fields["company"].widget = django_forms.HiddenInput()
+    if request.method == "POST" and company is not None and form.is_valid():
+        form.save()
+        messages.success(request, "کالا ایجاد شد.")
+        return redirect("product_list")
+    return render(
+        request,
+        "inventory/product_form.html",
+        {"form": form, "companies": companies, "company": company, "product": None},
+    )
+
+
+@login_required
+def product_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk, company_id__in=user_company_ids(request.user))
+    form = ProductForm(request.POST or None, instance=product, company=product.company)
+    form.fields["company"].queryset = member_companies(request.user)
+    form.fields["company"].disabled = True
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "کالا ذخیره شد.")
+        return redirect("product_list")
+    return render(
+        request,
+        "inventory/product_form.html",
+        {"form": form, "companies": None, "company": product.company, "product": product},
+    )
+
+
+@login_required
+def unit_create(request):
+    if request.method == "POST":
+        require_posted_company_member(request)
+    form = UnitForm(request.POST or None)
+    form.fields["company"].queryset = member_companies(request.user)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "واحد ایجاد شد.")
+        return redirect("product_list")
+    return render(request, "inventory/unit_form.html", {"form": form})
+
+
+@login_required
+def category_create(request):
+    if request.method == "POST":
+        require_posted_company_member(request)
+    form = ProductCategoryForm(request.POST or None)
+    companies = member_companies(request.user)
+    form.fields["company"].queryset = companies
+    form.fields["parent"].queryset = ProductCategory.objects.filter(
+        company_id__in=user_company_ids(request.user)
+    ).order_by("code")
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "دسته‌بندی ایجاد شد.")
+        return redirect("product_list")
+    return render(request, "inventory/category_form.html", {"form": form})
+
+
+@login_required
+def warehouse_create(request):
+    if request.method == "POST":
+        require_posted_company_member(request)
+    form = WarehouseForm(request.POST or None)
+    form.fields["company"].queryset = member_companies(request.user)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "انبار ایجاد شد.")
+        return redirect("product_list")
+    return render(request, "inventory/warehouse_form.html", {"form": form})
 
 
 @login_required
