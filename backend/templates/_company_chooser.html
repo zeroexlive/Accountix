@@ -1,0 +1,7 @@
+{# Sprint 12: shown on create pages when the user belongs to several
+   companies and none is selected yet — the document pickers are
+   scoped per company, so the company must be chosen first. #}
+<div class="card"><form method="get" class="inline-form">
+<label>شرکت</label><select name="company">{% for c in companies %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}</select>
+<button type="submit">انتخاب شرکت</button></form>
+<p class="empty">برای ادامه، شرکت را انتخاب کنید؛ فهرست‌های انتخابی فرم بر اساس شرکت انتخاب‌شده محدود می‌شوند.</p></div>
