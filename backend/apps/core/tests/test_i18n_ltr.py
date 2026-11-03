@@ -9,10 +9,12 @@ module pins the Sprint 22 design layer on top of it:
   English display figures, and the ``[dir="ltr"] .flip-rtl``
   directional-icon mirroring rule (ADR-048's icon policy);
 - the numeric-column rule — figure columns carry the ``num`` hook and
-  align to the inline-end in BOTH directions (``td.num`` is
-  ``text-align: end``) — is exercised on a real page in English and
-  in Persian, so the hook is proven present under ``dir="ltr"`` and
-  under ``dir="rtl"`` alike.
+  align to the inline-start in BOTH directions (``td.num`` is
+  ``text-align: start``: the right edge in Persian, the left edge in
+  English — Jason's post-Sprint-22 decision, see the ADR-048
+  addendum, superseding the sprint's original inline-end rule) — is
+  exercised on a real page in English and in Persian, so the hook is
+  proven present under ``dir="ltr"`` and under ``dir="rtl"`` alike.
 """
 
 import pytest
@@ -79,8 +81,8 @@ def test_stylesheet_ships_ltr_design_rules():
     # Directional-icon mirroring rule (ADR-048 policy mechanism).
     assert '[dir="ltr"] .flip-rtl' in css
     assert "transform:scaleX(-1)" in css
-    # The numeric-column rule itself: inline-end alignment.
-    assert "td.num,th.num{text-align:end" in css
+    # The numeric-column rule itself: inline-start alignment.
+    assert "td.num,th.num{text-align:start" in css
 
 
 def test_numeric_columns_carry_num_hook_in_english(client, world):
@@ -102,7 +104,7 @@ def test_numeric_columns_carry_num_hook_in_persian(client, world):
     assert resp.status_code == 200
     content = resp.content.decode()
     assert '<html lang="fa" dir="rtl">' in content
-    # Same hook under RTL: td.num aligns the figures to the inline-end
-    # (the left in RTL) — one rule, both directions (ADR-048).
+    # Same hook under RTL: td.num aligns the figures to the inline-start
+    # (the right in RTL) — one rule, both directions (ADR-048 addendum).
     assert '<th class="num">بدهکار</th>' in content
     assert '<td class="num">100.00</td>' in content

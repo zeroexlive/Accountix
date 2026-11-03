@@ -289,7 +289,11 @@ Modular monolith, single Django project under `backend/`:
   moves figure columns to the left edge of their cells — the
   sprint's one deliberate fa visual change, recorded in
   ADR-048. Catalogs provably untouched (makemessages md5
-  fixpoint). Suite: 367 passed + 3 skipped on SQLite, mypy
+  fixpoint). **Post-report correction (Jason's decision,
+  2026-11-03):** the numeric alignment was reverted to
+  inline-start — Persian figures are right-aligned again as
+  before Sprint 22, English figures left-aligned; the `num`
+  hook coverage stands (ADR-048 addendum). Suite: 367 passed + 3 skipped on SQLite, mypy
   clean.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is

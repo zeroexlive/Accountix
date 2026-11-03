@@ -1049,3 +1049,13 @@ the Persian rendering provably cannot change: neither selector
 matches `<html lang="fa" dir="rtl">`.
 Print templates stay out of all of this (Persian documents,
 ADR-045).
+
+**Addendum to (2) — Jason's decision, 2026-11-03 (after the
+Sprint 22 report):** the inline-end alignment is superseded.
+Reviewing the deliberate Persian consequence, Jason chose the
+pre-Sprint-22 Persian rendering: figure columns now align to the
+inline-START (`td.num,th.num` is `text-align: start` + tabular
+numerals) — the right edge in Persian, the left edge in English.
+The Sprint 22 `num` hook coverage (111 cells across 32 templates)
+is unchanged; only the alignment edge moved. Standing rule from
+now on: numeric columns are start-aligned in both modes.
