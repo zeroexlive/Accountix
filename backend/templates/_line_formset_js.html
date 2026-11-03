@@ -1,0 +1,20 @@
+{# Sprint 12: optional add-row enhancement for line formsets. The form
+   is fully usable without JavaScript — the server renders extra rows
+   and DELETE checkboxes; this only clones the empty-form row. #}
+<template id="empty-line-row"><tr>{% for field in formset.empty_form %}<td>{{ field }}</td>{% endfor %}</tr></template>
+<script>
+(function () {
+  var btn = document.getElementById("add-line");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var prefix = btn.getAttribute("data-prefix");
+    var total = document.getElementById("id_" + prefix + "-TOTAL_FORMS");
+    var idx = parseInt(total.value, 10);
+    var html = document.getElementById("empty-line-row").innerHTML.split("__prefix__").join(idx);
+    var tmp = document.createElement("tbody");
+    tmp.innerHTML = html;
+    document.getElementById("line-rows").appendChild(tmp.firstElementChild);
+    total.value = idx + 1;
+  });
+})();
+</script>
