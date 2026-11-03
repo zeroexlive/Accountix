@@ -20,5 +20,6 @@ backend/staticfiles/
 .idea/
 .vscode/
 dist/
+release/
 build/
 *.egg-info/

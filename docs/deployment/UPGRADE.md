@@ -3,6 +3,14 @@
 The upgrade path is the launcher itself (ADR-036). There is no separate
 updater and no silent schema change.
 
+This flow was verified end to end in Sprint 29 (ADR-054) on a real
+populated data directory whose schema had been rolled back one
+migration: the new (packaged) binary's launch wrote the pre-migration
+backup, applied the pending migration, and every pre-existing figure —
+trial balance, invoice/payment statuses, stock, users and memberships —
+was identical afterwards, with pre-upgrade credentials still logging
+in. Evidence: `docs/engineering/SPRINT_29_REPORT.md`.
+
 ## Upgrade
 
 1. Install the new version (new bundle directory / new source checkout).

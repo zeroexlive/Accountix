@@ -27,3 +27,21 @@ bundle rebuilt and re-smoked at Sprint 23 — see
   (see LOCAL.md). The Sprint 24 rebuild's smoke ran that whole
   recipient journey bundle-only.
 - Smoke test from source: `scripts/smoke_standalone.sh`.
+- **Release artifact (Sprint 29, ADR-054):** after the build,
+  `scripts/package_release.sh` packages `dist/accountix/` into
+  `release/accountix-<VERSION>-linux.tar.gz` plus a
+  `.sha256` sidecar in standard `sha256sum` format; `<VERSION>`
+  is parsed from `backend/config/version.py` at package time,
+  never hardcoded. The archive's single top-level folder
+  `accountix-<VERSION>-linux/` holds the bundle (the `accountix`
+  binary + `_internal/`) and the operator docs (`LOCAL.md`,
+  `UPGRADE.md`). A recipient verifies with
+  `(cd release && sha256sum -c accountix-<VERSION>-linux.tar.gz.sha256)`,
+  extracts anywhere, and runs the extracted `accountix` — the
+  LOCAL.md run story and the UPGRADE.md upgrade story apply
+  unchanged. First packaged release: `accountix-1.0.0-linux.tar.gz`
+  (30,287,244 bytes, SHA-256
+  `222f5777de59252bbec073c2953e7dfe1f78a4ea9da0c574dd2da692399820e3`),
+  smoked from a clean extraction; `release/` is gitignored like
+  `dist/` (the artifact is identified by name + checksum, not
+  committed).

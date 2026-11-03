@@ -397,6 +397,30 @@ Modular monolith, single Django project under `backend/`:
   zero external URLs), so the bundle is current through
   Sprint 28; the Windows bundle remains the only NOT VERIFIED
   release-gate item.
+- Update (Sprint 29): the release is packaged and the in-place
+  upgrade is verified — see `SPRINT_29_REPORT.md` and ADR-054.
+  `scripts/package_release.sh` turns the bundle into
+  `release/accountix-1.0.0-linux.tar.gz` (+ a `.sha256` sidecar;
+  the version is parsed from `config/version.py` at package time,
+  never hardcoded; the archive's single top-level folder holds
+  the bundle plus `LOCAL.md`/`UPGRADE.md`); `build_windows.bat`
+  mirrors the naming for `accountix-<VERSION>-windows.zip`
+  (written-only, NOT VERIFIED like the rest of the Windows
+  route). The packaged artifact was smoked from a clean
+  extraction (fresh data dir: setup → dashboard with the 1.0.0
+  stamp → fonts from the frozen server), and the ADR-036 upgrade
+  story was proven on a data directory populated by the packaged
+  binary and then rolled back one migration (`treasury.0003`):
+  the launch wrote the verified pre-migration backup first,
+  applied 0003, and a Sprint 17-style fingerprint of the old data
+  (trial balance 3775.00 = 3775.00, sale PAID, stock 6/600,
+  memberships with roles) was identical after the upgrade;
+  pre-upgrade admin + member logins still work and the
+  cheque-books page loads; a garbage-DB data dir is refused at
+  the backup gate with the data untouched. No application code
+  changed; the suite is unchanged at 455 passed + 3 skipped.
+  The Windows bundle remains the only NOT VERIFIED release-gate
+  item.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a
@@ -590,7 +614,10 @@ sprite symbol is used, no inline SVG remains in any template,
 zero external asset references across templates + app.css,
 the bento dashboard renders its grids + sprite icons + the
 five quick-action links for an OWNER and the same tiles without
-quick actions for a VIEWER)
+quick actions for a VIEWER); Sprint 29:
++0 (packaging + upgrade-verification sprint, count-neutral; the
+evidence is the artifact checksum/extraction smoke and the
+upgrade fingerprint comparison, not new tests)
 — see the sprint reports for exact
 commands). Coverage tooling (pytest-cov) is configured as a dev
 dependency but a coverage percentage was **not measured in Sprint 01** — do
@@ -642,4 +669,4 @@ not quote one. No integration/E2E/concurrency/security suites yet.
    add Python 3.13 to the matrix.
 3. Vendor Tailwind + HTMX/Alpine locally; remove the CSS stopgap gradually.
 4. Generate `uv.lock`; add coverage measurement to CI.
-5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; ~~the follow-up is a GOVERN-gated members UI with the last-OWNER guard~~ — done, Sprint 26, ADR-051). ~~Self-service profile + password change~~ — done (Sprint 27, ADR-052; current release picture in RELEASE_STATUS.md — the only open gate left is Windows bundle verification).
+5. ~~Add role permission checks when the first role-sensitive operation lands~~ — done (Sprint 25, ADR-050: tiered enforcement on every mutating endpoint; ~~the follow-up is a GOVERN-gated members UI with the last-OWNER guard~~ — done, Sprint 26, ADR-051). ~~Self-service profile + password change~~ — done (Sprint 27, ADR-052; current release picture in RELEASE_STATUS.md — the only open gate left is Windows bundle verification). ~~Versioned release artifact + in-place upgrade drill~~ — done (Sprint 29, ADR-054: `accountix-1.0.0-linux.tar.gz` + sha256, extraction-smoked; the ADR-036 upgrade from a one-migration-behind populated data dir is verified with an identical before/after fingerprint).

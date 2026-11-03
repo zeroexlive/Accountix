@@ -1,6 +1,6 @@
 # Release Status — Accountix (current gate picture)
 
-Date: 2026-11-03 (Sprint 27). This addendum supersedes the *status*
+Date: 2026-11-03 (Sprint 29). This addendum supersedes the *status*
 picture of `RELEASE_READINESS.md` (Sprint 10) without editing it:
 that document stays as the historical Sprint 10 gate record, and
 this file records where each gate stands now. Statuses below are
@@ -9,16 +9,18 @@ backed by the sprint reports named next to them.
 ## Verdict
 
 **Release-grade on Linux; one platform gate open.** Every gate
-that can be exercised in this environment is closed and verified.
-The single remaining NOT VERIFIED item is the Windows bundle —
-it has never been built or run on a Windows machine, because no
-Windows machine exists in this environment.
+that can be exercised in this environment is closed and verified —
+including, since Sprint 29, the packaged release artifact and the
+in-place upgrade path (see below). The single remaining NOT
+VERIFIED item is the Windows bundle — it has never been built or
+run on a Windows machine, because no Windows machine exists in
+this environment.
 
 ## Gate picture (Sprint 10 numbering, current status)
 
 | # | Gate | Status now | Closed / verified in |
 |---|------|-----------|----------------------|
-| 1 | Test suite — SQLite | PASS — 446 passed, 3 skipped at Sprint 27 (was 202 + 3) | every sprint; `SPRINT_27_REPORT.md` |
+| 1 | Test suite — SQLite | PASS — 455 passed, 3 skipped at Sprint 28, unchanged at Sprint 29 (was 202 + 3) | every sprint; `SPRINT_28_REPORT.md` |
 | 2 | Test suite — PostgreSQL 16.2 | PASS | Sprint 10 (205 passed incl. concurrency) |
 | 3 | Concurrency invariants (PostgreSQL) | PASS (ADR-037 fixes) | Sprint 10 |
 | 4 | Migrations clean | PASS — `makemigrations --check` at every sprint gate | ongoing |
@@ -28,7 +30,7 @@ Windows machine exists in this environment.
 | 8 | Type checking (mypy) | PASS — clean at every sprint gate (185+ files) | Sprint 10, ongoing |
 | 9/10 | Python 3.12 / 3.13 verified | PASS | Sprint 10 |
 | 11 | Launcher smoke — source mode (Linux) | PASS | Sprint 10 |
-| 12 | Frozen Linux bundle | PASS — rebuilt + full frozen smoke in Sprints 23, 24, 26, 27 (bundle-only recipient journey: setup → login → members/permissions → profile/password) | Sprints 23/24/26/27 |
+| 12 | Frozen Linux bundle | PASS — rebuilt + full frozen smoke in Sprints 23, 24, 26, 27, 28; since Sprint 29 also shipped as a versioned release artifact (`accountix-1.0.0-linux.tar.gz` + `.sha256`, ADR-054) and smoked from a clean extraction | Sprints 23/24/26/27/28/29 |
 | 13 | Backup/restore — SQLite | PASS | Sprint 09/10 |
 | 14 | Backup — PostgreSQL | PASS | Sprint 10 |
 | 15 | Restore — PostgreSQL | **VERIFIED** (was NOT VERIFIED at Sprint 10) — pg_dump/pg_restore drill executed end to end; the operator procedure is written in `docs/deployment/PRODUCTION.md` | Sprint 17 |
@@ -39,6 +41,25 @@ Windows machine exists in this environment.
 | 20 | Login rate limiting | **CLOSED** (was a GAP at Sprint 10) — django-axes: 5 failures, username+IP, 1 h cooloff, Persian lockout page (ADR-043) | Sprint 16 |
 | 21 | Performance smoke | PASS (dev-machine SQLite numbers; no load test) | Sprint 10 |
 | 22 | Docs match reality | PASS — sprint reports + CURRENT_STATE kept current every sprint; this addendum | ongoing |
+
+## In-place upgrade — VERIFIED (Sprint 29)
+
+**In-place upgrade: VERIFIED (Sprint 29)** — a data directory
+populated by the packaged binary (setup, a members-UI user,
+posted purchase/sale/receipt/journal) was copied, rolled back one
+real migration (`treasury.0003`), and relaunched with the
+packaged binary, which wrote the verified pre-migration backup
+before applying the pending migration and left every pre-existing
+figure (a Sprint 17-style fingerprint: 54 counted tables / 338
+rows, trial balance 3775.00 = 3775.00, sale PAID, stock 6 units /
+600.00, memberships + roles) identical afterwards, with the
+pre-upgrade credentials still logging in and the re-migrated
+cheque-books page loading. The release artifact itself is
+`accountix-1.0.0-linux.tar.gz` (30,287,244 bytes, SHA-256
+`222f5777de59252bbec073c2953e7dfe1f78a4ea9da0c574dd2da692399820e3`),
+verified by `sha256sum -c` and smoked from a clean extraction;
+full drill evidence in `SPRINT_29_REPORT.md`, decision record
+ADR-054.
 
 ### Sprint 10 limitations — disposition
 

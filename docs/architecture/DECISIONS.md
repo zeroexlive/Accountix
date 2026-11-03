@@ -1432,3 +1432,74 @@ login/setup/dashboard pages (fa/rtl and en/ltr) with all fonts
 and the sprite at 200 with correct content types and zero
 external URLs in the served HTML; a human eye-check remains the
 final pixel check, as with Sprint 22.
+
+## ADR-054 — The release unit is a versioned archive; the in-place upgrade is verified, not just designed (accepted, Sprint 29)
+
+Context: through Sprint 28 the deliverable was the bare PyInstaller
+output folder (`dist/accountix/`) — unversioned, unchecksummed, and
+indistinguishable from any other build. Separately, the in-place
+upgrade story (ADR-036: the launcher backs up, then migrates, and
+aborts untouched on failure) had been exercised piecemeal since
+Sprint 09 but never proven end to end as an operator experiences
+it: an old installation's real data meeting a new binary with a
+pending migration. Sprint 29 closes both gaps. Decisions:
+
+(1) **The release unit is a versioned archive.**
+`scripts/package_release.sh` packages the bundle produced by
+`scripts/build_linux.sh` into
+`release/accountix-<VERSION>-linux.tar.gz`, whose single top-level
+folder `accountix-<VERSION>-linux/` holds the bundle (the
+`accountix` binary + `_internal/`) plus the operator docs an
+installer/upgrader needs (`LOCAL.md`, `UPGRADE.md`). A sidecar
+`accountix-<VERSION>-linux.tar.gz.sha256` in standard `sha256sum`
+format ships next to it; verification is `sha256sum -c`. Packaging
+is a separate step after the build (build ≠ package), and the
+artifact is a build product: `release/` is gitignored like
+`dist/`, and an artifact is identified by its name + checksum,
+never committed to git.
+(2) **The version is read, never hardcoded.** The packaging script
+parses `__version__` from `backend/config/version.py` at package
+time — ADR-052's one source of truth extends to distribution
+naming, so a version bump renames the next artifact automatically
+and a script can never stamp a stale version onto a build.
+(3) **The packaged artifact is the thing smoked.** The Sprint 29
+verification ran the *extracted archive's* binary (clean
+extraction, fresh data dir), not `dist/`: setup → dashboard with
+the 1.0.0 stamp → fonts from the frozen server. A `dist/` smoke
+would not have proven the archive's layout, permissions or
+completeness.
+(4) **Windows parity is written, not verified.** `scripts/
+build_windows.bat` grows a mirroring block producing
+`release\accountix-<VERSION>-windows.zip` (single top folder,
+same version parsing, `Compress-Archive`), explicitly commented
+NOT VERIFIED — it has never run on a Windows machine, like the
+rest of the Windows route (release gate 16 stays open).
+(5) **The in-place upgrade is now VERIFIED end to end.** Method
+(Sprint 17 fingerprint discipline): a data directory populated by
+the packaged binary itself (setup + a members-UI-created user +
+posted purchase/sale/receipt/journal through the services) was
+copied and its schema rolled back one real migration
+(`migrate treasury 0002`); the fingerprint of that "old data"
+(56 counted tables, trial balance 3775.00 = 3775.00, sale PAID,
+stock 6 units / 600.00, memberships with roles) was recorded.
+Launching the packaged binary against the copy produced the
+verified pre-migration backup in `<data dir>/backups/` *before*
+migrating (launcher log ordering + the backup file itself),
+applied `treasury.0003`, came up healthy, and the post-upgrade
+fingerprint of all pre-existing data was **identical** to the
+baseline — the only additions were the two 0003 tables, empty.
+Pre-upgrade admin and member credentials still log in, and the
+re-migrated cheque-books page loads. The failure posture was
+re-proven too: a data dir whose `db.sqlite3` is a directory is
+refused at the backup gate (exit 1, "database was left
+untouched") with the data intact. `django_migrations` and
+`django_session` are the only tables excluded from the
+comparison, both volatile by design (the migration record is
+the upgrade's own bookkeeping; sessions are login artefacts,
+and the post-upgrade fingerprint was taken before any
+post-upgrade login for exactly that reason).
+(6) **Scope kept.** No application code changed this sprint —
+the suite is the regression net (455 passed + 3 skipped,
+unchanged) and the new evidence is the artifact + the upgrade
+drill, recorded in `docs/engineering/SPRINT_29_REPORT.md` and
+`docs/engineering/RELEASE_STATUS.md`.
