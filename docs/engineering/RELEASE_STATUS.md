@@ -6,6 +6,19 @@ that document stays as the historical Sprint 10 gate record, and
 this file records where each gate stands now. Statuses below are
 backed by the sprint reports named next to them.
 
+## Release 1.2.0
+
+**Released 2026-11-04** — tagged `v1.2.0`. Release notes:
+`RELEASE_NOTES_1.2.0.md`. Linux artifact
+`accountix-1.2.0-linux.tar.gz` (30,463,403 bytes), SHA-256
+`42f2b63f75302ac79d85c50fa84406194a497e1b25754789ce759fe47600086b`.
+Adds barcode/QR scanning in invoicing with phone pairing, the
+guided-tour activation fix, and the bidirectional localization
+closure (Sprint 31). One database migration since 1.1.0
+(`core 0001`, scan-session tables); the launcher's
+backup-before-migrate path covers in-place upgrades. Suite at
+release: 500 passed, 3 skipped.
+
 ## Release 1.1.0
 
 **Released 2026-11-04** — tagged `v1.1.0`. Release notes:
