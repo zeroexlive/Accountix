@@ -239,11 +239,12 @@ def test_version_renders_on_login_page(client, user):
     from config.version import __version__
 
     body = client.get(reverse("login")).content.decode()
-    assert __version__ == "1.0.0"
-    assert "1.0.0" in body
+    assert __version__ in body
 
 
 def test_version_renders_in_shell(client, user):
+    from config.version import __version__
+
     _login(client, "jason", OLD_PASSWORD)
     body = client.get(reverse("dashboard")).content.decode()
-    assert "1.0.0" in body
+    assert __version__ in body

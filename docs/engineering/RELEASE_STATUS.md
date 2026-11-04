@@ -6,6 +6,16 @@ that document stays as the historical Sprint 10 gate record, and
 this file records where each gate stands now. Statuses below are
 backed by the sprint reports named next to them.
 
+## Release 1.1.0
+
+**Released 2026-11-04** — tagged `v1.1.0`. Release notes:
+`RELEASE_NOTES_1.1.0.md`. Linux artifact
+`accountix-1.1.0-linux.tar.gz` (30,349,731 bytes), SHA-256
+`d5367412a62bb32fe1f4a977c5eeac91d189e10174a4678ea5c16aa223e3ea4e`.
+Adds guided tours, SVG dashboard charts with reduced-motion-safe
+animation, and the Persian UI leak closure (Sprint 30); no database
+migrations since 1.0.0. Suite at release: 476 passed, 3 skipped.
+
 ## Release 1.0.0
 
 **Released 2026-11-04** — tagged `v1.0.0`. Release notes:

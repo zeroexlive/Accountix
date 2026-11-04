@@ -8,5 +8,5 @@ in the shell and on the login page is identical in both. The
 packaging metadata only; this module is what the running app reads.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 VERSION = __version__
