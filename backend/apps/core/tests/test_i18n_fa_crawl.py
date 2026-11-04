@@ -64,52 +64,122 @@ ACCOUNT_NAMES = {
 }
 
 
-@pytest.fixture
-def world(db):
-    # The world's stored descriptions must be created under fa:
-    # pin the active language for the fixture's service calls (a
-    # previous test's en-mode request can leave 'en' active in the
-    # test thread — language state is not reset between tests).
+# Sprint 31 (ADR-058): the world builder is language-parametrized
+# so the en crawl twin (test_i18n_en_crawl.py) audits the SAME
+# populated world created under en, with English user data. The fa
+# fixture below keeps its exact Sprint 30 behavior.
+WORLD_TEXT = {
+    "fa": {
+        "company_name": "شرکت بازرگانی نمونه",
+        "account_names": ACCOUNT_NAMES,
+        "fy_name": "سال مالی ۱۴۰۵",
+        "supplier": "تأمین‌کننده نمونه",
+        "customer": "مشتری نمونه",
+        "customer2": "مشتری دوم",
+        "product": "کالای نمونه",
+        "warehouse": "انبار مرکزی",
+        "unit": "عدد",
+        "cash_treasury": "صندوق اصلی",
+        "bank_treasury": "بانک اصلی",
+        "bank_name": "ملی",
+        "user_first": "مدیر",
+        "user_last": "نمونه",
+        "member_first": "رضا",
+        "member_last": "کریمی",
+        "stmt_in": "واریز نمونه",
+        "stmt_fee": "کارمزد بانک",
+        "entry_desc": "سند نمونه",
+    },
+    "en": {
+        "company_name": "Sample Trading Co",
+        "account_names": {
+            "1100": "Cash",
+            "1110": "Bank",
+            "1150": "Cheques in hand",
+            "1200": "Accounts receivable",
+            "1300": "Inventory",
+            "1350": "Input VAT",
+            "2100": "Accounts payable",
+            "2150": "Cheques payable",
+            "2200": "Output VAT payable",
+            "4100": "Sales revenue",
+            "5100": "Cost of goods sold",
+            "6100": "Operating expense",
+        },
+        "fy_name": "Fiscal 2026",
+        "supplier": "Sample Supplier",
+        "customer": "Sample Customer",
+        "customer2": "Second Customer",
+        "product": "Sample Product",
+        "warehouse": "Main Warehouse",
+        "unit": "Piece",
+        "cash_treasury": "Main Cash",
+        "bank_treasury": "Main Bank",
+        "bank_name": "Melli",
+        "user_first": "Boss",
+        "user_last": "Sample",
+        "member_first": "John",
+        "member_last": "Doe",
+        "stmt_in": "Sample deposit",
+        "stmt_fee": "Bank fee",
+        "entry_desc": "Sample entry",
+    },
+}
+
+
+def build_crawl_world(lang):
+    # The world's stored descriptions must be created under the
+    # crawl's language: pin the active language for the fixture's
+    # service calls (a previous test's request in the other language
+    # can leave it active in the test thread — language state is not
+    # reset between tests).
     from django.utils import translation
 
-    translation.activate("fa")
-    w = build_world(company_name="شرکت بازرگانی نمونه")
-    # Persian fixture data: user-owned strings must not pollute the audit.
+    t = WORLD_TEXT[lang]
+    translation.activate(lang)
+    w = build_world(company_name=t["company_name"])
+    # Fixture data: user-owned strings must not pollute the audit.
     from apps.accounting.models import Account
 
     for acct in Account.objects.filter(company=w.company):
-        acct.name = ACCOUNT_NAMES[acct.code]
+        acct.name = t["account_names"][acct.code]
         acct.save()
     fy = FiscalYear.objects.get(company=w.company)
-    fy.name = "سال مالی ۱۴۰۵"
+    fy.name = t["fy_name"]
     fy.save()
-    w.supplier.name = "تأمین‌کننده نمونه"
+    w.supplier.name = t["supplier"]
     w.supplier.save()
-    w.customer.name = "مشتری نمونه"
+    w.customer.name = t["customer"]
     w.customer.save()
-    w.customer2.name = "مشتری دوم"
+    w.customer2.name = t["customer2"]
     w.customer2.save()
-    w.product.name = "کالای نمونه"
+    w.product.name = t["product"]
     w.product.min_stock_level = D("10")
     w.product.save()
-    w.warehouse.name = "انبار مرکزی"
+    w.warehouse.name = t["warehouse"]
     w.warehouse.save()
     unit = w.product.base_unit
-    unit.name = "عدد"
+    unit.name = t["unit"]
     unit.save()
-    w.cash_treasury.name = "صندوق اصلی"
+    w.cash_treasury.name = t["cash_treasury"]
     w.cash_treasury.save()
-    w.bank_treasury.name = "بانک اصلی"
-    w.bank_treasury.bank_name = "ملی"
+    w.bank_treasury.name = t["bank_treasury"]
+    w.bank_treasury.bank_name = t["bank_name"]
     w.bank_treasury.save()
     w.fiscal_year = fy
 
     w.user = User.objects.create_user(
-        username="boss", password="Str0ng!Pass1", first_name="مدیر", last_name="نمونه"
+        username="boss",
+        password="Str0ng!Pass1",
+        first_name=t["user_first"],
+        last_name=t["user_last"],
     )
     CompanyMembership.objects.create(user=w.user, company=w.company, role="OWNER")
     w.member = User.objects.create_user(
-        username="accountant", password="Str0ng!Pass1", first_name="رضا", last_name="کریمی"
+        username="accountant",
+        password="Str0ng!Pass1",
+        first_name=t["member_first"],
+        last_name=t["member_last"],
     )
     CompanyMembership.objects.create(user=w.member, company=w.company, role="ACCOUNTANT")
 
@@ -139,7 +209,7 @@ def world(db):
             payment_date=DAY,
             method="CHEQUE",
             cheque={
-                "bank_name": "ملی",
+                "bank_name": t["bank_name"],
                 "cheque_number": number,
                 "due_date": date(2026, 6, 15),
                 "sayad_id": "SY-123",
@@ -198,15 +268,15 @@ def world(db):
         closing_balance=D("1100"),
     )
     reconciliation.add_statement_line(
-        w.statement, line_date=DAY, amount=D("1100"), description="واریز نمونه", reference="REF-1"
+        w.statement, line_date=DAY, amount=D("1100"), description=t["stmt_in"], reference="REF-1"
     )
     reconciliation.add_statement_line(
-        w.statement, line_date=DAY, amount=D("-50"), description="کارمزد بانک", reference="REF-2"
+        w.statement, line_date=DAY, amount=D("-50"), description=t["stmt_fee"], reference="REF-2"
     )
     w.entry = accounting_services.create_journal_draft(
         company=w.company,
         entry_date=DAY,
-        description="سند نمونه",
+        description=t["entry_desc"],
         lines=[
             {"account": w.cash, "debit": D("100"), "credit": D("0")},
             {"account": w.revenue, "debit": D("0"), "credit": D("100")},
@@ -220,6 +290,11 @@ def world(db):
         lines=[{"product": w.product, "quantity": D("5"), "unit_cost": D("100")}],
     )
     return w
+
+
+@pytest.fixture
+def world(db):
+    return build_crawl_world("fa")
 
 
 SENTENCE_RE = re.compile(r"[A-Za-z][A-Za-z'’-]*(?:[ \t]+[A-Za-z][A-Za-z'’-]*){1,}")
@@ -418,7 +493,95 @@ def world_data_tokens(w):
     name their units and codes in any script."""
     from apps.catalog.models import Unit
 
-    return set(Unit.objects.filter(company=w.company).values_list("code", flat=True))
+    tokens = set(Unit.objects.filter(company=w.company).values_list("code", flat=True))
+    # Sprint 31 (ADR-058): usernames are user-chosen identifiers —
+    # data in whatever script the user picked, same principle.
+    tokens |= {w.user.username, w.member.username}
+    return tokens
+
+
+# --- Body-token rule (Sprint 31, ADR-058) --------------------------
+# Sprint 30's rules caught Latin SENTENCES anywhere and single
+# Latin tokens inside chrome zones (label/th/button/…). Jason
+# still saw stray English WORDS in body text, so the net widens:
+# ANY pure-alpha Latin token of >= 3 letters anywhere in visible
+# text is now flagged, minus the defended allowlist below and the
+# world's own data tokens. Digit-bearing tokens stay exempt (they
+# are codes/numbers — data, per the strict-zone reasoning).
+
+BODY_TOKEN_ALLOWLIST = STRICT_TOKEN_ALLOWLIST | {
+    # The shell footer attribution «ساخته‌شده با Muse Spark»
+    # contributes its two proper-name tokens individually here
+    # (the sentence rule above covers the phrase as a whole).
+    "Muse",
+    "Spark",
+    # Bank-file vocabulary, same family as the strict list's
+    # CSV/OFX: QFX is the OFX variant banks actually ship, and
+    # «Excel» names the spreadsheet export users open. Translating
+    # a file format's name would mislead, not localize.
+    "QFX",
+    "Excel",
+    # ISO 4217 currency code shown next to company currency —
+    # a code, like the format names above.
+    "IRR",
+    # The statement-import CSV contract LITERALLY requires these
+    # header names in the uploaded file (statement_files.py: the
+    # parser checks for 'date' + 'amount' or 'debit'+'credit';
+    # 'description'/'reference' are the optional columns). The
+    # import help text names them so the user's file matches;
+    # translating them would break the instruction.
+    "date",
+    "description",
+    "reference",
+    "amount",
+    "debit",
+    "credit",
+    # The physical keyboard key's own label (ADR-060 scan widget):
+    # the instructions must name the key the user actually
+    # presses — and the key USB scanner guns send.
+    "Enter",
+}
+
+
+_HEX = frozenset("0123456789abcdefABCDEF")
+
+
+def _is_identifier_fragment(word):
+    """Truncated identifiers are data, not language: the stock
+    movements page renders ``document_id|truncatechars:8``, so a
+    UUID shows as e.g. ``bddca-…`` — a hyphen/ellipsis-bearing
+    word whose every alphanumeric char is hex. (Found the hard
+    way: an all-letter first UUID segment made this rule flaky
+    across runs before the exemption existed.)"""
+    compact = "".join(c for c in word if c.isalnum())
+    return (
+        ("-" in word or "…" in word)
+        and compact != ""
+        and all(c in _HEX for c in compact)
+    )
+
+
+def body_token_violations(html, data_tokens=frozenset()):
+    parser = TextHarvest()
+    parser.feed(html)
+    bad = set()
+    for chunk in parser.chunks:
+        for word in " ".join(chunk.split()).split(" "):
+            if _is_identifier_fragment(word):
+                continue
+            for token in TOKEN_RE.findall(word):
+                # Sentence punctuation rides along in the token chars
+                # ("QFX." at a sentence end) — it is not part of the word.
+                token = token.strip("._-")
+                alpha = [c for c in token if c.isalpha()]
+                if (
+                    len(alpha) >= 3
+                    and not any(c.isdigit() for c in token)
+                    and token not in BODY_TOKEN_ALLOWLIST
+                    and token not in data_tokens
+                ):
+                    bad.add(token)
+    return bad
 
 
 def strict_violations(html, data_tokens=frozenset()):
@@ -446,6 +609,7 @@ def strict_violations(html, data_tokens=frozenset()):
 def page_violations(html, data_tokens=frozenset()):
     out = {f"sentence: {h}" for h in sentence_violations(html)}
     out |= {f"strict-zone token: {t}" for t in strict_violations(html, data_tokens)}
+    out |= {f"body token: {t}" for t in body_token_violations(html, data_tokens)}
     return out
 
 

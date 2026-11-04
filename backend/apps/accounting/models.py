@@ -93,6 +93,34 @@ class JournalEntry(TimeStampedUUIDModel):
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     source_type = models.CharField(max_length=50, blank=True)  # e.g. MANUAL, SALES_INVOICE
     source_id = models.CharField(max_length=64, blank=True)
+
+    # Display labels for the provenance codes services stamp on
+    # entries (Sprint 31, ADR-058): source_type is a free code with
+    # no choices=, so templates use this instead of the raw value.
+    # Unknown/future codes fall back to the raw value — provenance
+    # is data, and inventing a label for an unknown code would lie.
+    SOURCE_TYPE_LABELS = {
+        "MANUAL": _("دستی"),
+        "SALES_INVOICE": _("فاکتور فروش"),
+        "SALES_INVOICE_COGS": _("بهای تمام‌شده فاکتور فروش"),
+        "SALES_RETURN": _("برگشت فروش"),
+        "SALES_RETURN_COGS": _("بهای تمام‌شده برگشت فروش"),
+        "PURCHASE_INVOICE": _("فاکتور خرید"),
+        "PURCHASE_RETURN": _("برگشت خرید"),
+        "PAYMENT": _("دریافت/پرداخت خزانه"),
+        "CHEQUE_CLEAR": _("وصول چک"),
+        "CHEQUE_BOUNCE": _("برگشت چک"),
+        "CHEQUE_RETURN": _("عودت چک"),
+        "CLOSING": _("سند اختتامیه"),
+        "INVENTORY_COUNT": _("انبارگردانی"),
+        "STOCK_DOCUMENT": _("سند انبار"),
+        "REVERSAL": _("برگشت سند"),
+    }
+
+    def get_source_type_display(self):
+        if not self.source_type:
+            return ""
+        return self.SOURCE_TYPE_LABELS.get(self.source_type, self.source_type)
     idempotency_key = models.CharField(max_length=100, null=True, blank=True)
     reversal_of = models.ForeignKey(
         "self",

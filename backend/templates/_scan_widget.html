@@ -1,0 +1,44 @@
+{% load i18n static %}{% comment %} Sprint 31 (ADR-060): barcode/QR scan-add for invoice line formsets.
+   Rendered at the top of the lines section of the sales + purchase
+   invoice forms. Inert without JS: the input has no name (it is
+   never submitted), every button is type="button", and Enter is
+   intercepted by scan.js so scanner guns cannot submit the form.
+   All strings scan.js shows come from the data-msg-* attributes —
+   gettext-rendered here, so the module itself is language-free. {% endcomment %}
+<div class="scan-widget" data-scan-root data-scan-mode="{{ scan_mode }}" data-company="{{ company.pk }}"
+     data-lookup-url="{% url 'scan_lookup' %}"
+     data-session-create-url="{% url 'scan_session_create' %}"
+     data-msg-not-found="{% trans "کالایی با این کد یافت نشد." %}"
+     data-msg-added="{% trans "{name} به فاکتور اضافه شد." %}"
+     data-msg-network="{% trans "خطای شبکه؛ دوباره تلاش کنید." %}"
+     data-msg-camera-denied="{% trans "اجازه دسترسی به دوربین داده نشد." %}"
+     data-msg-camera-none="{% trans "دوربینی پیدا نشد." %}"
+     data-msg-insecure="{% trans "دوربین فقط در بستر امن کار می‌کند: همین صفحه را روی همین دستگاه (localhost) یا با HTTPS باز کنید؛ یا کد را بنویسید یا از اسکن‌گان استفاده کنید." %}"
+     data-msg-qr-only="{% trans "این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد را بنویسید یا از اسکن‌گان استفاده کنید." %}"
+     data-msg-pairing-expired="{% trans "نشست اتصال گوشی تمام شد." %}">
+  <div class="scan-row">
+    <label for="scan-code-{{ scan_mode }}">{% trans "افزودن با بارکد / QR" %}</label>
+    <input id="scan-code-{{ scan_mode }}" data-scan-input type="text" autocomplete="off"
+           placeholder="{% trans "اسکن کنید یا کد کالا را بنویسید و Enter بزنید" %}">
+    <button type="button" class="btn" data-scan-add>{% trans "افزودن" %}</button>
+    <button type="button" class="btn btn-ghost" data-scan-camera>{% trans "اسکن با دوربین" %}</button>
+    <button type="button" class="btn btn-ghost" data-scan-connect>{% trans "اتصال گوشی" %}</button>
+  </div>
+  <p class="scan-flash" data-scan-flash aria-live="polite"></p>
+  <div class="scan-panel" data-scan-panel hidden>
+    <p>{% trans "با دوربین گوشی این QR را اسکن کنید یا لینک زیر را روی گوشی باز کنید. هر کدی که با گوشی اسکن شود، خودکار به همین فاکتور اضافه می‌شود. نشست پس از ۱۰ دقیقه خودش بسته می‌شود." %}</p>
+    <div class="scan-qr" data-scan-qr></div>
+    <p><a data-scan-phone-link href="#" target="_blank" rel="noopener"></a></p>
+    <p><button type="button" class="btn btn-ghost" data-scan-disconnect>{% trans "قطع اتصال" %}</button></p>
+  </div>
+  <div class="scan-modal" data-scan-modal hidden>
+    <div class="scan-modal-card">
+      <video data-scan-video playsinline muted></video>
+      <p class="scan-modal-status" data-scan-modal-status></p>
+      <p><button type="button" class="btn" data-scan-modal-close>{% trans "بستن" %}</button></p>
+    </div>
+  </div>
+</div>
+<script src="{% static 'vendor/jsQR.js' %}"></script>
+<script src="{% static 'vendor/qrcode-generator.js' %}"></script>
+<script src="{% static 'js/scan.js' %}"></script>

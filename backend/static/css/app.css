@@ -19,6 +19,14 @@
 @font-face{font-family:"Vazirmatn";src:url("../fonts/vazirmatn-700.woff2") format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Vazirmatn";src:url("../fonts/vazirmatn-800.woff2") format("woff2");font-weight:800;font-display:swap}
 
+/* The platform contract (Sprint 31, ADR-059): an element with the
+   `hidden` attribute is not rendered, PERIOD. Author display rules
+   (e.g. `button,.btn{display:inline-block}` below) otherwise beat
+   the UA stylesheet's `[hidden]{display:none}` on origin alone —
+   which is how the guided-tour start button shipped visible-but-
+   dead on every page in Sprint 30. */
+[hidden]{display:none !important}
+
 /* ---- tokens ---- */
 :root{
   --bg:#eef0f6;
@@ -517,6 +525,26 @@ html[lang="en"] .brand-name,html[lang="en"] .kpi-value{letter-spacing:-.01em}
 .tour-nav{display:flex;gap:.5rem;margin-top:.8rem;align-items:center}
 .tour-nav .tour-next{margin-inline-start:auto}
 .tour-start .icon{margin-inline-end:.3rem}
+
+/* ---- invoice scanning (Sprint 31, ADR-060) ---- */
+.scan-widget{margin:.4rem 0 .8rem}
+.scan-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.scan-row label{font-weight:600;font-size:.88rem}
+.scan-row input{flex:1 1 220px;padding:.5rem .7rem;border:1px solid var(--line);border-radius:var(--radius-sm);font:inherit;background:var(--surface);color:var(--text)}
+.scan-flash{min-height:1.2em;margin:.35rem 0 0;font-size:.88rem}
+.scan-flash.scan-ok{color:var(--up)}
+.scan-flash.scan-error{color:#c22525}
+.scan-panel{margin-top:.6rem;padding:.8rem;border:1px dashed var(--line);border-radius:var(--radius-md);background:var(--surface-soft)}
+.scan-panel .scan-qr{margin:.5rem 0}
+.scan-panel .scan-qr svg{width:164px;height:164px;background:#fff}
+.scan-modal{position:fixed;inset:0;z-index:300;background:rgba(13,16,38,.6);display:flex;align-items:center;justify-content:center;padding:1rem}
+.scan-modal-card{background:var(--surface);border-radius:var(--radius-md);padding:1rem;max-width:440px;width:100%;box-shadow:var(--shadow-lg)}
+.scan-modal-card video{width:100%;border-radius:var(--radius-sm);background:#000}
+.scan-modal-status{min-height:1.2em;color:var(--text-2);font-size:.88rem}
+.scan-phone{background:var(--bg)}
+.scan-phone-main{max-width:560px;margin:0 auto;padding:1rem}
+.scan-history{list-style:none;padding:0;margin:.6rem 0}
+.scan-history li{padding:.35rem .6rem;border:1px solid var(--line-soft);border-radius:var(--radius-sm);margin-bottom:.35rem;background:var(--surface);font-size:.9rem}
 
 /* ---- motion (Sprint 30, ADR-056) ----
    Every keyframe animation and every geometry-moving transition

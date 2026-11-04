@@ -166,6 +166,28 @@ def test_zero_external_asset_references():
     tour_js = Path(finders.find("js/tour.js")).read_text(encoding="utf-8")
     for needle in FORBIDDEN:
         assert needle not in tour_js, f"tour.js references an external asset: {needle}"
+    # Sprint 31 (ADR-060): scan.js is ours — same strict rule. The
+    # VENDORED libraries are verbatim upstream files whose comment
+    # blocks carry attribution URLs and whose QR-SVG builder embeds
+    # the xmlns namespace identifier; those strings are inert
+    # (never fetched), so vendor files are held to the rule that
+    # matters — no fetch-capable pattern of any kind.
+    scan_js = Path(finders.find("js/scan.js")).read_text(encoding="utf-8")
+    for needle in FORBIDDEN:
+        assert needle not in scan_js, f"scan.js references an external asset: {needle}"
+    FETCH_PATTERNS = [
+        "fetch(",
+        "XMLHttpRequest",
+        "importScripts",
+        "WebSocket",
+        'src="http',
+        "src='http",
+        "url(http",
+    ]
+    for vendor_name in ("vendor/jsQR.js", "vendor/qrcode-generator.js"):
+        vendor_js = Path(finders.find(vendor_name)).read_text(encoding="utf-8")
+        for needle in FETCH_PATTERNS:
+            assert needle not in vendor_js, f"{vendor_name} can fetch externally: {needle}"
     # Every CSS url() is one of the vendored relative font paths.
     for url in re.findall(r'url\("([^"]+)"\)', css):
         assert url.startswith("../fonts/"), url

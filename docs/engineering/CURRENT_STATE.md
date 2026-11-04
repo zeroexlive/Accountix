@@ -444,6 +444,42 @@ Modular monolith, single Django project under `backend/`:
   bundle was rebuilt so `dist/` carries Sprint 30 (the released
   1.0.0 artifact is untouched). The Windows bundle remains the
   only NOT VERIFIED release-gate item.
+- Update (Sprint 31): three workstreams on top of the 1.1.0
+  release (version unchanged, artifact NOT re-packaged) — see
+  `SPRINT_31_REPORT.md` and ADR-058/059/060. (A) i18n closed in
+  BOTH directions: a permanent en-mode crawl twin (same world,
+  same 64 GET + 10 POST flows) passes clean, the fa crawl gained
+  a strict visible-text token rule, and the real leaks were
+  render-layer raw codes (journal source types via a new
+  translated label map, `StockDocument.__str__`, cheque
+  direction, a True/False blocktrans). The clone footgun behind
+  most of the report — `runserver` never compiles catalogs, so
+  an uncompiled clone falls back to source strings in BOTH
+  languages — is killed by `scripts/dev_run.sh` (the documented
+  one-command startup), a Django system check `accountix.W001`
+  that warns on missing/stale `.mo`, and DEVELOPMENT.md making
+  dev_run.sh the documented path. Catalogs: 1,249 msgids per
+  language, en 0 empty, fa 0 real gaps, 0 fuzzy. (B) The tour
+  "cannot activate" bug was a CSS cascade defect: the global
+  `button,.btn{display:inline-block}` rule defeated the UA
+  `[hidden]{display:none}`, so the tour button rendered visible
+  (and dead) on every page; fixed with
+  `[hidden]{display:none !important}` and guarded permanently by
+  a jsdom DOM harness (`scripts/tour_dom_check/`) that executes
+  the real tour.js on real rendered pages (fa+en) — the engine
+  itself was proven sound. (C) Barcode/QR scanning in invoicing
+  (ADR-060): company-scoped OPERATE-gated lookup (barcode then
+  SKU), a scan widget on sales + purchase invoice create
+  (scanner-gun Enter, camera via BarcodeDetector → vendored
+  jsQR fallback, POS quantity increment), and phone pairing
+  (hashed-token sessions, 10-min expiry, phone-side product
+  resolution, consume-once polling) with vendored
+  qrcode-generator for the pairing QR; jsdom coverage drives
+  the real scan.js end to end. Suite: 500 passed + 3 skipped.
+  The Linux bundle was rebuilt so `dist/` carries Sprint 31
+  and frozen-smoked (setup → dashboard 1.1.0 + tour payload,
+  scan assets 200, pairing session created from the bundle).
+  The Windows bundle remains the only NOT VERIFIED gate.
 - UI: Django templates, Persian-first RTL layout, hand-written CSS design
   system v2 in `backend/static/css/app.css`. **Honest limitation:** Tailwind is
   not integrated yet, and HTMX/Alpine are not loaded (no vendored copies; a

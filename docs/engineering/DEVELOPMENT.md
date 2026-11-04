@@ -23,8 +23,34 @@
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
 cp .env.example .env
-cd backend && ../.venv/bin/python manage.py migrate && ../.venv/bin/python manage.py compilemessages && ../.venv/bin/python manage.py runserver
+scripts/dev_run.sh            # THE way to run a clone (Sprint 31, ADR-058)
+# scripts/dev_run.sh 0.0.0.0:8765   # extra args pass through to runserver
 ```
+
+`scripts/dev_run.sh` is the documented startup for a source clone.
+It exists because the compile step is invisible when skipped: a
+plain `runserver` on an uncompiled clone renders source strings in
+BOTH languages at once (Persian inside English pages and English
+inside Persian pages — Sprint 31 reproduced both directions from a
+fresh copy). The script, in order:
+
+1. verifies `msgfmt` exists — hard fail with the install hint
+   (bilingual message) if not;
+2. `manage.py compilemessages` — catalogs fresh;
+3. `manage.py migrate` — schema current;
+4. `exec manage.py runserver "$@"`.
+
+The manual equivalent is exactly those commands:
+
+```bash
+cd backend && ../.venv/bin/python manage.py compilemessages && ../.venv/bin/python manage.py migrate && ../.venv/bin/python manage.py runserver
+```
+
+As a second line of defense, `manage.py check` (and therefore
+`runserver`) warns with id `accountix.W001` whenever a catalog's
+`.mo` is missing or older than its `.po`, naming the fix. The
+warning is silent when catalogs are compiled and fresh — including
+inside the frozen bundle, which ships `.mo` files.
 
 ## Vendored font binaries (Sprint 28, ADR-053)
 

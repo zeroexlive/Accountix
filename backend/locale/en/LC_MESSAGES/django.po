@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 01:03+0330\n"
+"POT-Creation-Date: 2026-11-04 12:56+0330\n"
 "PO-Revision-Date: 2026-11-03 13:31+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: English\n"
@@ -186,7 +186,7 @@ msgid "Credit"
 msgstr "Credit"
 
 #: apps/accounting/models.py:82 apps/inventory/models.py:69
-#: apps/inventory/models.py:277 apps/organizations/models.py:74
+#: apps/inventory/models.py:280 apps/organizations/models.py:74
 #: apps/purchases/models.py:37 apps/purchases/models.py:149
 #: apps/purchases/models.py:319 apps/sales/models.py:115
 #: apps/sales/models.py:208 apps/sales/models.py:384
@@ -199,29 +199,90 @@ msgid "Validated"
 msgstr "Validated"
 
 #: apps/accounting/models.py:84 apps/inventory/models.py:70
-#: apps/inventory/models.py:278 apps/purchases/models.py:150
+#: apps/inventory/models.py:281 apps/purchases/models.py:150
 #: apps/purchases/models.py:320 apps/sales/models.py:209
 #: apps/sales/models.py:385 apps/treasury/models.py:103
 msgid "Posted"
 msgstr "Posted"
 
 #: apps/accounting/models.py:85 apps/inventory/models.py:71
-#: apps/inventory/models.py:279 apps/purchases/models.py:151
+#: apps/inventory/models.py:282 apps/purchases/models.py:151
 #: apps/purchases/models.py:321 apps/sales/models.py:210
 #: apps/sales/models.py:386 apps/treasury/models.py:104
 #: apps/treasury/models.py:255
 msgid "Reversed"
 msgstr "Reversed"
 
-#: apps/accounting/models.py:153
+#: apps/accounting/models.py:103
+msgid "دستی"
+msgstr "Manual"
+
+#: apps/accounting/models.py:104
+msgid "فاکتور فروش"
+msgstr "Sales invoice"
+
+#: apps/accounting/models.py:105
+msgid "بهای تمام‌شده فاکتور فروش"
+msgstr "Sales invoice COGS"
+
+#: apps/accounting/models.py:106
+msgid "برگشت فروش"
+msgstr "Sales return"
+
+#: apps/accounting/models.py:107
+msgid "بهای تمام‌شده برگشت فروش"
+msgstr "Sales return COGS"
+
+#: apps/accounting/models.py:108
+msgid "فاکتور خرید"
+msgstr "Purchase invoice"
+
+#: apps/accounting/models.py:109
+msgid "برگشت خرید"
+msgstr "Purchase return"
+
+#: apps/accounting/models.py:110
+msgid "دریافت/پرداخت خزانه"
+msgstr "Treasury receipt/payment"
+
+#: apps/accounting/models.py:111 templates/treasury/cheque_detail.html:17
+msgid "وصول چک"
+msgstr "Cheque clearing"
+
+#: apps/accounting/models.py:112 templates/treasury/cheque_detail.html:21
+msgid "برگشت چک"
+msgstr "Cheque bounce"
+
+#: apps/accounting/models.py:113 templates/treasury/cheque_detail.html:27
+msgid "عودت چک"
+msgstr "Return cheque"
+
+#: apps/accounting/models.py:114
+#: templates/organizations/fiscal_year_detail.html:5
+msgid "سند اختتامیه"
+msgstr "Closing entry"
+
+#: apps/accounting/models.py:115
+msgid "انبارگردانی"
+msgstr "Inventory count"
+
+#: apps/accounting/models.py:116
+msgid "سند انبار"
+msgstr "Stock document"
+
+#: apps/accounting/models.py:117 templates/inventory/document_detail.html:19
+msgid "برگشت سند"
+msgstr "Reverse document"
+
+#: apps/accounting/models.py:181
 msgid "Posted journal entries are immutable; reverse the entry instead."
 msgstr "Posted journal entries are immutable; reverse the entry instead."
 
-#: apps/accounting/models.py:159
+#: apps/accounting/models.py:187
 msgid "Posted journal entries cannot be deleted."
 msgstr "Posted journal entries cannot be deleted."
 
-#: apps/accounting/models.py:204 apps/accounting/models.py:215
+#: apps/accounting/models.py:232 apps/accounting/models.py:243
 msgid "Lines of a posted journal entry are immutable."
 msgstr "Lines of a posted journal entry are immutable."
 
@@ -618,7 +679,8 @@ msgstr "Previous"
 msgid "پایان تور"
 msgstr "End tour"
 
-#: apps/core/tours.py:24
+#: apps/core/tours.py:24 templates/_scan_widget.html:39
+#: templates/core/scan_phone.html:36
 msgid "بستن"
 msgstr "Close"
 
@@ -635,7 +697,9 @@ msgstr "Select company"
 msgid ""
 "همه ارقام داشبورد متعلق به شرکتی است که اینجا انتخاب می‌کنید؛ با تغییر شرکت، "
 "تمام کارت‌ها و نمودارها برای همان شرکت تازه می‌شوند."
-msgstr "Every dashboard figure belongs to the company you pick here; switch the company and all cards and charts refresh for that company."
+msgstr ""
+"Every dashboard figure belongs to the company you pick here; switch the "
+"company and all cards and charts refresh for that company."
 
 #: apps/core/tours.py:45
 msgid "شاخص‌های دوره جاری"
@@ -645,7 +709,10 @@ msgstr "Current-period indicators"
 msgid ""
 "درآمد، فروش و خرید دوره جاری، هرکدام با درصد تغییر نسبت به دوره قبل. اگر "
 "دوره قبلی وجود نداشته باشد، نشان تغییر نمایش داده نمی‌شود."
-msgstr "Revenue, sales and purchases of the current period, each with its percentage change versus the previous period. When there is no previous period, no change badge is shown."
+msgstr ""
+"Revenue, sales and purchases of the current period, each with its percentage "
+"change versus the previous period. When there is no previous period, no "
+"change badge is shown."
 
 #: apps/core/tours.py:53 templates/core/dashboard.html:42
 msgid "نمودار درآمد و هزینه"
@@ -655,7 +722,9 @@ msgstr "Revenue and expenses chart"
 msgid ""
 "روند درآمد و هزینه به تفکیک دوره‌های سال مالی. روی هر نقطه بایستید تا مبلغ "
 "دقیق آن دوره را ببینید؛ جمع نمودار همیشه با صورت سود و زیان یکی است."
-msgstr "Revenue and expenses trend by fiscal period. Hover any point to see that period's exact amount; the chart totals always match the income statement."
+msgstr ""
+"Revenue and expenses trend by fiscal period. Hover any point to see that "
+"period's exact amount; the chart totals always match the income statement."
 
 #: apps/core/tours.py:61 templates/core/dashboard.html:60
 msgid "عملکرد"
@@ -666,7 +735,11 @@ msgid ""
 "چهار سهم کلیدی: وصول مطالبات، تسویه بدهی‌ها، چک‌های وصول‌شده و سلامت موجودی. "
 "حلقه هر ردیف همان درصدی است که کنارش نوشته شده؛ اگر داده‌ای نباشد، به‌جای عدد "
 "ساختگی پیام «هنوز …» می‌بینید."
-msgstr "Four key shares: collections from customers, settlements with suppliers, cleared cheques, and inventory health. Each row's ring is the same percentage printed beside it; when there is no data you see an honest “not yet …” message instead of a made-up number."
+msgstr ""
+"Four key shares: collections from customers, settlements with suppliers, "
+"cleared cheques, and inventory health. Each row's ring is the same "
+"percentage printed beside it; when there is no data you see an honest “not "
+"yet …” message instead of a made-up number."
 
 #: apps/core/tours.py:69 templates/core/dashboard.html:80
 msgid "دسترسی سریع"
@@ -677,7 +750,10 @@ msgid ""
 "از اینجا مستقیم به ساخت فاکتور فروش، فاکتور خرید، سند دستی، دریافت/پرداخت و "
 "کالای جدید می‌روید. این بخش فقط برای نقش‌هایی نمایش داده می‌شود که اجازه ثبت "
 "دارند."
-msgstr "Jump straight to creating a sales invoice, a purchase invoice, a manual journal entry, a receipt/payment, or a product. This section only appears for roles allowed to post."
+msgstr ""
+"Jump straight to creating a sales invoice, a purchase invoice, a manual "
+"journal entry, a receipt/payment, or a product. This section only appears "
+"for roles allowed to post."
 
 #: apps/core/tours.py:77 templates/core/dashboard.html:90
 msgid "آخرین فاکتورهای فروش"
@@ -687,7 +763,9 @@ msgstr "Latest sales invoices"
 msgid ""
 "تازه‌ترین فاکتورهای فروش و وضعیت پرداخت هرکدام. با کلیک روی شماره فاکتور، "
 "جزئیات و عملیات آن باز می‌شود."
-msgstr "The most recent sales invoices and each one's payment status. Click an invoice number to open its details and actions."
+msgstr ""
+"The most recent sales invoices and each one's payment status. Click an "
+"invoice number to open its details and actions."
 
 #: apps/core/tours.py:84
 msgid "تصویر کلی"
@@ -697,7 +775,10 @@ msgstr "The big picture"
 msgid ""
 "مطالبات و بدهی‌های معین، ارزش موجودی انبار، سود خالص دوره، اقلام باز، چک‌های "
 "وصول‌نشده و کالاهای کم‌موجودی — همه از دفاتر و به‌صورت زنده محاسبه می‌شوند."
-msgstr "Party subledger receivables and payables, inventory value, the period's net income, open items, outstanding cheques and low-stock products — all computed live from the ledgers."
+msgstr ""
+"Party subledger receivables and payables, inventory value, the period's net "
+"income, open items, outstanding cheques and low-stock products — all "
+"computed live from the ledgers."
 
 #: apps/core/tours.py:93 templates/core/dashboard.html:82
 #: templates/sales/invoice_form.html:2 templates/sales/invoice_list.html:3
@@ -708,7 +789,9 @@ msgstr "New sales invoice"
 msgid ""
 "ثبت فاکتور از همین دکمه شروع می‌شود: فاکتور اول پیش‌نویس است و با «ثبت نهایی» "
 "در دفاتر می‌نشیند و موجودی کم می‌کند."
-msgstr "Issuing an invoice starts with this button: an invoice begins as a draft and only affects the ledgers and stock when you post it."
+msgstr ""
+"Issuing an invoice starts with this button: an invoice begins as a draft and "
+"only affects the ledgers and stock when you post it."
 
 #: apps/core/tours.py:98 apps/core/tours.py:149
 msgid "پالایش فهرست"
@@ -718,7 +801,9 @@ msgstr "Filter the list"
 msgid ""
 "بر اساس وضعیت ثبت، وضعیت پرداخت، نام مشتری یا بازه تاریخ پالایش کنید تا "
 "فاکتور موردنظرتان را سریع پیدا کنید."
-msgstr "Filter by posting status, payment status, customer name, or date range to find the invoice you want quickly."
+msgstr ""
+"Filter by posting status, payment status, customer name, or date range to "
+"find the invoice you want quickly."
 
 #: apps/core/tours.py:103 apps/core/tours.py:154
 msgid "فهرست فاکتورها"
@@ -729,7 +814,10 @@ msgid ""
 "هر سطر یک فاکتور است: وضعیت ثبت (پیش‌نویس/ثبت‌شده) و وضعیت پرداخت (پرداخت‌نشده/"
 "بخشی/کامل) جدا از هم نمایش داده می‌شوند. برای مشاهده جزئیات، دریافت وجه و "
 "برگشت، روی فاکتور کلیک کنید."
-msgstr "Each row is one invoice: posting status (draft/posted) and payment status (unpaid/partial/paid) are shown separately. Click an invoice for its details, receipts, and returns."
+msgstr ""
+"Each row is one invoice: posting status (draft/posted) and payment status "
+"(unpaid/partial/paid) are shown separately. Click an invoice for its "
+"details, receipts, and returns."
 
 #: apps/core/tours.py:111
 msgid "پرداخت از داخل فاکتور"
@@ -739,7 +827,9 @@ msgstr "Payments live on the invoice"
 msgid ""
 "برای ثبت دریافت و تخصیص آن به فاکتور، وارد جزئیات فاکتور شوید؛ وضعیت پرداخت "
 "به‌صورت خودکار از روی تخصیص‌ها به‌روز می‌شود."
-msgstr "To record a receipt and allocate it to an invoice, open the invoice's details; the payment status updates automatically from the allocations."
+msgstr ""
+"To record a receipt and allocate it to an invoice, open the invoice's "
+"details; the payment status updates automatically from the allocations."
 
 #: apps/core/tours.py:118
 msgid "مشخصات فاکتور"
@@ -749,7 +839,9 @@ msgstr "Invoice header"
 msgid ""
 "مشتری، شماره و تاریخ فاکتور و انباری که کالا از آن خارج می‌شود. شماره فاکتور "
 "باید در شرکت یکتا باشد."
-msgstr "Customer, invoice number and date, and the warehouse the goods leave from. The invoice number must be unique within the company."
+msgstr ""
+"Customer, invoice number and date, and the warehouse the goods leave from. "
+"The invoice number must be unique within the company."
 
 #: apps/core/tours.py:123 templates/purchases/invoice_form.html:16
 #: templates/sales/invoice_form.html:16
@@ -760,7 +852,9 @@ msgstr "Invoice lines"
 msgid ""
 "برای هر کالا یک ردیف: مقدار، قیمت واحد، تخفیف و نرخ مالیات. بهای تمام‌شده "
 "هنگام ثبت نهایی با میانگین موزون موجودی محاسبه می‌شود."
-msgstr "One line per product: quantity, unit price, discount, and tax rate. Cost of goods sold is computed at posting time from the moving weighted average."
+msgstr ""
+"One line per product: quantity, unit price, discount, and tax rate. Cost of "
+"goods sold is computed at posting time from the moving weighted average."
 
 #: apps/core/tours.py:130
 msgid "ردیف بیشتر"
@@ -770,7 +864,9 @@ msgstr "More lines"
 msgid ""
 "با دکمه «+ ردیف جدید» به فاکتور ردیف اضافه کنید و با ستون حذف، ردیف اضافی را "
 "بردارید."
-msgstr "Use “+ New line” to add lines to the invoice, and the delete column to remove an extra line."
+msgstr ""
+"Use “+ New line” to add lines to the invoice, and the delete column to "
+"remove an extra line."
 
 #: apps/core/tours.py:135 templates/treasury/payment_form.html:28
 msgid "ایجاد پیش‌نویس"
@@ -780,7 +876,10 @@ msgstr "Create draft"
 msgid ""
 "فاکتور اول به‌صورت پیش‌نویس ساخته می‌شود و هیچ اثر مالی ندارد. از صفحه جزئیات، "
 "آن را بررسی و «ثبت نهایی» کنید تا سند حسابداری و خروج انبار ثبت شود."
-msgstr "The invoice is created as a draft first and has no financial effect. From its detail page, review it and post it so the journal entry and the stock issue are recorded."
+msgstr ""
+"The invoice is created as a draft first and has no financial effect. From "
+"its detail page, review it and post it so the journal entry and the stock "
+"issue are recorded."
 
 #: apps/core/tours.py:144 templates/core/dashboard.html:83
 #: templates/purchases/invoice_form.html:2
@@ -792,18 +891,23 @@ msgstr "New purchase invoice"
 msgid ""
 "خرید کالا از تأمین‌کننده از اینجا شروع می‌شود؛ فاکتور خرید با ثبت نهایی، "
 "موجودی و میانگین بهای کالا را به‌روز می‌کند."
-msgstr "Buying goods from a supplier starts here; posting a purchase invoice updates stock levels and the product's average cost."
+msgstr ""
+"Buying goods from a supplier starts here; posting a purchase invoice updates "
+"stock levels and the product's average cost."
 
 #: apps/core/tours.py:150
 msgid ""
 "بر اساس وضعیت ثبت، وضعیت پرداخت، نام تأمین‌کننده یا بازه تاریخ پالایش کنید."
-msgstr "Filter by posting status, payment status, supplier name, or date range."
+msgstr ""
+"Filter by posting status, payment status, supplier name, or date range."
 
 #: apps/core/tours.py:155
 msgid ""
 "وضعیت ثبت و وضعیت پرداخت هر فاکتور جدا نمایش داده می‌شود. برای پرداخت به "
 "تأمین‌کننده و برگشت خرید، وارد جزئیات فاکتور شوید."
-msgstr "Each invoice's posting status and payment status are shown separately. Open an invoice's details to pay the supplier or record a purchase return."
+msgstr ""
+"Each invoice's posting status and payment status are shown separately. Open "
+"an invoice's details to pay the supplier or record a purchase return."
 
 #: apps/core/tours.py:159
 msgid "بدهی به تأمین‌کننده"
@@ -813,7 +917,9 @@ msgstr "Payables to suppliers"
 msgid ""
 "مانده پرداخت‌نشده هر فاکتور در گزارش «بدهی به تأمین‌کنندگان» هم دیده می‌شود و "
 "با تخصیص پرداخت‌ها کم می‌شود."
-msgstr "The unpaid balance of each invoice also appears in the Accounts payable report and shrinks as payments are allocated to it."
+msgstr ""
+"The unpaid balance of each invoice also appears in the Accounts payable "
+"report and shrinks as payments are allocated to it."
 
 #: apps/core/tours.py:166 templates/core/dashboard.html:85
 #: templates/treasury/payment_form.html:2
@@ -825,7 +931,9 @@ msgstr "New receipt / payment"
 msgid ""
 "دریافت از مشتری یا پرداخت به طرف‌حساب (نقد، بانک یا چک) از اینجا ثبت می‌شود و "
 "پس از ثبت نهایی سند حسابداری می‌خورد."
-msgstr "Receipts from customers and payments to parties (cash, bank, or cheque) are recorded here and post their own journal entry once posted."
+msgstr ""
+"Receipts from customers and payments to parties (cash, bank, or cheque) are "
+"recorded here and post their own journal entry once posted."
 
 #: apps/core/tours.py:171 templates/accounting/journal_list.html:8
 #: templates/inventory/movement_list.html:8
@@ -847,7 +955,9 @@ msgstr "Receipts and payments list"
 msgid ""
 "جهت، طرف‌حساب، روش و مبلغ هر دریافت/پرداخت. روی هر سطر کلیک کنید تا تخصیص آن "
 "به فاکتورها را ببینید یا انجام دهید."
-msgstr "Direction, party, method, and amount of each receipt/payment. Click a row to see or make its allocations to invoices."
+msgstr ""
+"Direction, party, method, and amount of each receipt/payment. Click a row to "
+"see or make its allocations to invoices."
 
 #: apps/core/tours.py:181
 msgid "تخصیص یعنی چه؟"
@@ -857,7 +967,9 @@ msgstr "What is an allocation?"
 msgid ""
 "تخصیص مشخص می‌کند هر دریافت بابت کدام فاکتور است؛ وضعیت پرداخت فاکتورها فقط "
 "از روی تخصیص‌ها محاسبه می‌شود، نه از روی حدس."
-msgstr "An allocation says which invoice a receipt belongs to; invoice payment statuses are computed from allocations only — never guessed."
+msgstr ""
+"An allocation says which invoice a receipt belongs to; invoice payment "
+"statuses are computed from allocations only — never guessed."
 
 #: apps/core/tours.py:188
 msgid "پالایش چک‌ها"
@@ -867,7 +979,9 @@ msgstr "Filter cheques"
 msgid ""
 "بر اساس وضعیت (در دست، واگذارشده به بانک، وصول‌شده، برگشتی و…)، جهت (دریافتی/"
 "پرداختی) یا سررسید پالایش کنید."
-msgstr "Filter by status (in hand, deposited, cleared, bounced, …), direction (received/issued), or due date."
+msgstr ""
+"Filter by status (in hand, deposited, cleared, bounced, …), direction "
+"(received/issued), or due date."
 
 #: apps/core/tours.py:193
 msgid "دفتر چک‌ها"
@@ -877,7 +991,10 @@ msgstr "The cheque register"
 msgid ""
 "همه چک‌های دریافتی و پرداختی با بانک، مبلغ و سررسید شمسی. چک دریافتی تا وقتی "
 "وصول نشود «در دست» است و جزو موجودی بانک حساب نمی‌شود."
-msgstr "All received and issued cheques with bank, amount, and Jalali due date. A received cheque stays “in hand” until it clears and does not count as bank balance."
+msgstr ""
+"All received and issued cheques with bank, amount, and Jalali due date. A "
+"received cheque stays “in hand” until it clears and does not count as bank "
+"balance."
 
 #: apps/core/tours.py:198 templates/treasury/cheque_detail.html:11
 msgid "عملیات چک"
@@ -888,7 +1005,10 @@ msgid ""
 "با کلیک روی هر چک، عملیاتش را انجام دهید: واگذاری به بانک، وصول، برگشت یا "
 "عودت. هر عملیات سند حسابداری خودش را دارد و برگشت چک، فاکتور مربوط را دوباره "
 "باز می‌کند."
-msgstr "Click a cheque to act on it: deposit it, clear it, bounce it, or return it. Every action has its own journal entry, and a bounced cheque reopens its invoice."
+msgstr ""
+"Click a cheque to act on it: deposit it, clear it, bounce it, or return it. "
+"Every action has its own journal entry, and a bounced cheque reopens its "
+"invoice."
 
 #: apps/core/tours.py:203
 msgid "سررسیدها را از دست ندهید"
@@ -898,7 +1018,9 @@ msgstr "Mind the due dates"
 msgid ""
 "با پالایش سررسید، چک‌هایی را که موعدشان نزدیک است زودتر ببینید؛ چک‌های "
 "وصول‌نشده در داشبورد هم شمرده می‌شوند."
-msgstr "Filter by due date to spot cheques that are coming due; outstanding cheques are also counted on the dashboard."
+msgstr ""
+"Filter by due date to spot cheques that are coming due; outstanding cheques "
+"are also counted on the dashboard."
 
 #: apps/core/tours.py:210
 msgid "خلاصه تطبیق"
@@ -908,7 +1030,10 @@ msgstr "Reconciliation summary"
 msgid ""
 "مانده دفاتر در برابر مانده بانک، تعداد ردیف‌های تطبیق‌شده و اختلاف. دکمه‌های "
 "بالای همین کارت: تطبیق خودکار، نهایی‌کردن (قفل) و بازگشایی."
-msgstr "Book balance versus bank balance, the number of matched lines, and the difference. The buttons at the top of this card: auto-match, complete (lock), and reopen."
+msgstr ""
+"Book balance versus bank balance, the number of matched lines, and the "
+"difference. The buttons at the top of this card: auto-match, complete "
+"(lock), and reopen."
 
 #: apps/core/tours.py:217 templates/treasury/statement_detail.html:20
 msgid "ردیف‌های صورت‌حساب"
@@ -918,7 +1043,9 @@ msgstr "Statement lines"
 msgid ""
 "هر ردیف یعنی یک حرکت واقعی بانک. ردیف تطبیق‌شده علامت می‌خورد و اگر اشتباه "
 "بود، از همین‌جا لغو تطبیق می‌شود."
-msgstr "Each line is one real bank movement. A matched line is marked, and a wrong match can be undone right here."
+msgstr ""
+"Each line is one real bank movement. A matched line is marked, and a wrong "
+"match can be undone right here."
 
 #: apps/core/tours.py:222
 msgid "تطبیق دستی"
@@ -928,7 +1055,9 @@ msgstr "Manual matching"
 msgid ""
 "حرکات دفتری که هنوز به صورت‌حساب وصل نشده‌اند اینجاست؛ هر حرکت را به ردیف "
 "متناظرش وصل کنید تا اختلاف صفر شود."
-msgstr "Book movements not yet linked to the statement are listed here; connect each one to its statement line until the difference is zero."
+msgstr ""
+"Book movements not yet linked to the statement are listed here; connect each "
+"one to its statement line until the difference is zero."
 
 #: apps/core/tours.py:227 templates/treasury/statement_detail.html:31
 msgid "افزودن ردیف دستی"
@@ -938,7 +1067,9 @@ msgstr "Add a line manually"
 msgid ""
 "اگر بانکی حرکتی دارد که در فایل نیست (مثل کارمزد)، دستی اضافه‌اش کنید تا "
 "صورت‌حساب کامل شود."
-msgstr "If the bank has a movement missing from the file (such as a fee), add it manually so the statement is complete."
+msgstr ""
+"If the bank has a movement missing from the file (such as a fee), add it "
+"manually so the statement is complete."
 
 #: apps/core/tours.py:232
 msgid "بارگذاری از فایل"
@@ -948,7 +1079,9 @@ msgstr "Import from a file"
 msgid ""
 "فایل صورت‌حساب بانکی (CSV یا CAMT.053 یا OFX) را بارگذاری کنید؛ ردیف‌ها خوانده "
 "و اعتبارسنجی می‌شوند و مانده آغازین و پایانی کنترل می‌شود."
-msgstr "Upload the bank statement file (CSV, CAMT.053, or OFX); the lines are read and validated, and the opening and closing balances are checked."
+msgstr ""
+"Upload the bank statement file (CSV, CAMT.053, or OFX); the lines are read "
+"and validated, and the opening and closing balances are checked."
 
 #: apps/core/tours.py:239
 msgid "کالا و پیش‌نیازها"
@@ -958,7 +1091,9 @@ msgstr "Products and their prerequisites"
 msgid ""
 "کالای جدید از همین‌جا؛ واحدها، دسته‌بندی‌ها و انبارها هم از دکمه‌های کناری تعریف "
 "می‌شوند. هر کالا یک واحد پایه دارد."
-msgstr "New products start here; units, categories, and warehouses are defined with the neighbouring buttons. Every product has a base unit."
+msgstr ""
+"New products start here; units, categories, and warehouses are defined with "
+"the neighbouring buttons. Every product has a base unit."
 
 #: apps/core/tours.py:244
 msgid "فهرست کالاها"
@@ -968,13 +1103,17 @@ msgstr "The product list"
 msgid ""
 "کد کالا (SKU)، دسته، واحد پایه و فعال‌بودن هر کالا. موجودی و بهای میانگین "
 "کالا در بخش «موجودی انبار» دیده می‌شود، نه اینجا."
-msgstr "Each product's SKU, category, base unit, and active flag. Stock levels and average cost live under “Stock balances”, not here."
+msgstr ""
+"Each product's SKU, category, base unit, and active flag. Stock levels and "
+"average cost live under “Stock balances”, not here."
 
 #: apps/core/tours.py:250
 msgid ""
 "در ویرایش کالا می‌توانید حداقل موجودی تعیین کنید؛ کالای زیر حداقل، در داشبورد "
 "به‌عنوان کم‌موجودی هشدار می‌گیرد."
-msgstr "In a product's edit page you can set a minimum stock level; below it, the product raises a low-stock warning on the dashboard."
+msgstr ""
+"In a product's edit page you can set a minimum stock level; below it, the "
+"product raises a low-stock warning on the dashboard."
 
 #: apps/core/tours.py:254
 msgid "ترتیب کار"
@@ -984,7 +1123,9 @@ msgstr "Order of work"
 msgid ""
 "اول واحد و انبار، بعد کالا؛ سپس با فاکتور خرید یا سند انبار، موجودی کالا شکل "
 "می‌گیرد."
-msgstr "Units and warehouses first, then products; stock then takes shape through purchase invoices and stock documents."
+msgstr ""
+"Units and warehouses first, then products; stock then takes shape through "
+"purchase invoices and stock documents."
 
 #: apps/core/tours.py:261 apps/inventory/views.py:264
 #: templates/accounting/opening_balance_form.html:6
@@ -996,7 +1137,9 @@ msgstr "New stock document"
 msgid ""
 "ورود، خروج و انتقال بین انبارها با سند انبار انجام می‌شود؛ سند پیش‌نویس اثری "
 "ندارد تا وقتی ثبت نهایی شود."
-msgstr "Receipts, issues, and transfers between warehouses are done with stock documents; a draft document has no effect until it is posted."
+msgstr ""
+"Receipts, issues, and transfers between warehouses are done with stock "
+"documents; a draft document has no effect until it is posted."
 
 #: apps/core/tours.py:266
 msgid "فهرست اسناد"
@@ -1006,7 +1149,9 @@ msgstr "The document list"
 msgid ""
 "نوع سند، انبار مبدأ و مقصد و وضعیت هر سند. ستون «سند حسابداری» نشان می‌دهد "
 "سند به دفاتر وصل شده یا نه."
-msgstr "Each document's type, source and destination warehouses, and status. The “Journal entry” column shows whether the document reached the ledgers."
+msgstr ""
+"Each document's type, source and destination warehouses, and status. The "
+"“Journal entry” column shows whether the document reached the ledgers."
 
 #: apps/core/tours.py:271
 msgid "موجودی از روی اسناد"
@@ -1016,7 +1161,10 @@ msgstr "Stock comes from documents"
 msgid ""
 "موجودی هر کالا جمع جبری همین اسناد ثبت‌شده است (دفتر انبار)؛ خروجی بیش از "
 "موجودی ممکن نیست و بها با میانگین موزون حساب می‌شود."
-msgstr "A product's stock is the algebraic sum of these posted documents (the stock ledger); issuing more than the available stock is impossible, and cost uses the moving weighted average."
+msgstr ""
+"A product's stock is the algebraic sum of these posted documents (the stock "
+"ledger); issuing more than the available stock is impossible, and cost uses "
+"the moving weighted average."
 
 #: apps/core/tours.py:276
 msgid "انبارگردانی جدا است"
@@ -1026,7 +1174,9 @@ msgstr "Counts are separate"
 msgid ""
 "برای اصلاح موجودیِ شمارش‌شده از بخش «انبارگردانی‌ها» استفاده کنید، نه سند خروج "
 "دستی؛ مغایرت آنجا سند حسابداری خودش را دارد."
-msgstr "To fix counted stock, use the “Inventory counts” section rather than a manual issue document; the variance there has its own journal entry."
+msgstr ""
+"To fix counted stock, use the “Inventory counts” section rather than a "
+"manual issue document; the variance there has its own journal entry."
 
 #: apps/core/tours.py:283
 msgid "بازه گزارش"
@@ -1036,7 +1186,9 @@ msgstr "Report range"
 msgid ""
 "شرکت و دوره مالی را انتخاب کنید یا بازه تاریخی بدهید. گزارش فقط از اسناد "
 "ثبت‌شده ساخته می‌شود؛ پیش‌نویس‌ها اثری ندارند."
-msgstr "Pick the company and a fiscal period, or give a date range. The report is built from posted entries only; drafts have no effect."
+msgstr ""
+"Pick the company and a fiscal period, or give a date range. The report is "
+"built from posted entries only; drafts have no effect."
 
 #: apps/core/tours.py:288
 msgid "بهای تمام‌شده (COGS)"
@@ -1047,7 +1199,10 @@ msgid ""
 "اگر می‌خواهید سود ناخالص ببینید، حساب‌های بهای تمام‌شده را اینجا مشخص کنید؛ آن "
 "حساب‌ها از هزینه‌ها جدا و سود ناخالص و خالص جدا نمایش داده می‌شوند. در داشبورد "
 "این تفکیک انجام نمی‌شود."
-msgstr "To see gross profit, designate the COGS accounts here; they are split out of expenses and gross and net profit are shown separately. The dashboard does not make this split."
+msgstr ""
+"To see gross profit, designate the COGS accounts here; they are split out of "
+"expenses and gross and net profit are shown separately. The dashboard does "
+"not make this split."
 
 #: apps/core/tours.py:295 templates/accounting/income_statement.html:2
 #: templates/base.html:54
@@ -1058,7 +1213,9 @@ msgstr "Income statement"
 msgid ""
 "درآمدها، هزینه‌ها و نتیجه دوره. جمع همین ارقام است که نمودار داشبورد از آن "
 "ساخته می‌شود، پس همیشه با هم می‌خوانند."
-msgstr "Revenues, expenses, and the period's result. These are the very totals the dashboard chart is built from, so the two always agree."
+msgstr ""
+"Revenues, expenses, and the period's result. These are the very totals the "
+"dashboard chart is built from, so the two always agree."
 
 #: apps/core/tours.py:300
 msgid "خروجی"
@@ -1068,7 +1225,9 @@ msgstr "Output"
 msgid ""
 "از همین صفحه می‌توانید بازه را عوض و گزارش را دوباره بگیرید؛ برای چاپ، از "
 "چاپگر مرورگر استفاده کنید."
-msgstr "Change the range on this page and run the report again; to print, use the browser's print."
+msgstr ""
+"Change the range on this page and run the report again; to print, use the "
+"browser's print."
 
 #: apps/core/tours.py:307
 msgid "دوره‌های سال مالی"
@@ -1078,7 +1237,9 @@ msgstr "Fiscal-year periods"
 msgid ""
 "هر دوره با بازه و وضعیتش (باز/بسته) فهرست شده. ثبت سند فقط در دوره باز ممکن "
 "است؛ دوره بسته سند جدید نمی‌پذیرد."
-msgstr "Each period is listed with its range and status (open/closed). Entries can only be posted into an open period; a closed period accepts none."
+msgstr ""
+"Each period is listed with its range and status (open/closed). Entries can "
+"only be posted into an open period; a closed period accepts none."
 
 #: apps/core/tours.py:312 templates/organizations/fiscal_period_close.html:13
 #: templates/organizations/fiscal_year_detail.html:8
@@ -1090,7 +1251,10 @@ msgid ""
 "بستن دوره، سند اختتامیه می‌سازد: حساب‌های سود و زیانی صفر و نتیجه به سود "
 "انباشته می‌رود. دوره بسته را می‌توان بازگشایی کرد؛ سند اختتامیه به‌صورت خودکار "
 "برگشت می‌خورد."
-msgstr "Closing a period creates the closing entry: income-statement accounts are zeroed and the result goes to retained earnings. A closed period can be reopened; the closing entry is then reversed automatically."
+msgstr ""
+"Closing a period creates the closing entry: income-statement accounts are "
+"zeroed and the result goes to retained earnings. A closed period can be "
+"reopened; the closing entry is then reversed automatically."
 
 #: apps/core/tours.py:319 templates/organizations/fiscal_year_close.html:13
 #: templates/organizations/fiscal_year_detail.html:14
@@ -1102,7 +1266,9 @@ msgstr "Close fiscal year"
 msgid ""
 "وقتی همه دوره‌ها بسته شدند، سال مالی بسته می‌شود. این کار برای نقش‌های «مدیر "
 "سیستم» شرکت (مالک و مدیر) است."
-msgstr "When all periods are closed, the fiscal year can be closed. This belongs to the company's ADMINISTER roles (owner and admin)."
+msgstr ""
+"When all periods are closed, the fiscal year can be closed. This belongs to "
+"the company's ADMINISTER roles (owner and admin)."
 
 #: apps/core/tours.py:324 templates/accounting/opening_balance_form.html:2
 #: templates/base.html:31
@@ -1113,7 +1279,9 @@ msgstr "Opening balance"
 msgid ""
 "برای شروع کار با یک شرکت، تراز افتتاحیه سال را از صفحه سال‌های مالی ثبت کنید "
 "تا مانده‌های اول دوره در دفاتر بنشیند."
-msgstr "To start with a company, record the year's opening balance from the fiscal years page so the opening balances land in the ledgers."
+msgstr ""
+"To start with a company, record the year's opening balance from the fiscal "
+"years page so the opening balances land in the ledgers."
 
 #: apps/core/tours.py:331
 msgid "اعضای شرکت و نقش‌ها"
@@ -1124,7 +1292,10 @@ msgid ""
 "نقش هر عضو تعیین می‌کند چه کارهایی می‌تواند بکند: مشاهده‌گر فقط می‌خواند؛ نقش‌های "
 "عملیاتی ثبت می‌کنند؛ مدیر و مالک بستن دوره و مدیریت اعضا را هم دارند. تغییر "
 "نقش بلافاصله اثر می‌کند."
-msgstr "A member's role decides what they can do: a viewer only reads; operating roles post; admin and owner also close periods and manage members. Role changes take effect immediately."
+msgstr ""
+"A member's role decides what they can do: a viewer only reads; operating "
+"roles post; admin and owner also close periods and manage members. Role "
+"changes take effect immediately."
 
 #: apps/core/tours.py:338
 msgid "حذف یعنی غیرفعال‌سازی"
@@ -1134,7 +1305,10 @@ msgstr "Removal means deactivation"
 msgid ""
 "عضو حذف نمی‌شود؛ غیرفعال می‌شود و دسترسی‌اش همان لحظه قطع می‌شود. مالکِ تنها را "
 "نمی‌توان غیرفعال یا تنزل داد تا شرکت بی‌صاحب نماند."
-msgstr "Members are never deleted; they are deactivated and their access ends at once. The sole owner cannot be deactivated or demoted, so the company is never left ownerless."
+msgstr ""
+"Members are never deleted; they are deactivated and their access ends at "
+"once. The sole owner cannot be deactivated or demoted, so the company is "
+"never left ownerless."
 
 #: apps/core/tours.py:343 templates/organizations/company_members.html:18
 msgid "افزودن عضو موجود"
@@ -1144,7 +1318,9 @@ msgstr "Add an existing member"
 msgid ""
 "اگر کاربر قبلاً در سیستم ساخته شده، با نام کاربری دقیق پیدایش کنید و با یک "
 "نقش به این شرکت وصلش کنید."
-msgstr "If the user already exists in the system, find them by their exact username and attach them to this company with a role."
+msgstr ""
+"If the user already exists in the system, find them by their exact username "
+"and attach them to this company with a role."
 
 #: apps/core/tours.py:348 templates/organizations/company_members.html:23
 msgid "ساخت کاربر جدید"
@@ -1154,7 +1330,9 @@ msgstr "Create a new user"
 msgid ""
 "کاربر تازه با گذرواژه‌ای که همین‌جا تعیین می‌کنید ساخته می‌شود و از همان لحظه "
 "می‌تواند وارد شود. دعوت ایمیلی وجود ندارد؛ اکانتیکس آفلاین کار می‌کند."
-msgstr "A fresh user is created with the password you set here and can sign in immediately. There are no email invitations; Accountix works offline."
+msgstr ""
+"A fresh user is created with the password you set here and can sign in "
+"immediately. There are no email invitations; Accountix works offline."
 
 #: apps/core/tours.py:355
 msgid "نام و ایمیل"
@@ -1164,7 +1342,9 @@ msgstr "Name and email"
 msgid ""
 "نام، نام خانوادگی و ایمیل‌تان را اینجا ویرایش کنید. نام کاربری شناسه ورود است "
 "و تغییر نمی‌کند."
-msgstr "Edit your first name, last name, and email here. Your username is your sign-in identity and cannot change."
+msgstr ""
+"Edit your first name, last name, and email here. Your username is your sign-"
+"in identity and cannot change."
 
 #: apps/core/tours.py:360 templates/accounting/account_form.html:2
 #: templates/organizations/company_form.html:2
@@ -1177,7 +1357,9 @@ msgstr "Save"
 msgid ""
 "تغییرات با دکمه «ذخیره» همان لحظه اعمال می‌شوند و در سربرگ صفحات هم نام شما "
 "به‌روز دیده می‌شود."
-msgstr "Changes apply the moment you press “Save”, and your name updates in the page header too."
+msgstr ""
+"Changes apply the moment you press “Save”, and your name updates in the page "
+"header too."
 
 #: apps/core/tours.py:365 templates/base.html:67
 #: templates/users/password_change.html:3
@@ -1190,7 +1372,9 @@ msgstr "Change password"
 msgid ""
 "برای تغییر گذرواژه، گذرواژه فعلی لازم است. بعد از تغییر، همین نشست باز "
 "می‌ماند ولی نشست‌های دیگر باید دوباره وارد شوند."
-msgstr "Changing your password requires the current one. After the change, this session stays signed in but other sessions must sign in again."
+msgstr ""
+"Changing your password requires the current one. After the change, this "
+"session stays signed in but other sessions must sign in again."
 
 #: apps/core/tours.py:370
 msgid "گذرواژه را فراموش کرده‌اید؟"
@@ -1200,7 +1384,26 @@ msgstr "Forgot your password?"
 msgid ""
 "بازیابی خودکار گذرواژه وجود ندارد؛ از مدیر سیستم بخواهید با دستور مدیریتی "
 "برایتان گذرواژه تازه بگذارد."
-msgstr "There is no self-service password recovery; ask your system administrator to set a new one for you with the management command."
+msgstr ""
+"There is no self-service password recovery; ask your system administrator to "
+"set a new one for you with the management command."
+
+#: apps/core/views.py:113 apps/core/views.py:128
+msgid "شرکتی انتخاب نشده است."
+msgstr "No company is selected."
+
+#: apps/core/views.py:118 apps/core/views.py:247 templates/_scan_widget.html:12
+#: templates/core/scan_phone.html:16
+msgid "کالایی با این کد یافت نشد."
+msgstr "No product found with this code."
+
+#: apps/core/views.py:135
+msgid "نشست‌های اسکن فعال زیادی دارید؛ یکی را قطع کنید."
+msgstr "You have too many active scan sessions; disconnect one."
+
+#: apps/core/views.py:234
+msgid "سقف اسکن این نشست پر شده است."
+msgstr "This session's scan limit is reached."
 
 #: apps/inventory/forms.py:18
 msgid "کد انبار"
@@ -1306,10 +1509,10 @@ msgstr "Destination warehouse (transfers only)"
 #: templates/inventory/document_form.html:21
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 #: templates/purchases/return_detail.html:6
 #: templates/purchases/return_form.html:12
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 #: templates/sales/return_detail.html:6 templates/sales/return_form.html:12
 msgid "کالا"
 msgstr "Product"
@@ -1318,10 +1521,10 @@ msgstr "Product"
 #: apps/sales/forms.py:47 templates/inventory/document_detail.html:6
 #: templates/inventory/document_form.html:21
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 #: templates/purchases/return_detail.html:6
 #: templates/purchases/return_form.html:12
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 #: templates/sales/return_detail.html:6 templates/sales/return_form.html:12
 msgid "واحد"
 msgstr "Unit"
@@ -1331,8 +1534,8 @@ msgstr "Unit"
 #: templates/inventory/document_form.html:21
 #: templates/inventory/stock_balances.html:13
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "مقدار"
 msgstr "Quantity"
 
@@ -1376,27 +1579,27 @@ msgstr "Posted stock documents are immutable; reverse the document instead."
 msgid "Posted stock documents cannot be deleted."
 msgstr "Posted stock documents cannot be deleted."
 
-#: apps/inventory/models.py:184
+#: apps/inventory/models.py:187
 msgid "Lines of a posted stock document are immutable."
 msgstr "Lines of a posted stock document are immutable."
 
-#: apps/inventory/models.py:239
+#: apps/inventory/models.py:242
 msgid "Stock movements are append-only and cannot be modified."
 msgstr "Stock movements are append-only and cannot be modified."
 
-#: apps/inventory/models.py:243
+#: apps/inventory/models.py:246
 msgid "Stock movements are append-only and cannot be deleted."
 msgstr "Stock movements are append-only and cannot be deleted."
 
-#: apps/inventory/models.py:339
+#: apps/inventory/models.py:342
 msgid "Posted inventory counts are immutable; reverse the count instead."
 msgstr "Posted inventory counts are immutable; reverse the count instead."
 
-#: apps/inventory/models.py:345
+#: apps/inventory/models.py:348
 msgid "Posted inventory counts cannot be deleted."
 msgstr "Posted inventory counts cannot be deleted."
 
-#: apps/inventory/models.py:391
+#: apps/inventory/models.py:394
 msgid "Lines of a posted inventory count are immutable."
 msgstr "Lines of a posted inventory count are immutable."
 
@@ -1995,21 +2198,21 @@ msgstr "Invoice date"
 #: templates/inventory/document_form.html:21
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 msgid "بهای واحد"
 msgstr "Unit cost"
 
 #: apps/purchases/forms.py:54 apps/sales/forms.py:51
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "تخفیف"
 msgstr "Discount"
 
 #: apps/purchases/forms.py:57 apps/sales/forms.py:54
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "نرخ مالیات"
 msgstr "Tax rate"
 
@@ -2320,7 +2523,7 @@ msgid "مشتری"
 msgstr "Customer"
 
 #: apps/sales/forms.py:49 templates/sales/invoice_detail.html:7
-#: templates/sales/invoice_form.html:19
+#: templates/sales/invoice_form.html:20
 msgid "قیمت واحد"
 msgstr "Unit price"
 
@@ -3451,8 +3654,9 @@ msgid "دسترسی مجاز نیست"
 msgstr "Access denied"
 
 #: templates/403.html:2 templates/base.html:6 templates/base.html:24
-#: templates/base.html:74 templates/registration/lockout.html:5
-#: templates/registration/login.html:5 templates/registration/setup.html:5
+#: templates/base.html:74 templates/core/scan_phone.html:6
+#: templates/registration/lockout.html:5 templates/registration/login.html:5
+#: templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr "Accountix"
 
@@ -3489,6 +3693,70 @@ msgstr "Page %(number)s of %(total)s"
 msgid "بعدی ›"
 msgstr "Next ›"
 
+#: templates/_scan_widget.html:13 templates/core/scan_phone.html:17
+#, python-brace-format
+msgid "{name} به فاکتور اضافه شد."
+msgstr "{name} added to the invoice."
+
+#: templates/_scan_widget.html:14 templates/core/scan_phone.html:18
+msgid "خطای شبکه؛ دوباره تلاش کنید."
+msgstr "Network error; try again."
+
+#: templates/_scan_widget.html:15 templates/core/scan_phone.html:19
+msgid "اجازه دسترسی به دوربین داده نشد."
+msgstr "Camera permission was denied."
+
+#: templates/_scan_widget.html:16 templates/core/scan_phone.html:20
+msgid "دوربینی پیدا نشد."
+msgstr "No camera was found."
+
+#: templates/_scan_widget.html:17
+msgid ""
+"دوربین فقط در بستر امن کار می‌کند: همین صفحه را روی همین دستگاه (localhost) "
+"یا با HTTPS باز کنید؛ یا کد را بنویسید یا از اسکن‌گان استفاده کنید."
+msgstr "The camera only works in a secure context: open this page on this device (localhost) or over HTTPS; or type the code or use a scanner gun."
+
+#: templates/_scan_widget.html:18
+msgid ""
+"این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد "
+"را بنویسید یا از اسکن‌گان استفاده کنید."
+msgstr "This browser has no native barcode detection; only QR codes can be read. For linear barcodes, type the code or use a scanner gun."
+
+#: templates/_scan_widget.html:19
+msgid "نشست اتصال گوشی تمام شد."
+msgstr "The phone pairing session has ended."
+
+#: templates/_scan_widget.html:21
+msgid "افزودن با بارکد / QR"
+msgstr "Add by barcode / QR"
+
+#: templates/_scan_widget.html:23
+msgid "اسکن کنید یا کد کالا را بنویسید و Enter بزنید"
+msgstr "Scan, or type the product code and press Enter"
+
+#: templates/_scan_widget.html:24
+msgid "افزودن"
+msgstr "Add"
+
+#: templates/_scan_widget.html:25 templates/core/scan_phone.html:28
+msgid "اسکن با دوربین"
+msgstr "Scan with camera"
+
+#: templates/_scan_widget.html:26
+msgid "اتصال گوشی"
+msgstr "Connect phone"
+
+#: templates/_scan_widget.html:30
+msgid ""
+"با دوربین گوشی این QR را اسکن کنید یا لینک زیر را روی گوشی باز کنید. هر کدی "
+"که با گوشی اسکن شود، خودکار به همین فاکتور اضافه می‌شود. نشست پس از ۱۰ دقیقه "
+"خودش بسته می‌شود."
+msgstr "Scan this QR with the phone's camera or open the link below on the phone. Every code scanned with the phone is added to this invoice automatically. The session closes itself after 10 minutes."
+
+#: templates/_scan_widget.html:33
+msgid "قطع اتصال"
+msgstr "Disconnect"
+
 #: templates/accounting/account_form.html:2
 #: templates/accounting/account_list.html:2
 msgid "حساب جدید"
@@ -3509,7 +3777,8 @@ msgstr "Type"
 #: templates/accounting/trial_balance.html:14
 #: templates/inventory/product_list.html:5
 #: templates/organizations/company_list.html:4
-#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+#: templates/parties/party_detail.html:5 templates/parties/party_detail.html:10
+#: templates/parties/party_list.html:5
 msgid "بله"
 msgstr "Yes"
 
@@ -3518,7 +3787,8 @@ msgstr "Yes"
 #: templates/accounting/trial_balance.html:14
 #: templates/inventory/product_list.html:5
 #: templates/organizations/company_list.html:4
-#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+#: templates/parties/party_detail.html:5 templates/parties/party_detail.html:10
+#: templates/parties/party_list.html:5
 msgid "خیر"
 msgstr "No"
 
@@ -3727,16 +3997,16 @@ msgstr "Document lines"
 #: templates/accounting/opening_balance_form.html:33
 #: templates/inventory/document_form.html:21
 #: templates/parties/party_form.html:12 templates/parties/party_form.html:20
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_form.html:20
 msgid "حذف"
 msgstr "Delete"
 
 #: templates/accounting/journal_form.html:21
 #: templates/accounting/opening_balance_form.html:37
 #: templates/inventory/document_form.html:25
-#: templates/purchases/invoice_form.html:23
-#: templates/sales/invoice_form.html:23
+#: templates/purchases/invoice_form.html:24
+#: templates/sales/invoice_form.html:24
 msgid "+ ردیف جدید"
 msgstr "+ New line"
 
@@ -3759,8 +4029,8 @@ msgstr "Create draft document"
 #: templates/inventory/count_form.html:16
 #: templates/inventory/document_form.html:28
 #: templates/parties/party_form.html:24
-#: templates/purchases/invoice_form.html:25
-#: templates/sales/invoice_form.html:25
+#: templates/purchases/invoice_form.html:26
+#: templates/sales/invoice_form.html:26
 #: templates/treasury/cheque_book_form.html:10
 #: templates/treasury/payment_form.html:28
 #: templates/treasury/statement_form.html:11
@@ -4235,6 +4505,49 @@ msgstr "No entry recorded."
 msgid "آخرین فاکتورهای خرید"
 msgstr "Latest purchase invoices"
 
+#: templates/core/scan_phone.html:6
+msgid "اسکن با گوشی"
+msgstr "Phone scanning"
+
+#: templates/core/scan_phone.html:11
+msgid "اسکن برای فاکتور"
+msgstr "Scan for the invoice"
+
+#: templates/core/scan_phone.html:12
+#, python-format
+msgid "شرکت: <strong>%(company)s</strong> — متصل‌شده توسط %(creator)s"
+msgstr "Company: <strong>%(company)s</strong> — connected by %(creator)s"
+
+#: templates/core/scan_phone.html:13
+msgid ""
+"کد کالا را اسکن کنید یا بنویسید؛ هر کدِ شناخته‌شده همان لحظه به فاکتور روی "
+"رایانه اضافه می‌شود."
+msgstr "Scan or type the product code; every recognized code is added to the invoice on the computer right away."
+
+#: templates/core/scan_phone.html:21
+msgid ""
+"دوربین فقط در بستر امن کار می‌کند: این صفحه باید با HTTPS یا روی localhost "
+"باز شده باشد. تا آن زمان کد را دستی بنویسید."
+msgstr "The camera only works in a secure context: this page must be opened over HTTPS or on localhost. Until then, type the code manually."
+
+#: templates/core/scan_phone.html:22
+msgid ""
+"این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد "
+"را دستی بنویسید."
+msgstr "This browser has no native barcode detection; only QR codes can be read. For linear barcodes, type the code manually."
+
+#: templates/core/scan_phone.html:24
+msgid "بارکد یا کد کالا (SKU)"
+msgstr "Barcode or product code (SKU)"
+
+#: templates/core/scan_phone.html:26
+msgid "کد را بنویسید و Enter بزنید"
+msgstr "Type the code and press Enter"
+
+#: templates/core/scan_phone.html:27
+msgid "ارسال"
+msgstr "Send"
+
 #: templates/inventory/category_form.html:2
 #: templates/inventory/product_form.html:9
 #: templates/inventory/product_list.html:3
@@ -4416,10 +4729,6 @@ msgstr "Post document"
 #: templates/inventory/document_detail.html:19
 msgid "سند برگشت می‌خورد و حرکات آن خنثی می‌شود. ادامه می‌دهید؟"
 msgstr "The document will be reversed and its movements negated. Continue?"
-
-#: templates/inventory/document_detail.html:19
-msgid "برگشت سند"
-msgstr "Reverse document"
 
 #: templates/inventory/document_detail.html:22
 msgid "بازگشت به اسناد انبار"
@@ -4749,10 +5058,6 @@ msgstr "Fiscal year %(name)s — %(company)s"
 msgid "شروع: %(start)s — پایان: %(end)s — وضعیت: %(status)s"
 msgstr "Start: %(start)s — End: %(end)s — Status: %(status)s"
 
-#: templates/organizations/fiscal_year_detail.html:5
-msgid "سند اختتامیه"
-msgstr "Closing entry"
-
 #: templates/organizations/fiscal_year_detail.html:7
 #, python-format
 msgid "سند %(date)s"
@@ -4803,8 +5108,12 @@ msgstr "Back to list"
 
 #: templates/parties/party_detail.html:5
 #, python-format
-msgid "شرکت: %(company)s — نوع: %(kind)s — فعال: %(active)s"
-msgstr "Company: %(company)s — Type: %(kind)s — Active: %(active)s"
+msgid "شرکت: %(company)s — نوع: %(kind)s"
+msgstr "Company: %(company)s — Type: %(kind)s"
+
+#: templates/parties/party_detail.html:5
+msgid "فعال:"
+msgstr "Active:"
 
 #: templates/parties/party_detail.html:6
 #, python-format
@@ -5003,8 +5312,8 @@ msgstr "Returns"
 msgid "شرکت: <strong>%(name)s</strong>"
 msgstr "Company: <strong>%(name)s</strong>"
 
-#: templates/purchases/invoice_form.html:25
-#: templates/sales/invoice_form.html:25
+#: templates/purchases/invoice_form.html:26
+#: templates/sales/invoice_form.html:26
 msgid "ایجاد پیش‌نویس فاکتور"
 msgstr "Create invoice draft"
 
@@ -5471,10 +5780,6 @@ msgstr "Clearing entry: %(clearing)s — Bounce/return entry: %(bounce)s"
 msgid "واگذاری به بانک"
 msgstr "Deposit to bank"
 
-#: templates/treasury/cheque_detail.html:17
-msgid "وصول چک"
-msgstr "Cheque clearing"
-
 #: templates/treasury/cheque_detail.html:19
 msgid "ثبت وصول"
 msgstr "Record clearing"
@@ -5484,10 +5789,6 @@ msgid "چک برگشتی ثبت می‌شود و تخصیص‌های پرداخ�
 msgstr ""
 "The cheque will be recorded as bounced and the related payment allocations "
 "voided. Continue?"
-
-#: templates/treasury/cheque_detail.html:21
-msgid "برگشت چک"
-msgstr "Cheque bounce"
 
 #: templates/treasury/cheque_detail.html:22
 #: templates/treasury/cheque_detail.html:36
@@ -5510,10 +5811,6 @@ msgstr "Return to issuer"
 #: templates/treasury/cheque_detail.html:26
 msgid "تاریخ عودت (اختیاری)"
 msgstr "Return date (optional)"
-
-#: templates/treasury/cheque_detail.html:27
-msgid "عودت چک"
-msgstr "Return cheque"
 
 #: templates/treasury/cheque_detail.html:31
 msgid "وصول توسط ذی‌نفع (کسر از بانک)"

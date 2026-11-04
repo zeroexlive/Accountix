@@ -1,0 +1,44 @@
+<!DOCTYPE html>{% load i18n static %}{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% trans "اسکن با گوشی" %} | {% trans "اکانتیکس" %}</title>
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="scan-phone">
+<main class="scan-phone-main">
+<h1>{% trans "اسکن برای فاکتور" %}</h1>
+<p>{% blocktrans with company=company_name creator=creator_name %}شرکت: <strong>{{ company }}</strong> — متصل‌شده توسط {{ creator }}{% endblocktrans %}</p>
+<p>{% trans "کد کالا را اسکن کنید یا بنویسید؛ هر کدِ شناخته‌شده همان لحظه به فاکتور روی رایانه اضافه می‌شود." %}</p>
+<div class="scan-widget" data-scan-root data-scan-mode="phone"
+     data-submit-url="{{ submit_url }}"
+     data-msg-not-found="{% trans "کالایی با این کد یافت نشد." %}"
+     data-msg-added="{% trans "{name} به فاکتور اضافه شد." %}"
+     data-msg-network="{% trans "خطای شبکه؛ دوباره تلاش کنید." %}"
+     data-msg-camera-denied="{% trans "اجازه دسترسی به دوربین داده نشد." %}"
+     data-msg-camera-none="{% trans "دوربینی پیدا نشد." %}"
+     data-msg-insecure="{% trans "دوربین فقط در بستر امن کار می‌کند: این صفحه باید با HTTPS یا روی localhost باز شده باشد. تا آن زمان کد را دستی بنویسید." %}"
+     data-msg-qr-only="{% trans "این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد را دستی بنویسید." %}">
+  <div class="scan-row">
+    <label for="scan-code-phone">{% trans "بارکد یا کد کالا (SKU)" %}</label>
+    <input id="scan-code-phone" data-scan-input type="text" autocomplete="off"
+           placeholder="{% trans "کد را بنویسید و Enter بزنید" %}">
+    <button type="button" class="btn" data-scan-add>{% trans "ارسال" %}</button>
+    <button type="button" class="btn btn-ghost" data-scan-camera>{% trans "اسکن با دوربین" %}</button>
+  </div>
+  <p class="scan-flash" data-scan-flash aria-live="polite"></p>
+  <ul class="scan-history" data-scan-history></ul>
+  <div class="scan-modal" data-scan-modal hidden>
+    <div class="scan-modal-card">
+      <video data-scan-video playsinline muted></video>
+      <p class="scan-modal-status" data-scan-modal-status></p>
+      <p><button type="button" class="btn" data-scan-modal-close>{% trans "بستن" %}</button></p>
+    </div>
+  </div>
+</div>
+<script src="{% static 'vendor/jsQR.js' %}"></script>
+<script src="{% static 'js/scan.js' %}"></script>
+</main>
+</body>
+</html>

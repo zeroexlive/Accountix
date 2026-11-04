@@ -143,7 +143,10 @@ class StockDocument(TimeStampedUUIDModel):
         return super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.doc_type} {self.doc_date} [{self.status}]"
+        # Translated choice labels, not raw codes (Sprint 31,
+        # ADR-058 — Sprint 30 did the same for JournalEntry and
+        # TreasuryAccount; this one only surfaced in body text).
+        return f"{self.get_doc_type_display()} {self.doc_date} [{self.get_status_display()}]"
 
 
 class StockDocumentLine(TimeStampedUUIDModel):

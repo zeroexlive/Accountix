@@ -1,7 +1,7 @@
 {% extends "base.html" %}{% load jalali i18n access_tags %} %}{% block content %}{% company_can entry.company "OPERATE" as can_act %}
 <h1>{% blocktrans with date=entry.entry_date|jalali status=entry.get_status_display %}سند {{ date }} — {{ status }}{% endblocktrans %}</h1>
 <div class="card">
-<p>{% blocktrans with company=entry.company.name period=entry.fiscal_period source=entry.source_type %}شرکت: {{ company }} — دوره مالی: {{ period }} — نوع منبع: {{ source }}{% endblocktrans %}{% if entry.reversal_of %} — {% trans "برگشتِ سند" %} <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
+<p>{% blocktrans with company=entry.company.name period=entry.fiscal_period source=entry.get_source_type_display %}شرکت: {{ company }} — دوره مالی: {{ period }} — نوع منبع: {{ source }}{% endblocktrans %}{% if entry.reversal_of %} — {% trans "برگشتِ سند" %} <a href="{% url 'journal_detail' entry.reversal_of.pk %}">{{ entry.reversal_of.entry_date|jalali }}</a>{% endif %}</p>
 {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}
 <table><tr><th>{% trans "حساب" %}</th><th>{% trans "شرح" %}</th><th>{% trans "طرف‌حساب" %}</th><th class="num">{% trans "بدهکار" %}</th><th class="num">{% trans "بستانکار" %}</th></tr>
 {% for line in lines %}<tr><td>{{ line.account.code }} — {{ line.account.name }}</td><td>{{ line.description }}</td><td>{{ line.party|default:"—" }}</td><td class="num">{{ line.debit }}</td><td class="num">{{ line.credit }}</td></tr>{% endfor %}

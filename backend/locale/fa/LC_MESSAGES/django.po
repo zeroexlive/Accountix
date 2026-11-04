@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accountix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 01:03+0330\n"
+"POT-Creation-Date: 2026-11-04 12:56+0330\n"
 "PO-Revision-Date: 2026-11-03 15:11+0330\n"
 "Last-Translator: Accountix Team\n"
 "Language-Team: Persian\n"
@@ -194,7 +194,7 @@ msgid "Credit"
 msgstr "بستانکار"
 
 #: apps/accounting/models.py:82 apps/inventory/models.py:69
-#: apps/inventory/models.py:277 apps/organizations/models.py:74
+#: apps/inventory/models.py:280 apps/organizations/models.py:74
 #: apps/purchases/models.py:37 apps/purchases/models.py:149
 #: apps/purchases/models.py:319 apps/sales/models.py:115
 #: apps/sales/models.py:208 apps/sales/models.py:384
@@ -207,29 +207,90 @@ msgid "Validated"
 msgstr "تأییدشده"
 
 #: apps/accounting/models.py:84 apps/inventory/models.py:70
-#: apps/inventory/models.py:278 apps/purchases/models.py:150
+#: apps/inventory/models.py:281 apps/purchases/models.py:150
 #: apps/purchases/models.py:320 apps/sales/models.py:209
 #: apps/sales/models.py:385 apps/treasury/models.py:103
 msgid "Posted"
 msgstr "ثبت‌شده"
 
 #: apps/accounting/models.py:85 apps/inventory/models.py:71
-#: apps/inventory/models.py:279 apps/purchases/models.py:151
+#: apps/inventory/models.py:282 apps/purchases/models.py:151
 #: apps/purchases/models.py:321 apps/sales/models.py:210
 #: apps/sales/models.py:386 apps/treasury/models.py:104
 #: apps/treasury/models.py:255
 msgid "Reversed"
 msgstr "برگشت‌خورده"
 
-#: apps/accounting/models.py:153
+#: apps/accounting/models.py:103
+msgid "دستی"
+msgstr ""
+
+#: apps/accounting/models.py:104
+msgid "فاکتور فروش"
+msgstr ""
+
+#: apps/accounting/models.py:105
+msgid "بهای تمام‌شده فاکتور فروش"
+msgstr ""
+
+#: apps/accounting/models.py:106
+msgid "برگشت فروش"
+msgstr ""
+
+#: apps/accounting/models.py:107
+msgid "بهای تمام‌شده برگشت فروش"
+msgstr ""
+
+#: apps/accounting/models.py:108
+msgid "فاکتور خرید"
+msgstr ""
+
+#: apps/accounting/models.py:109
+msgid "برگشت خرید"
+msgstr ""
+
+#: apps/accounting/models.py:110
+msgid "دریافت/پرداخت خزانه"
+msgstr ""
+
+#: apps/accounting/models.py:111 templates/treasury/cheque_detail.html:17
+msgid "وصول چک"
+msgstr ""
+
+#: apps/accounting/models.py:112 templates/treasury/cheque_detail.html:21
+msgid "برگشت چک"
+msgstr ""
+
+#: apps/accounting/models.py:113 templates/treasury/cheque_detail.html:27
+msgid "عودت چک"
+msgstr ""
+
+#: apps/accounting/models.py:114
+#: templates/organizations/fiscal_year_detail.html:5
+msgid "سند اختتامیه"
+msgstr ""
+
+#: apps/accounting/models.py:115
+msgid "انبارگردانی"
+msgstr ""
+
+#: apps/accounting/models.py:116
+msgid "سند انبار"
+msgstr ""
+
+#: apps/accounting/models.py:117 templates/inventory/document_detail.html:19
+msgid "برگشت سند"
+msgstr ""
+
+#: apps/accounting/models.py:181
 msgid "Posted journal entries are immutable; reverse the entry instead."
 msgstr "سندهای حسابداری ثبت‌شده قابل تغییر نیستند؛ به‌جای آن سند را برگشت بزنید."
 
-#: apps/accounting/models.py:159
+#: apps/accounting/models.py:187
 msgid "Posted journal entries cannot be deleted."
 msgstr "سندهای حسابداری ثبت‌شده قابل حذف نیستند."
 
-#: apps/accounting/models.py:204 apps/accounting/models.py:215
+#: apps/accounting/models.py:232 apps/accounting/models.py:243
 msgid "Lines of a posted journal entry are immutable."
 msgstr "ردیف‌های سند حسابداری ثبت‌شده قابل تغییر نیستند."
 
@@ -626,7 +687,8 @@ msgstr ""
 msgid "پایان تور"
 msgstr ""
 
-#: apps/core/tours.py:24
+#: apps/core/tours.py:24 templates/_scan_widget.html:39
+#: templates/core/scan_phone.html:36
 msgid "بستن"
 msgstr ""
 
@@ -1210,6 +1272,23 @@ msgid ""
 "برایتان گذرواژه تازه بگذارد."
 msgstr ""
 
+#: apps/core/views.py:113 apps/core/views.py:128
+msgid "شرکتی انتخاب نشده است."
+msgstr ""
+
+#: apps/core/views.py:118 apps/core/views.py:247 templates/_scan_widget.html:12
+#: templates/core/scan_phone.html:16
+msgid "کالایی با این کد یافت نشد."
+msgstr ""
+
+#: apps/core/views.py:135
+msgid "نشست‌های اسکن فعال زیادی دارید؛ یکی را قطع کنید."
+msgstr ""
+
+#: apps/core/views.py:234
+msgid "سقف اسکن این نشست پر شده است."
+msgstr ""
+
 #: apps/inventory/forms.py:18
 msgid "کد انبار"
 msgstr ""
@@ -1310,10 +1389,10 @@ msgstr ""
 #: templates/inventory/document_form.html:21
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 #: templates/purchases/return_detail.html:6
 #: templates/purchases/return_form.html:12
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 #: templates/sales/return_detail.html:6 templates/sales/return_form.html:12
 msgid "کالا"
 msgstr ""
@@ -1322,10 +1401,10 @@ msgstr ""
 #: apps/sales/forms.py:47 templates/inventory/document_detail.html:6
 #: templates/inventory/document_form.html:21
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 #: templates/purchases/return_detail.html:6
 #: templates/purchases/return_form.html:12
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 #: templates/sales/return_detail.html:6 templates/sales/return_form.html:12
 msgid "واحد"
 msgstr ""
@@ -1335,8 +1414,8 @@ msgstr ""
 #: templates/inventory/document_form.html:21
 #: templates/inventory/stock_balances.html:13
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "مقدار"
 msgstr ""
 
@@ -1378,28 +1457,28 @@ msgstr "اسناد انبار ثبت‌شده قابل تغییر نیستند؛
 msgid "Posted stock documents cannot be deleted."
 msgstr "اسناد انبار ثبت‌شده قابل حذف نیستند."
 
-#: apps/inventory/models.py:184
+#: apps/inventory/models.py:187
 msgid "Lines of a posted stock document are immutable."
 msgstr "ردیف‌های سند انبار ثبت‌شده قابل تغییر نیستند."
 
-#: apps/inventory/models.py:239
+#: apps/inventory/models.py:242
 msgid "Stock movements are append-only and cannot be modified."
 msgstr "گردش‌های انبار فقط افزودنی‌اند و قابل تغییر نیستند."
 
-#: apps/inventory/models.py:243
+#: apps/inventory/models.py:246
 msgid "Stock movements are append-only and cannot be deleted."
 msgstr "گردش‌های انبار فقط افزودنی‌اند و قابل حذف نیستند."
 
-#: apps/inventory/models.py:339
+#: apps/inventory/models.py:342
 msgid "Posted inventory counts are immutable; reverse the count instead."
 msgstr ""
 "انبارگردانی‌های ثبت‌شده قابل تغییر نیستند؛ به‌جای آن انبارگردانی را برگشت بزنید."
 
-#: apps/inventory/models.py:345
+#: apps/inventory/models.py:348
 msgid "Posted inventory counts cannot be deleted."
 msgstr "انبارگردانی‌های ثبت‌شده قابل حذف نیستند."
 
-#: apps/inventory/models.py:391
+#: apps/inventory/models.py:394
 msgid "Lines of a posted inventory count are immutable."
 msgstr "ردیف‌های انبارگردانی ثبت‌شده قابل تغییر نیستند."
 
@@ -1994,21 +2073,21 @@ msgstr ""
 #: templates/inventory/document_form.html:21
 #: templates/inventory/movement_list.html:9
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
 msgid "بهای واحد"
 msgstr ""
 
 #: apps/purchases/forms.py:54 apps/sales/forms.py:51
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "تخفیف"
 msgstr ""
 
 #: apps/purchases/forms.py:57 apps/sales/forms.py:54
 #: templates/purchases/invoice_detail.html:7
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_detail.html:7 templates/sales/invoice_form.html:20
 msgid "نرخ مالیات"
 msgstr ""
 
@@ -2314,7 +2393,7 @@ msgid "مشتری"
 msgstr ""
 
 #: apps/sales/forms.py:49 templates/sales/invoice_detail.html:7
-#: templates/sales/invoice_form.html:19
+#: templates/sales/invoice_form.html:20
 msgid "قیمت واحد"
 msgstr ""
 
@@ -3432,8 +3511,9 @@ msgid "دسترسی مجاز نیست"
 msgstr ""
 
 #: templates/403.html:2 templates/base.html:6 templates/base.html:24
-#: templates/base.html:74 templates/registration/lockout.html:5
-#: templates/registration/login.html:5 templates/registration/setup.html:5
+#: templates/base.html:74 templates/core/scan_phone.html:6
+#: templates/registration/lockout.html:5 templates/registration/login.html:5
+#: templates/registration/setup.html:5
 msgid "اکانتیکس"
 msgstr ""
 
@@ -3466,6 +3546,70 @@ msgstr ""
 msgid "بعدی ›"
 msgstr ""
 
+#: templates/_scan_widget.html:13 templates/core/scan_phone.html:17
+#, python-brace-format
+msgid "{name} به فاکتور اضافه شد."
+msgstr ""
+
+#: templates/_scan_widget.html:14 templates/core/scan_phone.html:18
+msgid "خطای شبکه؛ دوباره تلاش کنید."
+msgstr ""
+
+#: templates/_scan_widget.html:15 templates/core/scan_phone.html:19
+msgid "اجازه دسترسی به دوربین داده نشد."
+msgstr ""
+
+#: templates/_scan_widget.html:16 templates/core/scan_phone.html:20
+msgid "دوربینی پیدا نشد."
+msgstr ""
+
+#: templates/_scan_widget.html:17
+msgid ""
+"دوربین فقط در بستر امن کار می‌کند: همین صفحه را روی همین دستگاه (localhost) "
+"یا با HTTPS باز کنید؛ یا کد را بنویسید یا از اسکن‌گان استفاده کنید."
+msgstr ""
+
+#: templates/_scan_widget.html:18
+msgid ""
+"این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد "
+"را بنویسید یا از اسکن‌گان استفاده کنید."
+msgstr ""
+
+#: templates/_scan_widget.html:19
+msgid "نشست اتصال گوشی تمام شد."
+msgstr ""
+
+#: templates/_scan_widget.html:21
+msgid "افزودن با بارکد / QR"
+msgstr ""
+
+#: templates/_scan_widget.html:23
+msgid "اسکن کنید یا کد کالا را بنویسید و Enter بزنید"
+msgstr ""
+
+#: templates/_scan_widget.html:24
+msgid "افزودن"
+msgstr ""
+
+#: templates/_scan_widget.html:25 templates/core/scan_phone.html:28
+msgid "اسکن با دوربین"
+msgstr ""
+
+#: templates/_scan_widget.html:26
+msgid "اتصال گوشی"
+msgstr ""
+
+#: templates/_scan_widget.html:30
+msgid ""
+"با دوربین گوشی این QR را اسکن کنید یا لینک زیر را روی گوشی باز کنید. هر کدی "
+"که با گوشی اسکن شود، خودکار به همین فاکتور اضافه می‌شود. نشست پس از ۱۰ دقیقه "
+"خودش بسته می‌شود."
+msgstr ""
+
+#: templates/_scan_widget.html:33
+msgid "قطع اتصال"
+msgstr ""
+
 #: templates/accounting/account_form.html:2
 #: templates/accounting/account_list.html:2
 msgid "حساب جدید"
@@ -3486,7 +3630,8 @@ msgstr ""
 #: templates/accounting/trial_balance.html:14
 #: templates/inventory/product_list.html:5
 #: templates/organizations/company_list.html:4
-#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+#: templates/parties/party_detail.html:5 templates/parties/party_detail.html:10
+#: templates/parties/party_list.html:5
 msgid "بله"
 msgstr ""
 
@@ -3495,7 +3640,8 @@ msgstr ""
 #: templates/accounting/trial_balance.html:14
 #: templates/inventory/product_list.html:5
 #: templates/organizations/company_list.html:4
-#: templates/parties/party_detail.html:10 templates/parties/party_list.html:5
+#: templates/parties/party_detail.html:5 templates/parties/party_detail.html:10
+#: templates/parties/party_list.html:5
 msgid "خیر"
 msgstr ""
 
@@ -3702,16 +3848,16 @@ msgstr ""
 #: templates/accounting/opening_balance_form.html:33
 #: templates/inventory/document_form.html:21
 #: templates/parties/party_form.html:12 templates/parties/party_form.html:20
-#: templates/purchases/invoice_form.html:19
-#: templates/sales/invoice_form.html:19
+#: templates/purchases/invoice_form.html:20
+#: templates/sales/invoice_form.html:20
 msgid "حذف"
 msgstr ""
 
 #: templates/accounting/journal_form.html:21
 #: templates/accounting/opening_balance_form.html:37
 #: templates/inventory/document_form.html:25
-#: templates/purchases/invoice_form.html:23
-#: templates/sales/invoice_form.html:23
+#: templates/purchases/invoice_form.html:24
+#: templates/sales/invoice_form.html:24
 msgid "+ ردیف جدید"
 msgstr ""
 
@@ -3731,8 +3877,8 @@ msgstr ""
 #: templates/inventory/count_form.html:16
 #: templates/inventory/document_form.html:28
 #: templates/parties/party_form.html:24
-#: templates/purchases/invoice_form.html:25
-#: templates/sales/invoice_form.html:25
+#: templates/purchases/invoice_form.html:26
+#: templates/sales/invoice_form.html:26
 #: templates/treasury/cheque_book_form.html:10
 #: templates/treasury/payment_form.html:28
 #: templates/treasury/statement_form.html:11
@@ -4188,6 +4334,49 @@ msgstr ""
 msgid "آخرین فاکتورهای خرید"
 msgstr ""
 
+#: templates/core/scan_phone.html:6
+msgid "اسکن با گوشی"
+msgstr ""
+
+#: templates/core/scan_phone.html:11
+msgid "اسکن برای فاکتور"
+msgstr ""
+
+#: templates/core/scan_phone.html:12
+#, python-format
+msgid "شرکت: <strong>%(company)s</strong> — متصل‌شده توسط %(creator)s"
+msgstr ""
+
+#: templates/core/scan_phone.html:13
+msgid ""
+"کد کالا را اسکن کنید یا بنویسید؛ هر کدِ شناخته‌شده همان لحظه به فاکتور روی "
+"رایانه اضافه می‌شود."
+msgstr ""
+
+#: templates/core/scan_phone.html:21
+msgid ""
+"دوربین فقط در بستر امن کار می‌کند: این صفحه باید با HTTPS یا روی localhost "
+"باز شده باشد. تا آن زمان کد را دستی بنویسید."
+msgstr ""
+
+#: templates/core/scan_phone.html:22
+msgid ""
+"این مرورگر تشخیص بومی بارکد ندارد؛ فقط QR خوانده می‌شود. برای بارکد خطی، کد "
+"را دستی بنویسید."
+msgstr ""
+
+#: templates/core/scan_phone.html:24
+msgid "بارکد یا کد کالا (SKU)"
+msgstr ""
+
+#: templates/core/scan_phone.html:26
+msgid "کد را بنویسید و Enter بزنید"
+msgstr ""
+
+#: templates/core/scan_phone.html:27
+msgid "ارسال"
+msgstr ""
+
 #: templates/inventory/category_form.html:2
 #: templates/inventory/product_form.html:9
 #: templates/inventory/product_list.html:3
@@ -4352,10 +4541,6 @@ msgstr ""
 
 #: templates/inventory/document_detail.html:19
 msgid "سند برگشت می‌خورد و حرکات آن خنثی می‌شود. ادامه می‌دهید؟"
-msgstr ""
-
-#: templates/inventory/document_detail.html:19
-msgid "برگشت سند"
 msgstr ""
 
 #: templates/inventory/document_detail.html:22
@@ -4666,10 +4851,6 @@ msgstr ""
 msgid "شروع: %(start)s — پایان: %(end)s — وضعیت: %(status)s"
 msgstr ""
 
-#: templates/organizations/fiscal_year_detail.html:5
-msgid "سند اختتامیه"
-msgstr ""
-
 #: templates/organizations/fiscal_year_detail.html:7
 #, python-format
 msgid "سند %(date)s"
@@ -4718,7 +4899,11 @@ msgstr ""
 
 #: templates/parties/party_detail.html:5
 #, python-format
-msgid "شرکت: %(company)s — نوع: %(kind)s — فعال: %(active)s"
+msgid "شرکت: %(company)s — نوع: %(kind)s"
+msgstr ""
+
+#: templates/parties/party_detail.html:5
+msgid "فعال:"
 msgstr ""
 
 #: templates/parties/party_detail.html:6
@@ -4912,8 +5097,8 @@ msgstr ""
 msgid "شرکت: <strong>%(name)s</strong>"
 msgstr ""
 
-#: templates/purchases/invoice_form.html:25
-#: templates/sales/invoice_form.html:25
+#: templates/purchases/invoice_form.html:26
+#: templates/sales/invoice_form.html:26
 msgid "ایجاد پیش‌نویس فاکتور"
 msgstr ""
 
@@ -5343,20 +5528,12 @@ msgstr ""
 msgid "واگذاری به بانک"
 msgstr ""
 
-#: templates/treasury/cheque_detail.html:17
-msgid "وصول چک"
-msgstr ""
-
 #: templates/treasury/cheque_detail.html:19
 msgid "ثبت وصول"
 msgstr ""
 
 #: templates/treasury/cheque_detail.html:20
 msgid "چک برگشتی ثبت می‌شود و تخصیص‌های پرداخت مرتبط باطل می‌شوند. ادامه می‌دهید؟"
-msgstr ""
-
-#: templates/treasury/cheque_detail.html:21
-msgid "برگشت چک"
 msgstr ""
 
 #: templates/treasury/cheque_detail.html:22
@@ -5379,10 +5556,6 @@ msgstr ""
 
 #: templates/treasury/cheque_detail.html:26
 msgid "تاریخ عودت (اختیاری)"
-msgstr ""
-
-#: templates/treasury/cheque_detail.html:27
-msgid "عودت چک"
 msgstr ""
 
 #: templates/treasury/cheque_detail.html:31

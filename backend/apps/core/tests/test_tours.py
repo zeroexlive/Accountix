@@ -141,6 +141,21 @@ def test_dashboard_tour_is_english_in_en_mode(client, world):
     assert "انتخاب شرکت" not in titles
 
 
+def test_hidden_attribute_wins_the_css_cascade():
+    """Sprint 31 (ADR-059) — the tour activation root cause: the
+    shell ships the start button `hidden`, but the design system's
+    global `button,.btn{display:inline-block}` author rule beats
+    the UA stylesheet's `[hidden]{display:none}` on origin alone,
+    so the button rendered visible-but-dead on every page. The
+    global `[hidden]` !important rule restores the contract; the
+    DOM-level proof (real cascade + click-through in jsdom) lives
+    in scripts/tour_dom_check/."""
+    from pathlib import Path
+
+    css = (Path(settings.BASE_DIR) / "static" / "css" / "app.css").read_text(encoding="utf-8")
+    assert "[hidden]{display:none !important}" in css
+
+
 def test_tour_css_classes_exist():
     from pathlib import Path
 

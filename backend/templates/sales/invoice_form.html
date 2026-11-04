@@ -14,6 +14,7 @@
 </div>
 <div class="card" data-tour="lines">
 <h2>{% trans "ردیف‌های فاکتور" %}</h2>
+{% include "_scan_widget.html" with scan_mode="sale" %}
 {{ lines.management_form }}
 {{ lines.non_form_errors }}
 <table class="line-table"><thead><tr><th>{% trans "کالا" %}</th><th>{% trans "واحد" %}</th><th>{% trans "مقدار" %}</th><th>{% trans "قیمت واحد" %}</th><th>{% trans "تخفیف" %}</th><th>{% trans "نرخ مالیات" %}</th><th>{% trans "حذف" %}</th></tr></thead>

@@ -2,7 +2,7 @@
 <h1>{% blocktrans with code=party.code name=party.name %}طرف‌حساب {{ code }} — {{ name }}{% endblocktrans %}</h1>
 {% company_can party.company "OPERATE" as can_act %}<p>{% if can_act %}<a class="btn" href="{% url 'party_edit' party.pk %}">{% trans "ویرایش" %}</a> {% endif %}<a class="btn btn-ghost" href="{% url 'party_list' %}">{% trans "بازگشت به فهرست" %}</a></p>
 <div class="card">
-<p>{% blocktrans with company=party.company.name kind=party.get_kind_display active=party.is_active %}شرکت: {{ company }} — نوع: {{ kind }} — فعال: {{ active }}{% endblocktrans %}</p>
+<p>{% blocktrans with company=party.company.name kind=party.get_kind_display %}شرکت: {{ company }} — نوع: {{ kind }}{% endblocktrans %} — {% trans "فعال:" %} {% if party.is_active %}{% trans "بله" %}{% else %}{% trans "خیر" %}{% endif %}</p>
 <p>{% blocktrans with legal_name=party.legal_name|default:"—" tax_id=party.tax_id|default:"—" registration_number=party.registration_number|default:"—" %}نام قانونی: {{ legal_name }} — شناسه مالیاتی: {{ tax_id }} — شماره ثبت: {{ registration_number }}{% endblocktrans %}</p>
 <p>{% blocktrans with email=party.email|default:"—" phone=party.phone|default:"—" %}ایمیل: {{ email }} — تلفن: {{ phone }}{% endblocktrans %}</p>
 </div>

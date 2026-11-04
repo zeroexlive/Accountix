@@ -59,3 +59,34 @@ Total font payload: **659,264 bytes** (8 files).
   ```bash
   python3 scripts/build_icon_sprite.py /path/to/lucide-1.67.0/icons
   ```
+
+## JavaScript libraries (Sprint 31, ADR-060 — `static/vendor/`)
+
+Vendored for barcode/QR scanning in invoicing. Same rule as the
+fonts: official upstream files, self-hosted, nothing fetched at
+runtime. The zero-external test scopes these files to
+fetch-capable patterns (see ADR-060): their comment blocks carry
+attribution URLs and `qrcode-generator.js` embeds the SVG `xmlns`
+namespace identifier — inert strings, never requests.
+
+### jsQR 1.4.0 — QR decoding fallback
+
+- Source: https://github.com/cozmo/jsQR (npm `jsqr@1.4.0`,
+  `dist/jsQR.js` verbatim)
+- License: Apache-2.0 — full text in `vendor/jsQR-LICENSE.txt`.
+
+| Local file | Bytes | sha256 |
+|---|---|---|
+| `vendor/jsQR.js` | 256885 | `bc40c8a15196236b2314db0856f72ca0b49980cd5413b8c852a7349f5fee0859` |
+
+### qrcode-generator 1.4.4 — pairing QR rendering
+
+- Source: https://github.com/kazuhikoarase/qrcode-generator
+  (npm `qrcode-generator@1.4.4`, `qrcode.js` verbatim)
+- License: MIT — text in `vendor/qrcode-generator-LICENSE.txt`
+  (the upstream package ships no standalone license file; the
+  grant is stated in the file header).
+
+| Local file | Bytes | sha256 |
+|---|---|---|
+| `vendor/qrcode-generator.js` | 56694 | `18ae399f81182bc9de916e9c77b195df20cc58d6f2d55a62b085a299f1bf1780` |

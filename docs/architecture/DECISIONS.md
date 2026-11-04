@@ -1651,3 +1651,166 @@ validity, anchor existence, role contract, static serving,
 zero-external scan extended to the JS, `node --check`) but
 interactive stepping is not automated; Jason's eye is the final
 check, as with Sprint 28's pixels.
+
+## ADR-058 — Bidirectional i18n closure + the uncompiled-catalog footgun (Sprint 31)
+
+Sprint 30 closed the fa direction; Jason still saw both
+directions broken. This ADR records what the evidence showed and
+the durable fixes.
+
+(1) **The census correction.** A proper multiline-aware PO parse
+showed the catalogs were complete at sprint start: en.po had
+ZERO empty msgstr and fa.po ZERO real gaps (the "~96 empty en
+entries" seen before the sprint were an artifact of counting
+single lines — multiline msgstrs begin with `msgstr ""`). The
+remaining in-repo leaks were in RENDER paths, not catalogs —
+see (3).
+
+(2) **Bidirectional crawling is now permanent.** The Sprint 30
+fa crawl gained a twin, `test_i18n_en_crawl.py`: the same
+populated world, the same 64 GET pages + 10 POST flows, in en
+mode, rejecting Persian sentences/tokens anywhere in visible
+text or label-bearing attributes, plus an Arabic-script check on
+the tour JSON of four pages. The world fixture was refactored
+into one builder parameterized by language so both crawls walk
+the SAME populated world. Result: with fresh `.mo`, en mode is
+clean. The print templates remain Persian by design (ADR-045) —
+a documented boundary, not a leak. The fa crawl ALSO gained a
+visible-text token rule (any pure-alpha Latin token ≥3 letters
+in body text; digit-bearing tokens are data): it found the real
+leaks in (3) plus a small defended allowlist (QFX, Excel, IRR as
+codes/product names; the statement-import CSV header names,
+which the file contract literally requires; the «Muse Spark»
+footer attribution; the physical key label "Enter").
+
+(3) **Leaks were model `__str__` and raw choice codes.**
+`JournalEntry.source_type` had no `choices=` (the services write
+15 raw codes) so templates rendered MANUAL/SALES_INVOICE/… —
+fixed with a translated `get_source_type_display()` label map
+(unknown codes fall back to the raw value, never crash);
+`StockDocument.__str__` interpolated raw doc_type/status codes —
+now uses the fields' display labels; cheque direction and a
+party `active=True` blocktrans took the same medicine. These
+rendered in BOTH languages (en users saw the codes; fa users saw
+English words), which matches Jason's report exactly.
+
+(4) **The clone footgun is killed at three layers.** Root cause
+of the clone-side breakage: `runserver` does NOT compile
+catalogs, and without `.mo` BOTH languages fall back to source
+strings bidirectionally (Persian source renders in en mode;
+English source renders in fa mode) — reproduced in a scratch
+copy with `.mo` deleted, then both directions verified clean
+after the documented path. Layers: (a) `scripts/dev_run.sh` is
+THE one-command clone startup (fails bilingually if msgfmt is
+missing, compilemessages → migrate → runserver); (b) Django
+system check `accountix.W001` (Warning) fires whenever a
+catalog's `.mo` is missing or older than its `.po`, silent when
+fresh — including in the test suite (conftest compiles) and the
+frozen bundle (ships `.mo`); proven by dedicated tests over
+temp LOCALE_PATHS copies; (c) DEVELOPMENT.md documents
+dev_run.sh as the way to run a clone.
+
+## ADR-059 — Tour activation: the `[hidden]` cascade bug (Sprint 31)
+
+Jason could not activate the guided tour. Sprint 30 had verified
+the tour only server-side; this sprint reproduced across run
+modes and executed the real engine in a real DOM (jsdom).
+
+(1) **Evidence.** Standalone bundle and source runserver both
+serve /static/js/tour.js (200) and emit the payload + the hidden
+button; the engine itself, executed in jsdom against the real
+rendered pages (fa + en), reveals the button, steps through
+every tour with correct titles, handles prev/Esc, with zero JS
+errors. What the DOM check exposed: the click-through initially
+"died" only because jsdom lacks `window.matchMedia` — an
+environment gap, not the product bug.
+
+(2) **Root cause.** app.css's global rule
+`button, .btn { display: inline-block }` is an author-origin
+display declaration, and author origin beats the UA stylesheet's
+`[hidden] { display: none }` regardless of specificity. The tour
+button (and every other `hidden` control) therefore rendered
+VISIBLE on every page — including the many pages with no tour,
+where clicking it does nothing. Jason's "cannot activate the
+tour" was a visible dead control. Fix: one global rule
+`[hidden] { display: none !important }`, the standard contract,
+pinned by a suite test.
+
+(3) **The reveal-in-JS design stays.** With `hidden` honored,
+server-rendering the button visible would recreate the dead
+control for no-JS and no-tour pages; the payload+anchor gate in
+the engine is the correct visibility rule. The trade-off is now
+guarded by a permanent DOM-level check instead of server-side
+assertions alone.
+
+(4) **Permanent jsdom harness.** `scripts/tour_dom_check/`
+(run.sh + harness.mjs + page dumpers) renders real pages via the
+test client, loads the real tour.js, and click-through-tests
+dashboard + sales list + sales create in fa and en: button
+hidden→revealed correctly per page, full step walk, prev, Esc,
+and NO page may show the button when it has no tour. Removing
+the CSS fix reproduces exactly six failures — the guard is
+non-vacuous. jsdom scaffolding stubs are browser-native APIs
+jsdom lacks (scrollIntoView, matchMedia), documented in the
+harness; jsdom's own getComputedStyle ignores `!important`
+across rules, so cascade verdicts are computed from the parsed
+stylesheet with spec origin/importance precedence.
+
+## ADR-060 — Barcode/QR scanning in invoicing + phone pairing (Sprint 31)
+
+(1) **Lookup is server-side, company-scoped, OPERATE-gated.**
+GET /scan/lookup/?code=&company= resolves an exact `barcode`
+match first, then an exact `sku` match, within the resolved
+company, active products only; 404 carries a translated
+"not found". No catalog migration: Product already has barcode
++ sku (and the product form already exposes barcode).
+
+(2) **One widget, one JS module, three modes.** sales + purchase
+invoice create forms include `_scan_widget.html` +
+static/js/scan.js: scanner-gun/manual code entry (Enter adds —
+exactly what USB HID guns send), camera modal, phone pairing.
+Add semantics are POS-style: existing product line → quantity
++1; else first empty line; else the formset's own add-row
+button. All user-visible strings reach JS via server-rendered
+data-msg-* attributes (no hardcoded language in JS). Without
+JS the widget is inert and normal line entry is unchanged.
+
+(3) **Camera decoding order and honest limits.** Native
+BarcodeDetector (qr_code, ean_13/8, upc_a/e, code_128/39) when
+available; else vendored jsQR (Apache-2.0) for QR only;
+continuous scanning with a 2.5 s per-code cooldown. Vendored
+qrcode-generator (MIT) renders the pairing QR client-side — no
+Python QR dependency, no CDN, ever; both files are pinned by
+sha256 in THIRD_PARTY_NOTICES.md and covered by the
+zero-external test (vendor files held to fetch-capable
+patterns; their inert comment/namespace URLs documented).
+getUserMedia requires a secure context: localhost and HTTPS
+work; a plain-HTTP LAN address blocks cameras on BOTH phone
+and desktop — the UI says so in plain language instead of
+failing silently.
+
+(4) **Phone pairing: the token is the credential.** POST
+/scan/sessions/ (OPERATE) creates a ScanSession: SHA-256 hash
+of the token only, company + creator bound, 10-minute expiry,
+revocable; raw token shown once (link + QR). Caps: 3 live
+sessions per user, 120 submissions per session. The phone page
+GET /scan/<token>/ needs no login and exposes only the company
+name and the creator's display name. Submission resolves the
+product ON THE PHONE SIDE within the bound company — unknown
+codes get an immediate "not found" on the phone and are never
+queued; known codes queue product+code. The desktop polls the
+results endpoint; each submission is returned exactly once
+(marked consumed in the same transaction). The submission
+endpoint is CSRF-exempt by design (the phone holds no session
+cookie; the unguessable token + liveness + caps are the
+posture) — the phone PAGE and all desktop endpoints keep full
+CSRF/auth. Desktop "disconnect" revokes instantly.
+
+(5) **Verification.** 14 server tests (lookup semantics,
+cross-company isolation, VIEWER/anon posture, full pairing
+flow, expiry/revoke/wrong-token 404s, both caps, creator-only
+results) + a jsdom harness that drives the real scan.js on the
+real create page with stubbed fetch/camera: gun entry, POS
+increment, second line, unknown-code error leaves the form
+untouched, camera decode feeding the same add path, pairing
+QR render + polled phone result adding a line.
